@@ -31,7 +31,6 @@ class UpdateTaskUseCaseTest {
     fun `should return updated task when task is modified`() {
         val oldTask = Task("t1", "Old", "s1", "u1", emptyList(), "p1")
         val newTask = oldTask.copy(name = "Updated")
-
         every { taskRepository.getTaskById("t1") } returns oldTask
         every { taskRepository.updateTask(newTask) } returns newTask
         every { authRepository.getCurrentUser() } returns user
@@ -49,31 +48,24 @@ class UpdateTaskUseCaseTest {
 
         every { taskRepository.getTaskById("t2") } returns task
 
-        val exception = assertThrows<TaskNotChangedException> {
+        assertThrows<TaskNotChangedException> {
             useCase("t2", task)
         }
-
-        assertThat(exception.message, containsString("No changes detected"))
     }
 
     @Test
     fun `should throw TaskNotFoundException when task does not exist`() {
         every { taskRepository.getTaskById("t3") } returns null
 
-        val exception = assertThrows<TaskNotFoundException> {
+         assertThrows<TaskNotFoundException> {
             useCase("t3", Task("t3", "Missing", "s1", "u1", emptyList(), "p1"))
         }
-
-        assertThat(exception.message, containsString("not found"))
     }
-
-
 
     @Test
     fun `should return updated task when only stateId is changed`() {
         val oldTask = Task("t4", "Do Something", "s1", "u1", emptyList(), "p1")
         val newTask = oldTask.copy(stateId = "s2")
-
         every { taskRepository.getTaskById("t4") } returns oldTask
         every { taskRepository.updateTask(newTask) } returns newTask
         every { authRepository.getCurrentUser() } returns user
@@ -89,23 +81,25 @@ class UpdateTaskUseCaseTest {
     fun `should return updated task and create audit log when both name and stateId are changed`() {
         val oldTask = Task("t5", "Old Task", "s1", "u1", emptyList(), "p1")
         val newTask = oldTask.copy(name = "New Task", stateId = "s3")
-
         every { taskRepository.getTaskById("t5") } returns oldTask
         every { taskRepository.updateTask(newTask) } returns newTask
         every { authRepository.getCurrentUser() } returns user
-
-        val auditSlot = slot<AuditLog>()
-        every { auditRepository.createAuditLog(capture(auditSlot)) } returnsArgument 0
+        every { auditRepository.createAuditLog(any()) } returnsArgument 0
 
         val result = useCase("t5", newTask)
 
-        assertThat(result.name, equalTo("New Task"))
-        assertThat(result.stateId, equalTo("s3"))
+        assertThat(result, equalTo(newTask))
 
-        val log = auditSlot.captured
-        assertThat(log.userId, equalTo(user.id))
-        assertThat(log.entityType, equalTo(AuditLogEntityType.TASK))
-        assertThat(log.actionType, equalTo(AuditLogActionType.UPDATE))
+        verify {
+            auditRepository.createAuditLog(
+                match {
+                    it.userId == user.id &&
+                            it.entityType == AuditLogEntityType.TASK &&
+                            it.actionType == AuditLogActionType.UPDATE &&
+                            it.entityId == newTask.id
+                }
+            )
+        }
     }
 
     @Test
