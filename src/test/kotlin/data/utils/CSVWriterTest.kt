@@ -26,13 +26,6 @@ class CSVWriterTest {
         csvWriter = CSVWriter(tempFile)
     }
 
-    @AfterEach
-    fun tearDown() {
-        if (tempFile.exists()) {
-            tempFile.delete()
-        }
-    }
-
     @Test
     fun `should create a new file when initialized with a valid path`() {
         assertThat(tempFile.exists()).isTrue()
@@ -68,7 +61,7 @@ class CSVWriterTest {
     }
 
     @Test
-    fun `should throw exception when directory is provided instead of file`() {
+    fun `should throw IOException when directory is provided instead of file`() {
         val exception = assertThrows<IOException> {
             CSVWriter(tempDir)
         }
@@ -77,7 +70,7 @@ class CSVWriterTest {
     }
 
     @Test
-    fun `should throw exception when file is not writable`() {
+    fun `should throw IOException when file is not writable`() {
         val mockFile = mockk<File>()
         every { mockFile.exists() } returns true
         every { mockFile.canWrite() } returns false
@@ -86,5 +79,12 @@ class CSVWriterTest {
             CSVWriter(mockFile)
         }
         assertThat(exception).hasMessageThat().contains(CSVWriter.CANNOT_WRITE_TO_FILE_ERROR_MESSAGE)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        if (tempFile.exists()) {
+            tempFile.delete()
+        }
     }
 }
