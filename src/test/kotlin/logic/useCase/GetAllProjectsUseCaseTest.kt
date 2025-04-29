@@ -84,16 +84,16 @@ class GetAllProjectsUseCaseTest {
 
 
     @Test
-    fun `should return projects when fun called`() {
+    fun `should return all projects when found projects at file`() {
         every { projectRepository.getAllProjects() } returns projects
-        val result = getAllProjectsUseCase()
-        assertThat(result).isEqualTo(projects)
+
+        assertThat( getAllProjectsUseCase()).isEqualTo(projects)
     }
     @Test
     fun `should throw NoProjectsFoundException when no projects found`() {
-        every { projectRepository.getAllProjects() } returns null
-        val result = getAllProjectsUseCase()
-        assertThrows<NoProjectsFoundException> { result }
+        every { projectRepository.getAllProjects() } returns emptyList()
+
+        assertThrows<NoProjectsFoundException> { getAllProjectsUseCase() }
 
     }
 }
