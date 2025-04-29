@@ -32,13 +32,10 @@ class LoginUserUseCaseTest {
     @Test
     fun `should return user data when user enter correct username and password`() {
 
-        //Given
         every { authenticationRepository.getAllUsers() } returns users
 
-        //When
         val result = loginUserUseCase("testUsername", "testPassword")
 
-        //Then
         assertEquals(users[0], result)
     }
 
@@ -46,10 +43,8 @@ class LoginUserUseCaseTest {
     @Test
     fun `should throw exception with type BlankInputException when user not enter username`() {
 
-        //Given
         every { authenticationRepository.getAllUsers() } returns users
 
-        // When&Then
         assertThrows<BlankInputException> { loginUserUseCase("", "testPassword") }
     }
 
@@ -57,30 +52,24 @@ class LoginUserUseCaseTest {
     @Test
     fun `should throw exception with type BlankInputException when user not enter password`() {
 
-        //Given
         every { authenticationRepository.getAllUsers() } returns users
 
-        // When&Then
         assertThrows<BlankInputException> { loginUserUseCase("testUsername", "") }
     }
 
     @Test
     fun `should throw exception with type UserNotFoundException when user enter incorrect username`() {
 
-        //Given
         every { authenticationRepository.getAllUsers() } returns users
 
-        // When&Then
         assertThrows<UserNotFoundException> { loginUserUseCase("incorrectUsername", "testPassword") }
     }
 
     @Test
     fun `should throw exception with type UserNotFoundException when user enter incorrect password`() {
 
-        //Given
         every { authenticationRepository.getAllUsers() } returns users
 
-        // When&Then
         assertThrows<UserNotFoundException> { loginUserUseCase("testUsername", "incorrectPassword") }
     }
 }
