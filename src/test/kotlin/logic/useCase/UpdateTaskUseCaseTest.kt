@@ -116,5 +116,4 @@ class UpdateTaskUseCaseTest {
             useCase("t6", Task("t6", "Name", "s1", "u1", emptyList(), "p1"))
         }
     }
-
 }
