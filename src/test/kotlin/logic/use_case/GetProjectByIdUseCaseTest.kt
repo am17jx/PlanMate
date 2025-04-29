@@ -38,7 +38,7 @@ class GetProjectByIdUseCaseTest {
     }
 
     @Test
-    fun `should return project when pass valid project id`() {
+    fun `should return project when pass valid id have char and number only`() {
         val projectId = "1"
         every { projectRepository.getProjectById(projectId) } returns project
         val result = getProjectByIdUseCase(projectId)
@@ -46,7 +46,7 @@ class GetProjectByIdUseCaseTest {
     }
 
     @Test
-    fun `should throw ProjectNotFoundException when pass valid project id but not existing at data base`() {
+    fun `should throw ProjectNotFoundException when pass valid id have char and number only but not existing at data base`() {
         val projectId = "90"
         every { projectRepository.getProjectById(projectId) } returns null
         val result = getProjectByIdUseCase(projectId)
@@ -55,7 +55,7 @@ class GetProjectByIdUseCaseTest {
 
 
     @Test
-    fun `should throw BlankInputException when pass blank project id`() {
+    fun `should throw BlankInputException when pass blank id`() {
         val projectId = ""
         every { projectRepository.getProjectById(projectId) } returns null
         val result = getProjectByIdUseCase(projectId)
@@ -64,7 +64,7 @@ class GetProjectByIdUseCaseTest {
 
 
     @Test
-    fun `should throw InvalidInputException when pass invalid project id`() {
+    fun `should throw InvalidInputException when pass invalid id have spical chars`() {
         val projectId = "dasd3!@!@#$#@$"
         every { projectRepository.getProjectById(projectId) } returns null
         val result = getProjectByIdUseCase(projectId)
