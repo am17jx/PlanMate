@@ -45,7 +45,7 @@ class CreateProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw InsufficientPermissionsException when user is not an admin`() {
+    fun `should throw PermissionException when user is not an admin`() {
         val projectName = "Test Project"
         every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.USER)
 
