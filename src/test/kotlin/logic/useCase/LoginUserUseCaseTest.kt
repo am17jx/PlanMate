@@ -1,5 +1,6 @@
 package logic.useCase
 
+import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import org.example.logic.models.User
@@ -36,7 +37,7 @@ class LoginUserUseCaseTest {
 
         val result = loginUserUseCase("testUsername", "testPassword")
 
-        assertEquals(users[0], result)
+        assertThat(users[0]).isEqualTo(result)
     }
 
 
