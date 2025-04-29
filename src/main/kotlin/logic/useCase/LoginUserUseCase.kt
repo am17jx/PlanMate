@@ -8,6 +8,6 @@ class LoginUserUseCase(private val authenticationRepository: AuthenticationRepos
 
     operator fun invoke(username: String, password: String): User {
 
-        return User("", username, password, UserRole.USER)
+        TODO("Not yet implemented")
     }
 }
