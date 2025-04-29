@@ -7,5 +7,5 @@ interface ProjectRepository {
     fun updateProject(updatedProject: Project): Project
     fun deleteProject(projectId: String)
     fun getAllProjects(): List<Project>
-    fun getProjectById(projectId: String): Project
+    fun getProjectById(projectId: String): Project?
 }
