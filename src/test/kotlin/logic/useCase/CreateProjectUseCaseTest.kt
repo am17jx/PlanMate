@@ -24,9 +24,9 @@ class CreateProjectUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        projectRepository = mockk()
-        auditLogRepository = mockk()
-        authenticationRepository = mockk()
+        projectRepository = mockk(relaxed = true)
+        auditLogRepository = mockk(relaxed = true)
+        authenticationRepository = mockk(relaxed = true)
         createProjectUseCase =
             CreateProjectUseCase(
                 projectRepository,
