@@ -58,7 +58,7 @@ class GetTaskByIdUseCaseTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["45 45 #% &^", "423545@@!"])
-    fun `should throw InvalidInputException when pass invalid project id`(projectId : String) {
+    fun `should throw InvalidInputException when id Contains special Characters`(projectId : String) {
        every { taskRepository.getTaskById(projectId) } returns null
 
         assertThrows<InvalidInputException> {
