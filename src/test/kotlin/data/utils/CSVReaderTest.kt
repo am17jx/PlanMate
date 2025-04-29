@@ -36,9 +36,9 @@ class CSVReaderTest {
         val result = csvReader.readLines()
 
         assertThat(result).hasSize(3)
-        assertThat(result[0]).isEqualTo("name,age,city")
-        assertThat(result[1]).isEqualTo("John,30,New York")
-        assertThat(result[2]).isEqualTo("Alice,25,London")
+        assertThat(result[0]).isEqualTo("username,password,role")
+        assertThat(result[1]).isEqualTo("mohamed1,a1234567,MATE")
+        assertThat(result[2]).isEqualTo("ahmed1,a7654321,ADMIN")
     }
 
     @Test
@@ -62,7 +62,7 @@ class CSVReaderTest {
             CSVReader(mockFile)
         }
 
-        assertThat(exception).hasMessageThat().contains("Cannot read CSV file")
+        assertThat(exception).hasMessageThat().contains(CSVReader.CANNOT_READ_FILE_ERROR_MESSAGE)
     }
 
     @Test
@@ -71,7 +71,7 @@ class CSVReaderTest {
             CSVReader(tempDir)
         }
 
-        assertThat(exception).hasMessageThat().contains("Expected a file but got a directory")
+        assertThat(exception).hasMessageThat().contains(CSVReader.DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE)
     }
 
 }
