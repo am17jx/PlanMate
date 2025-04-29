@@ -1,22 +1,16 @@
-package logic.usecase
+package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkClass
 import io.mockk.verify
 import mockdata.createProject
 import mockdata.createState
 import mockdata.createTask
-import mockdata.createUser
-import org.example.logic.models.AuditLog
-import org.example.logic.models.Task
-import org.example.logic.models.User
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.usecase.CreateTaskUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.StateNotFoundException
