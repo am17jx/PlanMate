@@ -1,0 +1,23 @@
+package mockdata
+
+import org.example.logic.models.Project
+import org.example.logic.models.State
+
+fun createProject(
+    id: String = "1",
+    name: String = "plan mate",
+    states: List<State> = emptyList(),
+    auditLogsIds: List<String> = emptyList()
+) = Project(
+    id = id,
+    name = name,
+    states = states,
+    auditLogsIds = auditLogsIds
+)
+fun createState(
+    id: String = "",
+    title: String = ""
+) = State(
+    id = id,
+    title = title
+)

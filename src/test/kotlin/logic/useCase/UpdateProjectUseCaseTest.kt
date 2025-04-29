@@ -3,6 +3,11 @@ package logic.useCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import mockdata.createAuditLog
+import mockdata.createProject
+import mockdata.createState
+import mockdata.createUser
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
@@ -87,8 +92,14 @@ class UpdateProjectUseCaseTest {
 
     @Test
     fun `should update project successfully when a state is updated`() {
-        val originalProject = createProject(id = "1", states = listOf(createState(title = "ToDO"),createState(title = "InProgress"),createState(title = "Done")))
-        val updatedProject =  createProject(id = "1", states = listOf(createState(title = "ToDO"),createState(title = "InReview"),createState(title = "Done")))
+        val originalProject = createProject(
+            id = "1",
+            states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
+        )
+        val updatedProject = createProject(
+            id = "1",
+            states = listOf(createState(title = "ToDO"), createState(title = "InReview"), createState(title = "Done"))
+        )
         val currentUser = createUser(UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         every { authenticationRepository.getCurrentUser() } returns currentUser
@@ -98,11 +109,13 @@ class UpdateProjectUseCaseTest {
         val result = updateProjectUseCase(updatedProject)
 
         assertThat(result.name).isEqualTo(updatedProject.name)
+        verify { auditLogRepository.createAuditLog(any()) }
     }
+
     @Test
     fun `should update project successfully when a state is added`() {
         val originalProject = createProject(id = "1", states = listOf())
-        val updatedProject =  createProject(id = "1", states = listOf(createState(title = "ToDO")))
+        val updatedProject = createProject(id = "1", states = listOf(createState(title = "ToDO")))
         val currentUser = createUser(UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         every { authenticationRepository.getCurrentUser() } returns currentUser
@@ -112,11 +125,17 @@ class UpdateProjectUseCaseTest {
         val result = updateProjectUseCase(updatedProject)
 
         assertThat(result.name).isEqualTo(updatedProject.name)
+        verify { auditLogRepository.createAuditLog(any()) }
     }
+
     @Test
     fun `should update project successfully when a state is deleted`() {
-        val originalProject = createProject(id = "1", states = listOf(createState(title = "ToDO"),createState(title = "InProgress"),createState(title = "Done")))
-        val updatedProject =  createProject(id = "1", states = listOf(createState(title = "ToDO"),createState(title = "InReview")))
+        val originalProject = createProject(
+            id = "1",
+            states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
+        )
+        val updatedProject =
+            createProject(id = "1", states = listOf(createState(title = "ToDO"), createState(title = "InReview")))
         val currentUser = createUser(UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         every { authenticationRepository.getCurrentUser() } returns currentUser
@@ -126,54 +145,7 @@ class UpdateProjectUseCaseTest {
         val result = updateProjectUseCase(updatedProject)
 
         assertThat(result.name).isEqualTo(updatedProject.name)
+        verify { auditLogRepository.createAuditLog(any()) }
 
     }
-    fun createProject(
-        id: String = "1",
-        name: String = "plan mate",
-        states: List<State> = emptyList(),
-        auditLogsIds: List<String> = emptyList()
-    ) = Project(
-        id = id,
-        name = name,
-        states = states,
-        auditLogsIds = auditLogsIds
-    )
-
-    fun createUser(
-        role: UserRole
-    ) = User(
-        id = "1",
-        username = "",
-        password = "",
-        role = role
-    )
-
-
-    fun createAuditLog(
-        id: String = "",
-        userId: String = "",
-        action: String = "",
-        timestamp: Long = 0,
-        entityType: AuditLogEntityType = AuditLogEntityType.PROJECT,
-        entityId: String = "",
-        actionType: AuditLogActionType = AuditLogActionType.UPDATE
-    ) = AuditLog(
-        id = id,
-        userId = userId,
-        action = action,
-        timestamp = timestamp,
-        entityType = entityType,
-        entityId = entityId,
-        actionType = actionType
-    )
-
-    fun createState(
-        id: String = "",
-        title: String = ""
-    ) = State(
-        id = id,
-        title = title
-    )
-
 }
