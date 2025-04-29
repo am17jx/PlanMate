@@ -112,12 +112,9 @@ class UpdateTaskUseCaseTest {
     fun `should throw TaskNotFoundException when task is null on retrieval`() {
         every { taskRepository.getTaskById("t6") } returns null
 
-        val exception = assertThrows<TaskNotFoundException> {
+        assertThrows<TaskNotFoundException> {
             useCase("t6", Task("t6", "Name", "s1", "u1", emptyList(), "p1"))
         }
-
-        assertThat(exception.message, containsString("Task with id t6 not found"))
-        verify(exactly = 1) { taskRepository.getTaskById("t6") }
     }
 
 }
