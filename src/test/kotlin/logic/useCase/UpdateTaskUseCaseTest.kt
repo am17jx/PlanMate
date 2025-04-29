@@ -1,8 +1,9 @@
-package org.example.logic.usecases
+package logic.useCase
 
 import io.mockk.*
 import org.example.logic.models.*
 import org.example.logic.repositries.*
+import org.example.logic.usecases.UpdateTaskUseCase
 import org.example.logic.utils.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.CoreMatchers.*
