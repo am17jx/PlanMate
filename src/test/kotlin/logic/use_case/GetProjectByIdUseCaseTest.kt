@@ -7,13 +7,12 @@ import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.GetProjectByIdUseCase
+import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 
 class GetProjectByIdUseCaseTest {
 
@@ -54,9 +53,19 @@ class GetProjectByIdUseCaseTest {
         assertThrows<ProjectNotFoundException> { result }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["", "423545@@!"])
-    fun `should throw InvalidInputException when pass invalid project id`(projectId : String) {
+
+    @Test
+    fun `should throw BlankInputException when pass blank project id`() {
+        val projectId = ""
+        every { projectRepository.getProjectById(projectId) } returns null
+        val result = getProjectByIdUseCase(projectId)
+        assertThrows<BlankInputException> { result }
+    }
+
+
+    @Test
+    fun `should throw InvalidInputException when pass invalid project id`() {
+        val projectId = "dasd3!@!@#$#@$"
         every { projectRepository.getProjectById(projectId) } returns null
         val result = getProjectByIdUseCase(projectId)
         assertThrows<InvalidInputException> { result }
