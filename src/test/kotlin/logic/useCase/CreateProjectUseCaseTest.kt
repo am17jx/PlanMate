@@ -10,8 +10,8 @@ import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.InsufficientPermissionsException
 import org.example.logic.utils.NoLoggedInUserException
+import org.example.logic.utils.PermissionException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -49,7 +49,7 @@ class CreateProjectUseCaseTest {
         val projectName = "Test Project"
         every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.USER)
 
-        assertThrows<InsufficientPermissionsException> {
+        assertThrows<PermissionException> {
             createProjectUseCase(projectName)
         }
     }
