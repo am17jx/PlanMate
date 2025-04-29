@@ -49,12 +49,20 @@ class CreateProjectUseCaseTest {
     }
 
     @Test
-    fun `should return project with empty list of states and log when project created successfully`() {
+    fun `should return project with empty list of states when project created successfully`() {
         val projectName = "Test Project"
 
         val result = createProjectUseCase(projectName)
 
-        assertThat(result.states).isEmpty()
+        assertThat(result.auditLogsIds).isEmpty()
+    }
+
+    @Test
+    fun `should return project with empty list of auditLogsIds when project created successfully`() {
+        val projectName = "Test Project"
+
+        val result = createProjectUseCase(projectName)
+
         assertThat(result.auditLogsIds).isEmpty()
     }
 }
