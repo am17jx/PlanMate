@@ -40,7 +40,6 @@ class UpdateProjectUseCase(
     private fun saveUpdatedProject(project: Project, updatedProject: Project, currentUser: User): Project {
         val fullyUpdatedProject = projectRepository.updateProject(updatedProject)
         val auditLog = saveAuditLog(project, updatedProject, currentUser)
-        //auditLog?.let { fullyUpdatedProject.auditLogsIds.add(it.id) }
         return fullyUpdatedProject
 
     }
