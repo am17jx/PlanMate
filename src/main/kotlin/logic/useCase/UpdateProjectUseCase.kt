@@ -45,7 +45,7 @@ class UpdateProjectUseCase(
 
     }
 
-    private fun saveAuditLog(project: Project, updatedProject: Project, currentUser: User): AuditLog? {
+    private fun saveAuditLog(project: Project, updatedProject: Project, currentUser: User): AuditLog {
         val auditAction = when {
             project.name != updatedProject.name ->
                 "${currentUser.username} changed Project name from ${project.name} to ${updatedProject.name}"
@@ -66,7 +66,7 @@ class UpdateProjectUseCase(
             entityId = project.id,
             actionType = AuditLogActionType.UPDATE
         )
-        return auditLogRepository.createAuditLog(auditLog)?:throw ProjectNotChangedException("")
+        return auditLogRepository.createAuditLog(auditLog)
     }
 
 }
