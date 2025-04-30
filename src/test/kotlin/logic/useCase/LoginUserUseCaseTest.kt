@@ -19,8 +19,8 @@ class LoginUserUseCaseTest {
     private lateinit var loginUserUseCase: LoginUserUseCase
 
     private val users = listOf(
-        User("testId", "testUsername", "testPassword", UserRole.USER),
-        User("testId2", "testUsername2", "testPassword2", UserRole.USER)
+        User("testId", "testUsername", "fed3b61b26081849378080b34e693d2e", UserRole.USER),
+        User("testId2", "testUsername2", "eec4a40174d49402e72d37b79119d0c5", UserRole.USER)
     )
 
     @BeforeEach
@@ -31,9 +31,10 @@ class LoginUserUseCaseTest {
 
 
     @Test
-    fun `should return user data when user enter correct username and password`() {
+    fun `should return user data when user enter username and password that exists in users data`() {
 
         every { authenticationRepository.getAllUsers() } returns users
+        every { authenticationRepository.login(any(), any()) } returns users[0]
 
         val result = loginUserUseCase("testUsername", "testPassword")
 
