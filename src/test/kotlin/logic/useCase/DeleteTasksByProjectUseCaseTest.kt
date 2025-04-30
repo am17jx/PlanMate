@@ -43,7 +43,7 @@ class DeleteTasksByProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw exception if no tasks found for project`() {
+    fun `should throw exception when no tasks are found for given project`() {
         val user = User("admin", "hashedPassword", UserRole.ADMIN)
         val projectId = "project-002"
 
