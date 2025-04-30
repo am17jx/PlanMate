@@ -6,7 +6,7 @@ import io.mockk.mockk
 import mockdata.createAuditLog
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.usecase.GetEntityAuditLogsUseCase
+import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.utils.TaskNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
