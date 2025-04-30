@@ -31,7 +31,7 @@ class LoginUserUseCaseTest {
 
 
     @Test
-    fun `should return user data when user enter correct username and password`() {
+    fun `should return user data when user enter username and password that exists in users data`() {
 
         every { authenticationRepository.getAllUsers() } returns users
         every { authenticationRepository.login(any(), any()) } returns users[0]
