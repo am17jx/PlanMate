@@ -55,7 +55,7 @@ class DeleteTasksByProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw exception if user has no permission to delete tasks`() {
+    fun `should throw exception when user has no permission to delete tasks`() {
         val user = User("mate", "hashedPassword", UserRole.MATE)
         val projectId = "project-003"
         val tasks = listOf(Task("task-003", "Task 1", "TODO", projectId))
