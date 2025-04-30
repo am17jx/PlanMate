@@ -1,26 +1,29 @@
 package org.example.data.repository
 
+import org.example.data.source.local.contract.LocalTaskDataSource
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
 
-class TaskRepositoryImpl: TaskRepository {
+class TaskRepositoryImpl(
+    private val localTaskDataSource: LocalTaskDataSource
+): TaskRepository {
     override fun createTask(task: Task): Task {
-        TODO("Not yet implemented")
+        return localTaskDataSource.createTask(task)
     }
 
     override fun updateTask(updatedTask: Task): Task {
-        TODO("Not yet implemented")
+        return localTaskDataSource.updateTask(updatedTask)
     }
 
     override fun deleteTask(taskId: String) {
-        TODO("Not yet implemented")
+        return localTaskDataSource.deleteTask(taskId)
     }
 
     override fun getAllTasks(): List<Task> {
-        TODO("Not yet implemented")
+        return localTaskDataSource.getAllTasks()
     }
 
     override fun getTaskById(taskId: String): Task? {
-        TODO("Not yet implemented")
+        return localTaskDataSource.getTaskById(taskId)
     }
 }
