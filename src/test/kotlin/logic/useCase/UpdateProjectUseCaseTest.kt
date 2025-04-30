@@ -34,9 +34,8 @@ class UpdateProjectUseCaseTest {
 
     @Test
     fun `should throws UnauthorizedException when mateUser request updating project`() {
-        val updatedProject = createProject()
-        every { authenticationRepository.getCurrentUser() } returns createUser(UserRole.USER)
-        //every { projectRepository.getProjectById(updatedProject.id) } returns createProject()
+        val updatedProject = createProject(name = "updated project")
+        every { authenticationRepository.getCurrentUser() } returns createUser(role=UserRole.USER)
 
         assertThrows<UnauthorizedException> {
             updateProjectUseCase(updatedProject)
@@ -54,8 +53,8 @@ class UpdateProjectUseCaseTest {
 
     @Test
     fun `should throws ProjectNotFoundException when project does not exist`() {
-        val updatedProject = createProject()
-        every { authenticationRepository.getCurrentUser() } returns createUser(UserRole.ADMIN)
+        val updatedProject = createProject(name = "updated project")
+        every { authenticationRepository.getCurrentUser() } returns createUser(role=UserRole.ADMIN)
         every { projectRepository.getProjectById(updatedProject.id) } throws ProjectNotFoundException("No Project Found")
 
         assertThrows<ProjectNotFoundException> {
@@ -66,11 +65,31 @@ class UpdateProjectUseCaseTest {
     @Test
     fun `should throws ProjectNotChangedException when audit updating project log return exception`() {
         val updatedProject = createProject(name = "Plan")
-        every { authenticationRepository.getCurrentUser() } returns createUser(UserRole.ADMIN)
+        every { authenticationRepository.getCurrentUser() } returns createUser(role=UserRole.ADMIN)
         every { projectRepository.getProjectById(updatedProject.id) } returns createProject()
-        every { auditLogRepository.createAuditLog(createAuditLog()) } throws AuditInputException("couldn't save log")
+        every { auditLogRepository.createAuditLog(any()) } returns null
 
         assertThrows<ProjectNotChangedException> {
+            updateProjectUseCase(updatedProject)
+        }
+    }
+    @Test
+    fun `should throw NoLoggedInUserException when no user is logged in`() {
+        val updatedProject = createProject(name = "PlanMate")
+        every { authenticationRepository.getCurrentUser() } returns createUser(role=UserRole.ADMIN)
+        every { authenticationRepository.getCurrentUser() } returns null
+
+        assertThrows<NoLoggedInUserException> {
+            updateProjectUseCase(updatedProject)
+        }
+    }
+    @Test
+    fun `should throw ProjectNotFoundException when project does not exist`() {
+        val updatedProject = createProject(name = "Updated")
+        every { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.ADMIN)
+        every { projectRepository.getProjectById(updatedProject.id) } returns null
+
+        assertThrows<ProjectNotFoundException> {
             updateProjectUseCase(updatedProject)
         }
     }
@@ -79,7 +98,7 @@ class UpdateProjectUseCaseTest {
     fun `should update project successfully when only name is changed`() {
         val originalProject = createProject(id = "1", "plans mate")
         val updatedProject = createProject(id = "1", "plan mate")
-        val currentUser = createUser(UserRole.ADMIN)
+        val currentUser = createUser(role = UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         every { authenticationRepository.getCurrentUser() } returns currentUser
         every { projectRepository.getProjectById(updatedProject.id) } returns originalProject
@@ -93,14 +112,14 @@ class UpdateProjectUseCaseTest {
     @Test
     fun `should update project successfully when a state is updated`() {
         val originalProject = createProject(
-            id = "1",
+            id = "1", name = "new",
             states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
         )
         val updatedProject = createProject(
-            id = "1",
+            id = "1",name = "new",
             states = listOf(createState(title = "ToDO"), createState(title = "InReview"), createState(title = "Done"))
         )
-        val currentUser = createUser(UserRole.ADMIN)
+        val currentUser = createUser(role=UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         every { authenticationRepository.getCurrentUser() } returns currentUser
         every { projectRepository.getProjectById(updatedProject.id) } returns originalProject
@@ -114,9 +133,9 @@ class UpdateProjectUseCaseTest {
 
     @Test
     fun `should update project successfully when a state is added`() {
-        val originalProject = createProject(id = "1", states = listOf())
-        val updatedProject = createProject(id = "1", states = listOf(createState(title = "ToDO")))
-        val currentUser = createUser(UserRole.ADMIN)
+        val originalProject = createProject(id = "1",name = "new", states = listOf())
+        val updatedProject = createProject(id = "1",name = "new", states = listOf(createState(title = "ToDO")))
+        val currentUser = createUser(role=UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         every { authenticationRepository.getCurrentUser() } returns currentUser
         every { projectRepository.getProjectById(updatedProject.id) } returns originalProject
@@ -131,12 +150,12 @@ class UpdateProjectUseCaseTest {
     @Test
     fun `should update project successfully when a state is deleted`() {
         val originalProject = createProject(
-            id = "1",
+            id = "1",name = "new",
             states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
         )
         val updatedProject =
-            createProject(id = "1", states = listOf(createState(title = "ToDO"), createState(title = "InReview")))
-        val currentUser = createUser(UserRole.ADMIN)
+            createProject(id = "1",name = "new", states = listOf(createState(title = "ToDO"), createState(title = "InReview")))
+        val currentUser = createUser(role=UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         every { authenticationRepository.getCurrentUser() } returns currentUser
         every { projectRepository.getProjectById(updatedProject.id) } returns originalProject

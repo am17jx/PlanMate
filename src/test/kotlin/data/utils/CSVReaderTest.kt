@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import org.example.data.utils.CSVReader
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -22,11 +23,13 @@ class CSVReaderTest {
     @BeforeEach
     fun setUp() {
         tempFile = File(tempDir, "test.csv")
-        tempFile.writeText("""
+        tempFile.writeText(
+            """
             username,password,role
             mohamed1,a1234567,MATE
             ahmed1,a7654321,ADMIN
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         csvReader = CSVReader(tempFile)
     }
@@ -54,9 +57,10 @@ class CSVReaderTest {
 
     @Test
     fun `should throw IOException when file is not readable`() {
-        val mockFile = mockk<File>()
+        val mockFile = mockk<File>(relaxed = true)
         every { mockFile.exists() } returns true
         every { mockFile.canRead() } returns false
+        every { mockFile.isDirectory() } returns false
 
         val exception = assertThrows<IOException> {
             CSVReader(mockFile)
@@ -72,6 +76,13 @@ class CSVReaderTest {
         }
 
         assertThat(exception).hasMessageThat().contains(CSVReader.DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        if (tempFile.exists()) {
+            tempFile.delete()
+        }
     }
 
 }
