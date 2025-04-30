@@ -22,14 +22,7 @@ class CSVReader(
     }
 
     fun readLines(): List<String> {
-        val result = mutableListOf<String>()
-        file.bufferedReader().use { reader ->
-            var line = ""
-            while (reader.readLine().also { line = it } != null) {
-                result.add(line)
-            }
-        }
-        return result
+        return file.bufferedReader().readLines()
     }
 
     companion object {
