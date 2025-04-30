@@ -4,10 +4,7 @@ import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.NoLoggedInUserException
-import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.UnauthorizedException
+import org.example.logic.utils.*
 import java.util.*
 
 class UpdateProjectUseCase(
@@ -43,20 +40,23 @@ class UpdateProjectUseCase(
     private fun saveUpdatedProject(project: Project, updatedProject: Project, currentUser: User): Project {
         val fullyUpdatedProject = projectRepository.updateProject(updatedProject)
         val auditLog = saveAuditLog(project, updatedProject, currentUser)
-        // TODO::should i add the log id to list?
-        // fullyUpdatedProject.auditLogsIds.add(auditLog.id)
+        //auditLog?.let { fullyUpdatedProject.auditLogsIds.add(it.id) }
         return fullyUpdatedProject
 
     }
 
-    private fun saveAuditLog(project: Project, updatedProject: Project, currentUser: User): AuditLog {
+    private fun saveAuditLog(project: Project, updatedProject: Project, currentUser: User): AuditLog? {
+        val auditAction = when {
+            project.name != updatedProject.name ->
+                "${currentUser.username} changed Project name from ${project.name} to ${updatedProject.name}"
+            project.states.size > updatedProject.states.size ->
+                "${currentUser.username} deleted a state"
+            project.states.size < updatedProject.states.size ->
+                "${currentUser.username} added a state"
+            else ->
+                "${currentUser.username} updated states from to"
+        }
 
-        //TODO:: figure out what the change in states!!
-        val auditAction = currentUser.username
-        if (project.name != updatedProject.name) auditAction + " changed Project name from ${project.name} to  ${updatedProject.name}"
-        else if (project.states.size > updatedProject.states.size) auditAction + "deleted a state"
-        else if (project.states.size < updatedProject.states.size) auditAction + "added a state"
-        else auditAction + "removed a state"
         val auditLog = AuditLog(
             id = UUID.randomUUID().toString(),
             userId = currentUser.id,
@@ -66,7 +66,7 @@ class UpdateProjectUseCase(
             entityId = project.id,
             actionType = AuditLogActionType.UPDATE
         )
-        return auditLogRepository.createAuditLog(auditLog)
+        return auditLogRepository.createAuditLog(auditLog)?:throw ProjectNotChangedException("")
     }
 
 }
