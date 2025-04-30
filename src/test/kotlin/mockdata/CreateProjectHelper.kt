@@ -4,8 +4,8 @@ import org.example.logic.models.Project
 import org.example.logic.models.State
 
 fun createProject(
-    id: String = "1",
-    name: String = "plan mate",
+    id: String = "",
+    name: String = "",
     states: List<State> = emptyList(),
     auditLogsIds: List<String> = emptyList()
 ) = Project(
@@ -14,6 +14,7 @@ fun createProject(
     states = states,
     auditLogsIds = auditLogsIds
 )
+
 fun createState(
     id: String = "",
     title: String = ""

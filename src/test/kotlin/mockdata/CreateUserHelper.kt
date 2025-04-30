@@ -4,10 +4,13 @@ import org.example.logic.models.User
 import org.example.logic.models.UserRole
 
 fun createUser(
-    role: UserRole
+    id: String = "",
+    username: String = "",
+    password: String = "",
+    role: UserRole = UserRole.ADMIN
 ) = User(
-    id = "1",
-    username = "",
-    password = "",
+    id = id,
+    username = username,
+    password = password,
     role = role
 )

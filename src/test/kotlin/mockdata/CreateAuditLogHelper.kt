@@ -8,10 +8,10 @@ fun createAuditLog(
     id: String = "",
     userId: String = "",
     action: String = "",
-    timestamp: Long = 0,
-    entityType: AuditLogEntityType = AuditLogEntityType.PROJECT,
+    timestamp: Long = 0L,
+    entityType: AuditLogEntityType = AuditLogEntityType.TASK,
     entityId: String = "",
-    actionType: AuditLogActionType = AuditLogActionType.UPDATE
+    actionType: AuditLogActionType = AuditLogActionType.CREATE
 ) = AuditLog(
     id = id,
     userId = userId,
