@@ -8,10 +8,31 @@ import java.io.IOException
 class CSVReader(
     private val file: File,
 ) {
-    fun readLines(): List<String> {
-        TODO("not yet implemented")
+
+    init {
+        if (!file.exists()) {
+            throw FileNotFoundException(FILE_NOT_FOUND_ERROR_MESSAGE)
+        }
+        if (!file.canRead()) {
+            throw IOException(CANNOT_READ_FILE_ERROR_MESSAGE)
+        }
+        if (file.isDirectory()) {
+            throw IOException(DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE)
+        }
     }
-    companion object{
+
+    fun readLines(): List<String> {
+        val result = mutableListOf<String>()
+        file.bufferedReader().use { reader ->
+            var line = ""
+            while (reader.readLine().also { line = it } != null) {
+                result.add(line)
+            }
+        }
+        return result
+    }
+
+    companion object {
         const val FILE_NOT_FOUND_ERROR_MESSAGE = "CSV file not found"
         const val CANNOT_READ_FILE_ERROR_MESSAGE = "Cannot read from CSV file"
         const val DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE = "Expected a file but got a directory"
