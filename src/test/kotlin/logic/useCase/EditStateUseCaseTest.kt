@@ -12,10 +12,7 @@ import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.EditStateUseCase
 import org.example.logic.useCase.UpdateProjectUseCase
-import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.NoLoggedInUserException
-import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.UnauthorizedException
+import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -123,6 +120,16 @@ class EditStateUseCaseTest {
 
         assertThrows<ProjectNotFoundException> {
             editStateUseCase(newTitle, stateId, dummyProject.id)
+        }
+    }
+
+    @Test
+    fun `should throw StateNotFoundException when no state found with the given id`() {
+        every { authenticationRepository.getCurrentUser() } returns createUser()
+        every { projectRepository.getProjectById(any()) } returns createProject()
+
+        assertThrows<StateNotFoundException> {
+            editStateUseCase(newTitle, "5", dummyProject.id)
         }
     }
 }
