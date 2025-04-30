@@ -67,7 +67,7 @@ class UpdateProjectUseCaseTest {
         val updatedProject = createProject(name = "Plan")
         every { authenticationRepository.getCurrentUser() } returns createUser(role=UserRole.ADMIN)
         every { projectRepository.getProjectById(updatedProject.id) } returns createProject()
-        every { auditLogRepository.createAuditLog(any()) } returns null
+        every { auditLogRepository.createAuditLog(any()) } throws Exception()
 
         assertThrows<ProjectNotChangedException> {
             updateProjectUseCase(updatedProject)
