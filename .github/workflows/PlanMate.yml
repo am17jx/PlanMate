@@ -31,7 +31,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Clean and Build (compile check)
-        run: ./gradlew clean assembleDebug
+        run: ./gradlew clean assemble
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
