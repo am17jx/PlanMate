@@ -7,14 +7,13 @@ import io.mockk.verify
 import mockdata.createProject
 import mockdata.createState
 import mockdata.createTask
+import mockdata.createUser
+import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.StateNotFoundException
-import org.example.logic.utils.UserNotFoundException
+import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -115,9 +114,23 @@ class CreateTaskUseCaseTest {
         val projectId = Uuid.random().toHexString()
         val stateId = Uuid.random().toHexString()
         every { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = stateId)))
-        every { authenticationRepository.getCurrentUser() } throws UserNotFoundException("")
+        every { authenticationRepository.getCurrentUser() } returns null
 
         assertThrows<UserNotFoundException> {
+            createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
+        }
+    }
+
+    @Test
+    fun `should throws AuditLogCreationFailedException when audit log is not created`() {
+        val taskName = "Test"
+        val projectId = Uuid.random().toHexString()
+        val stateId = Uuid.random().toHexString()
+        every { authenticationRepository.getCurrentUser() } returns createUser()
+        every { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = stateId)))
+        every { auditLogRepository.createAuditLog(any()) } returns null
+
+        assertThrows<AuditLogCreationFailedException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
         }
     }

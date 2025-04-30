@@ -59,7 +59,7 @@ class CreateTaskUseCase(
                     entityId = taskId,
                     actionType = AuditLogActionType.CREATE
                 )
-            )?.id ?: throw Exception()
+            )?.id ?: ""
     }
 
     private fun getLoggedInUserOrThrow() = authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
