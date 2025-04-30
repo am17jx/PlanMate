@@ -59,7 +59,7 @@ class CreateTaskUseCase(
                     entityId = taskId,
                     actionType = AuditLogActionType.CREATE
                 )
-            )?.id ?: ""
+            )?.id ?: throw AuditLogCreationFailedException(AUDIT_LOG_CREATION_FAILED_ERROR_MESSAGE)
     }
 
     private fun getLoggedInUserOrThrow() = authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
@@ -90,5 +90,6 @@ class CreateTaskUseCase(
         const val BLANK_PROJECT_ID_ERROR_MESSAGE = "Project id cannot be blank"
         const val BLANK_STATE_ID_ERROR_MESSAGE = "State id cannot be blank"
         const val NO_LOGGED_IN_USER_ERROR_MESSAGE = "User is not logged in"
+        const val AUDIT_LOG_CREATION_FAILED_ERROR_MESSAGE = "Failed to create audit log"
     }
 }
