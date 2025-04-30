@@ -7,6 +7,7 @@ import mockdata.createAuditLog
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
+import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -56,7 +57,7 @@ class GetEntityAuditLogsUseCaseTest {
         val projectId = Uuid.random().toHexString()
         every { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
 
-        assertThrows<TaskNotFoundException> {
+        assertThrows<ProjectNotFoundException> {
             getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
         }
     }
