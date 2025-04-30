@@ -1,4 +1,4 @@
-package org.example.logic.usecase
+package logic.useCase
 
 import org.example.logic.models.Task
 import org.example.logic.repositries.AuditLogRepository
