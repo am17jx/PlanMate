@@ -1,11 +1,13 @@
 package org.example.presentation.screens
 
+import org.example.presentation.role.ProjectScreens
+
 class ShowAllProjectsUI(
-    private val userId: String,
-    private val onBack:() -> Unit,
+    private val projectScreens: ProjectScreens,
+    private val onBack:() -> Unit
 ) {
     init {
-        println(userId)
+        projectScreens.showAllProjects()
         if (readln()=="0"){
             onBack()
         }
