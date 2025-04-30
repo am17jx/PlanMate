@@ -45,7 +45,7 @@ class DeleteTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw exception if task not found`() {
+    fun `should throw BlankInputException when task is not found`() {
         val user = User("mate", "hashedPassword", UserRole.MATE)
         val taskId = "task-002"
         val projectId = "project-001"
