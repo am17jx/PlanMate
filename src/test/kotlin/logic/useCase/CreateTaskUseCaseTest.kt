@@ -48,7 +48,12 @@ class CreateTaskUseCaseTest {
         val taskName = "Write CreateTaskUseCase test cases"
         val projectId = Uuid.random().toHexString()
         val stateId = Uuid.random().toHexString()
-        every { taskRepository.createTask(any()) } returns createTask(name = taskName, projectId = projectId, stateId = stateId)
+        every { taskRepository.createTask(any()) } returns createTask(
+            name = taskName,
+            projectId = projectId,
+            stateId = stateId,
+            auditLogsIds = listOf("task-id")
+        )
         every { projectRepository.getProjectById(any()) } returns createProject(
             id = projectId, states = listOf(
                 createState(id = stateId)
@@ -73,18 +78,18 @@ class CreateTaskUseCaseTest {
         taskName: String,
         projectId: String,
         stateId: String,
-    ){
+    ) {
         assertThrows<BlankInputException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
         }
     }
 
     @Test
-    fun `should throw ProjectNotFoundException when project doesn't exist`(){
+    fun `should throw ProjectNotFoundException when project doesn't exist`() {
         val taskName = "Test"
         val projectId = Uuid.random().toHexString()
         val stateId = Uuid.random().toHexString()
-        every { projectRepository.getProjectById(any()) } returns  null
+        every { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
@@ -92,7 +97,7 @@ class CreateTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw StateNotFoundException when state doesn't exist`(){
+    fun `should throw StateNotFoundException when state doesn't exist`() {
         val taskName = "Test"
         val projectId = Uuid.random().toHexString()
         val stateId = "1"
@@ -121,22 +126,11 @@ class CreateTaskUseCaseTest {
         @JvmStatic
         fun provideBlankInputScenarios() = Stream.of(
             Arguments.argumentSet(
-                "blank task name",
-                "",
-                Uuid.random().toHexString(),
-                Uuid.random().toHexString()
-            ),
-            Arguments.argumentSet(
-                "blank project id",
-                "test name",
-                "",
-                Uuid.random().toHexString()
-            ),
-            Arguments.argumentSet(
-                "blank state id",
-                "test name",
-                Uuid.random().toHexString(),
-                ""
+                "blank task name", "", Uuid.random().toHexString(), Uuid.random().toHexString()
+            ), Arguments.argumentSet(
+                "blank project id", "test name", "", Uuid.random().toHexString()
+            ), Arguments.argumentSet(
+                "blank state id", "test name", Uuid.random().toHexString(), ""
             )
         )
     }
