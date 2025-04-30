@@ -7,6 +7,8 @@ fun withTempFile(fileName: String, block: (File) -> Unit) {
     try {
         block(file)
     } finally {
-        file.delete()
+        if (!file.delete()) {
+            println("Warning: Failed to delete temporary file: ${file.absolutePath}")
+        }
     }
 }
