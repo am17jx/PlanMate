@@ -1,3 +1,5 @@
+package logic.useCase
+
 import com.google.common.truth.Truth.assertThat
 import io.mockk.mockk
 import org.example.logic.repositries.AuditLogRepository
