@@ -1,12 +1,19 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import mockdata.createProject
+import org.example.logic.models.User
+import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.NoLoggedInUserException
+import org.example.logic.utils.UnauthorizedException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -19,15 +26,62 @@ class CreateProjectUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        projectRepository = mockk()
-        auditLogRepository = mockk()
-        authenticationRepository = mockk()
+        projectRepository = mockk(relaxed = true)
+        auditLogRepository = mockk(relaxed = true)
+        authenticationRepository = mockk(relaxed = true)
         createProjectUseCase =
             CreateProjectUseCase(
                 projectRepository,
                 auditLogRepository,
                 authenticationRepository,
             )
+    }
+
+    @Test
+    fun `should return created project when the input is not blank and user is an admin`() {
+        val projectName = "Test Project"
+        every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+        every { projectRepository.createProject(any()) } returns createProject(name = projectName)
+
+        val createdProject = createProjectUseCase(projectName)
+
+        verify { projectRepository.createProject(any()) }
+        verify { authenticationRepository.getCurrentUser() }
+        verify { auditLogRepository.createAuditLog(any()) }
+        assertThat(createdProject.name).isEqualTo(projectName)
+    }
+
+    @Test
+    fun `should return created project with empty list of states when the input is not blank and user is an admin`() {
+        val projectName = "Test Project"
+        every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+        every { projectRepository.createProject(any()) } returns createProject(name = projectName)
+
+        val createdProject = createProjectUseCase(projectName)
+
+        verify { projectRepository.createProject(any()) }
+        verify { authenticationRepository.getCurrentUser() }
+        verify { auditLogRepository.createAuditLog(any()) }
+        assertThat(createdProject.states).isEmpty()
+    }
+
+    @Test
+    fun `should return created project with one item in auditLogsIds when the input is not blank and user is an admin`() {
+        val projectName = "Test Project"
+        every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+        every { projectRepository.createProject(any()) } returns
+            createProject(
+                name = projectName,
+                auditLogsIds = listOf("1"),
+            )
+
+        val createdProject = createProjectUseCase(projectName)
+
+        verify { projectRepository.createProject(any()) }
+        verify { authenticationRepository.getCurrentUser() }
+        verify { auditLogRepository.createAuditLog(any()) }
+        assertThat(createdProject.auditLogsIds).isNotEmpty()
+        assertThat(createdProject.auditLogsIds).hasSize(1)
     }
 
     @Test
@@ -40,29 +94,22 @@ class CreateProjectUseCaseTest {
     }
 
     @Test
-    fun `should return project with the same given name when project created successfully`() {
+    fun `should throw UnauthorizedException when user is not an admin`() {
         val projectName = "Test Project"
+        every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.USER)
 
-        val result = createProjectUseCase(projectName)
-
-        assertThat(result.name).isEqualTo(projectName)
+        assertThrows<UnauthorizedException> {
+            createProjectUseCase(projectName)
+        }
     }
 
     @Test
-    fun `should return project with empty list of states when project created successfully`() {
+    fun `should throw NoLoggedInUserException when current user is null`() {
         val projectName = "Test Project"
+        every { authenticationRepository.getCurrentUser() } returns null
 
-        val result = createProjectUseCase(projectName)
-
-        assertThat(result.auditLogsIds).isEmpty()
-    }
-
-    @Test
-    fun `should return project with empty list of auditLogsIds when project created successfully`() {
-        val projectName = "Test Project"
-
-        val result = createProjectUseCase(projectName)
-
-        assertThat(result.auditLogsIds).isEmpty()
+        assertThrows<NoLoggedInUserException> {
+            createProjectUseCase(projectName)
+        }
     }
 }
