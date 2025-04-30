@@ -44,7 +44,7 @@ class DeleteProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw exception if user is not admin`() {
+    fun `should throw IllegalArgumentException when user is not admin`() {
         val user = User("mate", "hashedPassword", UserRole.MATE)
         val projectId = "project-002"
         val project = Project(projectId, "Test Project", mutableListOf())
@@ -57,7 +57,7 @@ class DeleteProjectUseCaseTest {
     }
 
     @Test
-    fun `should throw exception if project not found`() {
+    fun `should throw IllegalArgumentException when project is not found`() {
         val user = User("admin", "hashedPassword", UserRole.ADMIN)
         val projectId = "project-003"
 
