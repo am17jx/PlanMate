@@ -3,6 +3,7 @@ package data.utils
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import mockdata.withTempFile
 import org.example.data.utils.CSVWriter
 import org.example.data.utils.CSVWriter.Companion.DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE
 import org.junit.jupiter.api.AfterEach
@@ -32,6 +33,46 @@ class CSVWriterTest {
     }
 
     @Test
+    fun `should throw IOException when directory is provided instead of file`() {
+        val exception = assertThrows<IOException> {
+            csvWriter = CSVWriter(tempDir)
+        }
+
+        assertThat(exception).hasMessageThat().contains(CSVWriter.DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE)
+    }
+
+    @Test
+    fun `should throw IOException when file is not writable`() {
+        val mockFile = mockk<File>()
+        every { mockFile.exists() } returns true
+        every { mockFile.canWrite() } returns false
+
+        val exception = assertThrows<IOException> {
+            csvWriter = CSVWriter(mockFile)
+        }
+        assertThat(exception).hasMessageThat().contains(CSVWriter.CANNOT_WRITE_TO_FILE_ERROR_MESSAGE)
+    }
+
+    @Test
+    fun `should create parent directory if it does not exist`() {
+        val parentDir = File(tempDir, "newDir")
+        val file = File(parentDir, "test.csv")
+
+        csvWriter = CSVWriter(file)
+
+        assertThat(parentDir.exists())
+        assertThat(file.exists())
+    }
+
+    @Test
+    fun `should create parent directory when it is null`() {
+        withTempFile("test.csv") { file ->
+            CSVWriter(file)
+            assertThat(file.exists()).isTrue()
+        }
+    }
+
+    @Test
     fun `should write raw string lines to CSV file`() {
         val lines = listOf(
             "username,password,role", "mohamed1,a1234567,MATE", "ahmed1,a7654321,ADMIN"
@@ -58,27 +99,6 @@ class CSVWriterTest {
         }
 
         assertThat(exception).hasMessageThat().contains(CSVWriter.EMPTY_LINES_ERROR_MESSAGE)
-    }
-
-    @Test
-    fun `should throw IOException when directory is provided instead of file`() {
-        val exception = assertThrows<IOException> {
-            CSVWriter(tempDir)
-        }
-
-        assertThat(exception).hasMessageThat().contains(CSVWriter.DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE)
-    }
-
-    @Test
-    fun `should throw IOException when file is not writable`() {
-        val mockFile = mockk<File>()
-        every { mockFile.exists() } returns true
-        every { mockFile.canWrite() } returns false
-
-        val exception = assertThrows<IOException> {
-            CSVWriter(mockFile)
-        }
-        assertThat(exception).hasMessageThat().contains(CSVWriter.CANNOT_WRITE_TO_FILE_ERROR_MESSAGE)
     }
 
     @AfterEach

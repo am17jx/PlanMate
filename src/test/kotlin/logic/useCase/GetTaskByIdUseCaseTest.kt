@@ -23,14 +23,14 @@ class GetTaskByIdUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-    taskRepository= mockk(relaxed = true)
-        getTaskByIdUseCase= GetTaskByIdUseCase(taskRepository)
+        taskRepository = mockk(relaxed = true)
+        getTaskByIdUseCase = GetTaskByIdUseCase(taskRepository)
     }
 
     @Test
     fun `should return task by ID when task exists`() {
-        val taskID= "1"
-        val expectedTask = Task(taskID, "task","1", "description", emptyList(), "2")
+        val taskID = "1"
+        val expectedTask = Task(taskID, "task", "1", "description", emptyList(), "2")
         every { taskRepository.getTaskById(taskID) } returns expectedTask
 
         val result = getTaskByIdUseCase(taskID)
@@ -40,7 +40,7 @@ class GetTaskByIdUseCaseTest {
 
     @Test
     fun `should throw TaskNotFoundException when task does not exist`() {
-        val taskID= "1"
+        val taskID = "1"
         every { taskRepository.getTaskById(taskID) } returns null
 
         assertThrows<TaskNotFoundException> {
@@ -50,16 +50,29 @@ class GetTaskByIdUseCaseTest {
 
     @Test
     fun `should throw BlankInputException when task ID is blank`() {
-        val taskID= ""
+        val taskID = ""
         assertThrows<BlankInputException> {
             getTaskByIdUseCase(taskID)
         }
     }
 
     @ParameterizedTest
+    @ValueSource(strings = ["fdd54-fd456", "894116s-45-5-6"])
+    fun `should return task when id contains Letters or Digits or hyphens and not contain any special characters`(
+        projectId: String
+    ) {
+        val expectedTask = Task(projectId, "task", "1", "description", emptyList(), "2")
+        every { taskRepository.getTaskById(projectId) } returns expectedTask
+
+        val result = getTaskByIdUseCase(projectId)
+
+        assertThat(result).isEqualTo(expectedTask)
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = ["45 45 #% &^", "423545@@!"])
-    fun `should throw InvalidInputException when id Contains special Characters`(projectId : String) {
-       every { taskRepository.getTaskById(projectId) } returns null
+    fun `should throw InvalidInputException when id Contains special Characters`(projectId: String) {
+        every { taskRepository.getTaskById(projectId) } returns null
 
         assertThrows<InvalidInputException> {
             getTaskByIdUseCase(projectId)
