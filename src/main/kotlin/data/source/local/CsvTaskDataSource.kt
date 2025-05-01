@@ -8,27 +8,56 @@ import org.example.data.utils.mapper.toTasks
 import org.example.logic.models.Task
 
 class CsvTaskDataSource(
-    private val csvReader: CSVReader,
-    private val csvWriter: CSVWriter
-): LocalTaskDataSource {
+    private val csvReader: CSVReader, private val csvWriter: CSVWriter
+) : LocalTaskDataSource {
+    private var tasks = mutableListOf<Task>()
+
+    init {
+        readCsvTasks()
+    }
 
     override fun createTask(task: Task): Task {
-        TODO("Not yet implemented")
+        tasks.add(task)
+        writeCsvTasks()
+        return task
     }
 
     override fun updateTask(updatedTask: Task): Task {
-        TODO("Not yet implemented")
+        tasks = tasks.map { task ->
+            if (task.id == updatedTask.id) {
+                updatedTask
+            } else {
+                task
+            }
+        }.toMutableList()
+        writeCsvTasks()
+        return updatedTask
     }
 
     override fun deleteTask(taskId: String) {
-        TODO("Not yet implemented")
+        tasks.removeIf { it.id == taskId }
+        writeCsvTasks()
     }
 
     override fun getAllTasks(): List<Task> {
-        TODO("Not yet implemented")
+        return tasks
     }
 
     override fun getTaskById(taskId: String): Task? {
-        TODO("Not yet implemented")
+        return tasks.firstOrNull { it.id == taskId }
+    }
+
+
+    private fun readCsvTasks() {
+        csvReader.readLines().toTasks().let { updatedTasks ->
+            tasks = updatedTasks.toMutableList()
+        }
+    }
+
+    private fun writeCsvTasks() {
+        csvWriter.writeLines(
+            tasks.toCsvLines()
+        )
+        readCsvTasks()
     }
 }
