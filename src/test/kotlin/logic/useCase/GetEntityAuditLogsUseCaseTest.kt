@@ -7,6 +7,7 @@ import mockdata.createAuditLog
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
+import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskNotFoundException
 import org.junit.jupiter.api.BeforeEach
@@ -59,6 +60,15 @@ class GetEntityAuditLogsUseCaseTest {
 
         assertThrows<ProjectNotFoundException> {
             getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
+        }
+    }
+
+    @Test
+    fun `should throw BlankInputException when entity id is blank`(){
+        val blankId = ""
+
+        assertThrows<BlankInputException> {
+            getEntityAuditLogsUseCase(blankId, AuditLogEntityType.PROJECT)
         }
     }
 

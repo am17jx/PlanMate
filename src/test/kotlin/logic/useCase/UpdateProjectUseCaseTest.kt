@@ -28,7 +28,7 @@ class UpdateProjectUseCaseTest {
     @BeforeEach
     fun setup() {
         projectRepository = mockk(relaxed = true)
-        //auditLogRepository = mockk(relaxed = true)
+        auditLogRepository = mockk(relaxed = true)
          auditLogRepository = spyk<AuditLogRepository>()
         authenticationRepository = mockk(relaxed = true)
         updateProjectUseCase = UpdateProjectUseCase(projectRepository, auditLogRepository, authenticationRepository)
