@@ -13,7 +13,7 @@ class DeleteProjectUseCase(
     private val taskRepository: TaskRepository,
     private val auditLogRepository: AuditLogRepository
 ) {
-    fun execute(user: User, projectId: String) {
+    operator fun invoke(user: User, projectId: String) {
         val project = projectRepository.getProjectById(projectId)
             ?: throw ProjectNotFoundException("Project with ID $projectId not found.")
 
