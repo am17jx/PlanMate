@@ -108,6 +108,11 @@ val repositoryModule = module {
             ): List<org.example.logic.models.AuditLog> {
                 return logs.filter { it.entityId == entityId && it.entityType == entityType }
             }
+            override fun getEntityLogByLogId(
+                auditLogId: String,
+            ): org.example.logic.models.AuditLog? {
+               return null
+            }
         }
     }
 
