@@ -13,7 +13,7 @@ class DeleteTaskUseCase(
     private val taskRepository: TaskRepository,
     private val auditLogRepository: AuditLogRepository
 ) {
-    fun execute(user: User, taskId: String, projectId: String) {
+    operator fun invoke(user: User, taskId: String, projectId: String) {
         if (taskId.isBlank()) throw BlankInputException("Task ID must not be blank")
         if (projectId.isBlank()) throw BlankInputException("Project ID must not be blank")
 
