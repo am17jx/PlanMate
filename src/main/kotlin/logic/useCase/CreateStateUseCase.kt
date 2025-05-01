@@ -14,8 +14,8 @@ class CreateStateUseCase(
     private val updateProjectUseCase: UpdateProjectUseCase,
 ) {
     operator fun invoke(
-        stateName: String,
         projectId: String,
+        stateName: String,
     ): Project {
         checkInputValidation(stateName, projectId)
         checkUserRole()
