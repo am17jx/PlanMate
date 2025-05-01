@@ -7,10 +7,7 @@ import org.example.presentation.navigation.Route
 import org.example.presentation.role.Admin
 import org.example.presentation.role.Mate
 import org.example.presentation.role.User
-import org.example.presentation.screens.AdminHomeUI
-import org.example.presentation.screens.CreateNewProjectUi
-import org.example.presentation.screens.LoginUI
-import org.example.presentation.screens.ShowAllProjectsUI
+import org.example.presentation.screens.*
 import org.koin.java.KoinJavaComponent.getKoin
 import kotlin.system.exitProcess
 import presentation.utils.io.Reader
@@ -40,14 +37,14 @@ class MainUiController(
 
             is Route.AdminHomeRoute -> {
                 AdminHomeUI(
-                    onNavigateToShowAllProjectsUI = {navigationController.navigateTo(Route.ShowAllProjectsRoute(it))},
-                    onNavigateToCreateProject = {navigationController.navigateTo(Route.CreateProjectRoute)},
-                    onNavigateToOnBackStack = {navigationController.popBackStack()},
+                    onNavigateToShowAllProjectsUI = { navigationController.navigateTo(Route.ShowAllProjectsRoute(it)) },
+                    onNavigateToCreateProject = { navigationController.navigateTo(Route.CreateProjectRoute) },
+                    onNavigateToCreateUser = { navigationController.navigateTo(Route.CreateUserRoute) },
+                    onNavigateToOnBackStack = { navigationController.popBackStack() },
                     viewer = viewer,
                     reader = reader,
                     userRole = UserRole.ADMIN
                 )
-
             }
 
             is Route.ShowAllProjectsRoute -> {
@@ -62,6 +59,15 @@ class MainUiController(
                     onBack = { navigationController.navigateTo(Route.AdminHomeRoute) },
                     reader = reader,
                     viewer = viewer
+                )
+            }
+
+            is Route.CreateUserRoute -> {
+                CreateUserUi(
+                    createMateUseCase = getKoin().get(),
+                    reader = reader,
+                    viewer = viewer,
+                    onBack = { navigationController.popBackStack() }
                 )
             }
 

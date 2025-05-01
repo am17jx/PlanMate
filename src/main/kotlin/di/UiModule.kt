@@ -8,6 +8,7 @@ import presentation.utils.io.ConsoleReader
 import presentation.utils.io.ConsoleViewer
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import org.example.logic.useCase.CreateMateUseCase // ✅ هذا هو السطر المفقود
 
 val uiModule = module {
     single<Viewer> { ConsoleViewer() }
@@ -16,4 +17,6 @@ val uiModule = module {
     single { NavigationController(startDestination = Route.LoginRoute) }
 
     single { MainUiController(get(), get(), get()) }
+
+    single { CreateMateUseCase(authenticationRepository = get()) }
 }

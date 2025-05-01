@@ -1,8 +1,6 @@
 package org.example.presentation.screens
 
 import org.example.logic.models.UserRole
-import org.example.presentation.navigation.NavigationController
-import org.example.presentation.navigation.Route
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -12,6 +10,7 @@ class AdminHomeUI(
     private val userRole: UserRole,
     private val onNavigateToShowAllProjectsUI: (userRole: UserRole) -> Unit,
     private val onNavigateToCreateProject: () -> Unit,
+    private val onNavigateToCreateUser: () -> Unit,
     private val onNavigateToOnBackStack: () -> Unit
 ) {
     init {
@@ -30,7 +29,7 @@ class AdminHomeUI(
         when (choice) {
             1 -> onNavigateToShowAllProjectsUI(userRole)
             2 -> onNavigateToCreateProject()
-            3 -> viewer.display("Create User - Coming soon!")
+            3 -> onNavigateToCreateUser()
             4 -> onNavigateToOnBackStack()
             else -> {
                 viewer.display("Invalid input. Try again.")
