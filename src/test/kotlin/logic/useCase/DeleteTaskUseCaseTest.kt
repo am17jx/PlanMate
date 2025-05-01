@@ -45,17 +45,29 @@ class DeleteTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw BlankInputException when task is not found`() {
+    fun `should throw BlankInputException when taskId is blank`() {
         val user = User("mate", "hashedPassword", UserRole.MATE)
-        val taskId = "task-002"
+        val taskId = ""
         val projectId = "project-001"
-
-        every { taskRepository.getTaskById(taskId) } returns null
 
         assertThrows<BlankInputException> {
             deleteTaskUseCase.execute(user, taskId, projectId)
         }
     }
+
+    fun `should throw ProjectNotFoundException when project is not found`() {
+        val user = User("mate", "hashedPassword", UserRole.MATE)
+        val taskId = "task-002"
+        val projectId = "project-001"
+
+        every { projectRepository.getProjectById(projectId) } returns null
+
+        assertThrows<ProjectNotFoundException> {
+            deleteTaskUseCase.execute(user, taskId, projectId)
+        }
+    }
+
+
 
     @Test
     fun `should throw exception if user is not admin and does not have permission to delete task`() {
