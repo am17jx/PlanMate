@@ -16,7 +16,6 @@ import kotlin.system.exitProcess
 class MainUiController(
     private val navigationController: NavigationController
 ) : NavigationCallBack {
-    private val userRole=UserRole.USER
 
     init {
         navigationController.registerNavigationCallBack(this)
@@ -26,14 +25,20 @@ class MainUiController(
         when (route) {
             is Route.LoginRoute -> {
                 LoginUI(
-                    onNavigateToShowAllProjects = { navigationController.navigateTo(Route.ShowAllProjectsRoute(userRole = it)) },
+                    onLoginSuccess = {
+                        when (it) {
+                            UserRole.ADMIN -> navigationController.navigateTo(Route.AdminHomeRoute)
+                            UserRole.USER -> navigationController.navigateTo(Route.ShowAllProjectsRoute(userRole = it))
+                        }
+                    },
                     loginUserUseCase = getKoin().get()
                 )
             }
 
             is Route.ShowAllProjectsRoute -> {
-
-                ShowAllProjectsUI(userFactory(route.userRole)) { navigationController.popBackStack() }
+                ShowAllProjectsUI(userFactory(route.userRole)) {
+                    navigationController.popBackStack()
+                }
             }
         }
     }
@@ -43,11 +48,10 @@ class MainUiController(
         exitProcess(0)
     }
 
-    private fun userFactory(type:UserRole): User {
-        return when(type){
+    private fun userFactory(type: UserRole): User {
+        return when (type) {
             UserRole.ADMIN -> Admin()
             UserRole.USER -> Mate()
         }
     }
-
 }
