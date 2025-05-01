@@ -1,6 +1,5 @@
 package di
 
-import org.koin.dsl.module
 import org.example.presentation.MainUiController
 import org.example.presentation.navigation.NavigationController
 import org.example.presentation.navigation.Route

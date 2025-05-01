@@ -34,7 +34,7 @@ class GetProjectTasksUseCaseTest {
 
     @ParameterizedTest
     @MethodSource("noTaskForProjectId")
-    fun `should throw TaskNotFoundException when no tasks are found for the given project id`(tasks: List<Task>) {
+    fun `should throw TaskNotFoundException when there are no tasks for the given project id`(tasks: List<Task>) {
         val projectId = "eq1wa"
         every { taskRepository.getAllTasks() } returns tasks
 
@@ -61,7 +61,9 @@ class GetProjectTasksUseCaseTest {
         val result = getProjectTasksUseCase(projectId)
 
         assertThat(result).isNotEmpty()
-        assertThat(result.map { it.projectId }.equals(projectId)).isTrue()
+        result.forEach {
+            assertThat(it.projectId).isEqualTo(projectId)
+        }
     }
 
     companion object {
