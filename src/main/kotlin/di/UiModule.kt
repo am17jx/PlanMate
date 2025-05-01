@@ -11,5 +11,4 @@ val uiModule =
     module {
         single { NavigationController(Route.LoginRoute) }
         singleOf(::MainUiController)
-        singleOf(::LoginUI)
     }

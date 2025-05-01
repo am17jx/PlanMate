@@ -8,6 +8,7 @@ import org.example.presentation.role.Admin
 import org.example.presentation.role.Mate
 import org.example.presentation.role.User
 import org.example.presentation.screens.AdminHomeUI
+import org.example.presentation.screens.CreateNewProjectUi
 import org.example.presentation.screens.LoginUI
 import org.example.presentation.screens.ShowAllProjectsUI
 import org.koin.java.KoinJavaComponent.getKoin
@@ -40,7 +41,7 @@ class MainUiController(
                 AdminHomeUI { choice ->
                     when (choice) {
                         1 -> navigationController.navigateTo(Route.ShowAllProjectsRoute(UserRole.ADMIN))
-                        2 -> println("Create Project - Coming soon!")
+                        2 -> navigationController.navigateTo(Route.CreateProjectRoute)
                         3 -> println("Create User - Coming soon!")
                         4 -> navigationController.popBackStack()
                     }
@@ -51,6 +52,13 @@ class MainUiController(
                 ShowAllProjectsUI(userFactory(route.userRole)) {
                     navigationController.popBackStack()
                 }
+            }
+
+            is Route.CreateProjectRoute -> {
+                CreateNewProjectUi(
+                    createProjectUseCase = getKoin().get(),
+                    onBack = { navigationController.navigateTo(Route.AdminHomeRoute) }
+                )
             }
         }
     }
