@@ -2,39 +2,43 @@ package org.example.presentation.screens
 
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.*
+import presentation.utils.io.Reader
+import presentation.utils.io.Viewer
 
 class CreateNewProjectUi(
     private val createProjectUseCase: CreateProjectUseCase,
-    private val onBack: () -> Unit
+    private val onBack: () -> Unit,
+    private val reader: Reader,
+    private val viewer: Viewer
 ) {
     init {
         run()
     }
 
     private fun run() {
-        println("\n===== Create New Project =====")
-        print("Enter project name: ")
+        viewer.display("\n===== Create New Project =====")
+        viewer.display("Enter project name: ")
 
-        val projectName = readln()
+        val projectName = reader.readString()
 
         try {
             val project = createProjectUseCase(projectName)
-            println("✅ Project '${project.name}' created successfully with ID: ${project.id}")
+            viewer.display("✅ Project '${project.name}' created successfully with ID: ${project.id}")
         } catch (e: BlankInputException) {
-            println("❌ Error: ${e.message}")
+            viewer.display("❌ Error: ${e.message}")
         } catch (e: ProjectCreationFailedException) {
-            println("❌ Error: ${e.message}")
+            viewer.display("❌ Error: ${e.message}")
         } catch (e: NoLoggedInUserException) {
-            println("❌ Error: ${e.message}")
+            viewer.display("❌ Error: ${e.message}")
         } catch (e: UnauthorizedException) {
-            println("❌ Error: ${e.message}")
+            viewer.display("❌ Error: ${e.message}")
         } catch (e: AuditInputException) {
-            println("❌ Error: ${e.message}")
+            viewer.display("❌ Error: ${e.message}")
         } catch (e: Exception) {
-            println("❌ Unexpected error: ${e.message}")
+            viewer.display("❌ Unexpected error: ${e.message}")
         }
 
-        println("\nReturning to Admin Home...")
+        viewer.display("\nReturning to Admin Home...")
         onBack()
     }
 }

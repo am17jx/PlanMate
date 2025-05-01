@@ -1,26 +1,41 @@
 package org.example.presentation.screens
 
+import org.example.logic.models.UserRole
+import org.example.presentation.navigation.NavigationController
+import org.example.presentation.navigation.Route
+import presentation.utils.io.Reader
+import presentation.utils.io.Viewer
+
 class AdminHomeUI(
-    private val onOptionSelected: (Int) -> Unit
+    private val viewer: Viewer,
+    private val reader: Reader,
+    private val userRole: UserRole,
+    private val onNavigateToShowAllProjectsUI: (userRole: UserRole) -> Unit,
+    private val onNavigateToCreateProject: () -> Unit,
+    private val onNavigateToOnBackStack: () -> Unit
 ) {
     init {
         showMenu()
     }
 
     private fun showMenu() {
-        println("\n===== Admin Home =====")
-        println("1. Show All Projects")
-        println("2. Create New Project")
-        println("3. Create User")
-        println("4. Back")
-        print("Enter your choice: ")
+        viewer.display("\n===== Admin Home =====")
+        viewer.display("1. Show All Projects")
+        viewer.display("2. Create New Project")
+        viewer.display("3. Create User")
+        viewer.display("4. Back")
+        viewer.display("Enter your choice: ")
 
-        val choice = readln().toIntOrNull()
-        if (choice in 1..4) {
-            onOptionSelected(choice!!)
-        } else {
-            println("Invalid input. Try again.")
-            showMenu()
+        val choice = reader.readInt()
+        when (choice) {
+            1 -> onNavigateToShowAllProjectsUI(userRole)
+            2 -> onNavigateToCreateProject()
+            3 -> viewer.display("Create User - Coming soon!")
+            4 -> onNavigateToOnBackStack()
+            else -> {
+                viewer.display("Invalid input. Try again.")
+                showMenu()
+            }
         }
     }
 }

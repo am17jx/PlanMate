@@ -1,14 +1,19 @@
 package di
 
+import org.koin.dsl.module
 import org.example.presentation.MainUiController
 import org.example.presentation.navigation.NavigationController
 import org.example.presentation.navigation.Route
-import org.example.presentation.screens.LoginUI
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.module
+import presentation.utils.io.ConsoleReader
+import presentation.utils.io.ConsoleViewer
+import presentation.utils.io.Reader
+import presentation.utils.io.Viewer
 
-val uiModule =
-    module {
-        single { NavigationController(Route.LoginRoute) }
-        singleOf(::MainUiController)
-    }
+val uiModule = module {
+    single<Viewer> { ConsoleViewer() }
+    single<Reader> { ConsoleReader() }
+
+    single { NavigationController(startDestination = Route.LoginRoute) }
+
+    single { MainUiController(get(), get(), get()) }
+}

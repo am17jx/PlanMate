@@ -4,10 +4,15 @@ import org.example.logic.models.UserRole
 import org.example.logic.useCase.LoginUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.UserNotFoundException
+import presentation.utils.io.Reader
+import presentation.utils.io.Viewer
 
 class LoginUI(
-    private val onLoginSuccess: (UserRole) -> Unit,
-    private val loginUserUseCase: LoginUserUseCase
+    private val onNavigateToAdminHome: () -> Unit,
+    private val onNavigateToShowAllProjects: (userRole: UserRole) -> Unit,
+    private val loginUserUseCase: LoginUserUseCase,
+    private val reader: Reader,
+    private val viewer: Viewer
 ) {
 
     init {
@@ -15,25 +20,28 @@ class LoginUI(
     }
 
     private fun run() {
-        println("====================================")
-        println(" Welcome to the Task Management System ")
-        println("====================================")
+        viewer.display("====================================")
+        viewer.display(" Welcome to the Task Management System ")
+        viewer.display("====================================")
 
-        print("Enter username: ")
-        val username = readln()
+        viewer.display("Enter username: ")
+        val username = reader.readString()
 
-        print("Enter password: ")
-        val password = readln()
+        viewer.display("Enter password: ")
+        val password = reader.readString()
 
         try {
             val user = loginUserUseCase(username, password)
-            onLoginSuccess(user.role)
+            when (user.role) {
+                UserRole.ADMIN -> onNavigateToAdminHome()
+                UserRole.USER -> onNavigateToShowAllProjects(user.role)
+            }
         } catch (e: BlankInputException) {
-            println("Error: ${e.message}")
+            viewer.display("Error: ${e.message}")
         } catch (e: UserNotFoundException) {
-            println("Error: ${e.message}")
+            viewer.display("Error: ${e.message}")
         } catch (e: Exception) {
-            println("Unexpected error: ${e.message}")
+            viewer.display("Unexpected error: ${e.message}")
         }
     }
 }

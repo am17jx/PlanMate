@@ -13,10 +13,13 @@ import org.example.presentation.screens.LoginUI
 import org.example.presentation.screens.ShowAllProjectsUI
 import org.koin.java.KoinJavaComponent.getKoin
 import kotlin.system.exitProcess
-
+import presentation.utils.io.Reader
+import presentation.utils.io.Viewer
 
 class MainUiController(
-    private val navigationController: NavigationController
+    private val navigationController: NavigationController,
+    private val viewer: Viewer,
+    private val reader: Reader
 ) : NavigationCallBack {
 
     init {
@@ -27,25 +30,24 @@ class MainUiController(
         when (route) {
             is Route.LoginRoute -> {
                 LoginUI(
-                    onLoginSuccess = {
-                        when (it) {
-                            UserRole.ADMIN -> navigationController.navigateTo(Route.AdminHomeRoute)
-                            UserRole.USER -> navigationController.navigateTo(Route.ShowAllProjectsRoute(userRole = it))
-                        }
-                    },
-                    loginUserUseCase = getKoin().get()
+                    onNavigateToAdminHome = {navigationController.navigateTo(Route.AdminHomeRoute)},
+                    onNavigateToShowAllProjects = { navigationController.navigateTo(Route.ShowAllProjectsRoute(it))},
+                    loginUserUseCase = getKoin().get(),
+                    reader = reader,
+                    viewer = viewer
                 )
             }
 
             is Route.AdminHomeRoute -> {
-                AdminHomeUI { choice ->
-                    when (choice) {
-                        1 -> navigationController.navigateTo(Route.ShowAllProjectsRoute(UserRole.ADMIN))
-                        2 -> navigationController.navigateTo(Route.CreateProjectRoute)
-                        3 -> println("Create User - Coming soon!")
-                        4 -> navigationController.popBackStack()
-                    }
-                }
+                AdminHomeUI(
+                    onNavigateToShowAllProjectsUI = {navigationController.navigateTo(Route.ShowAllProjectsRoute(it))},
+                    onNavigateToCreateProject = {navigationController.navigateTo(Route.CreateProjectRoute)},
+                    onNavigateToOnBackStack = {navigationController.popBackStack()},
+                    viewer = viewer,
+                    reader = reader,
+                    userRole = UserRole.ADMIN
+                )
+
             }
 
             is Route.ShowAllProjectsRoute -> {
@@ -57,14 +59,17 @@ class MainUiController(
             is Route.CreateProjectRoute -> {
                 CreateNewProjectUi(
                     createProjectUseCase = getKoin().get(),
-                    onBack = { navigationController.navigateTo(Route.AdminHomeRoute) }
+                    onBack = { navigationController.navigateTo(Route.AdminHomeRoute) },
+                    reader = reader,
+                    viewer = viewer
                 )
             }
+
         }
     }
 
     override fun onFinish() {
-        println("Exiting...")
+        viewer.display("Exiting...")
         exitProcess(0)
     }
 
