@@ -92,6 +92,7 @@ val repositoryModule = module {
         }
     }
 
+    singleOf(::TaskRepositoryImpl) { bind<TaskRepository>() }
 
     // ====== Audit Log Repository (Dummy Implementation) ======
     single<AuditLogRepository> {
