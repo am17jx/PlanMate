@@ -5,9 +5,6 @@ import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.format.Padding
-import kotlinx.datetime.format.char
 import org.example.logic.models.*
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -26,7 +23,7 @@ class CreateTaskUseCase(
         stateId: String,
     ): Task {
         verifyNoBlankInputs(name, projectId, stateId)
-        verifyProjectAndTaskExist(projectId, stateId)
+        verifyProjectAndStateExist(projectId, stateId)
         val loggedInUser = getLoggedInUserOrThrow()
         return createAndLogTask(name, projectId, stateId, loggedInUser)
     }
@@ -66,7 +63,7 @@ class CreateTaskUseCase(
         NO_LOGGED_IN_USER_ERROR_MESSAGE
     )
 
-    private fun verifyProjectAndTaskExist(projectId: String, stateId: String) {
+    private fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->
             if(project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
         } ?: throw ProjectNotFoundException(NO_PROJECT_FOUND_ERROR_MESSAGE)
