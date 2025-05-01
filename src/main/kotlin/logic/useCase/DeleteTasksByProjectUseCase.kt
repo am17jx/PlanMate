@@ -13,7 +13,7 @@ class DeleteTasksByProjectUseCase(
     private val taskRepository: TaskRepository,
     private val auditLogRepository: AuditLogRepository
 ) {
-    fun execute(user: User, projectId: String) {
+    operator fun invoke(user: User, projectId: String) {
         val tasks = taskRepository.getTasksByProjectId(projectId)
             .takeUnless { it.isNullOrEmpty() }
             ?: throw BlankInputException("No tasks found for project ID: $projectId")
