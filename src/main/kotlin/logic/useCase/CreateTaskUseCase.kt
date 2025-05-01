@@ -56,7 +56,7 @@ class CreateTaskUseCase(
                     entityId = taskId,
                     actionType = AuditLogActionType.CREATE
                 )
-            )?.id ?: throw AuditLogCreationFailedException(AUDIT_LOG_CREATION_FAILED_ERROR_MESSAGE)
+            ).id
     }
 
     private fun getLoggedInUserOrThrow() = authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(

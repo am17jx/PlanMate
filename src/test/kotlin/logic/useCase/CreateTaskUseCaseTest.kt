@@ -121,20 +121,6 @@ class CreateTaskUseCaseTest {
         }
     }
 
-    @Test
-    fun `should throws AuditLogCreationFailedException when audit log is not created`() {
-        val taskName = "Test"
-        val projectId = Uuid.random().toHexString()
-        val stateId = Uuid.random().toHexString()
-        every { authenticationRepository.getCurrentUser() } returns createUser()
-        every { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = stateId)))
-        every { auditLogRepository.createAuditLog(any()) } returns null
-
-        assertThrows<AuditLogCreationFailedException> {
-            createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
-        }
-    }
-
     companion object {
         @JvmStatic
         fun provideBlankInputScenarios() = Stream.of(
