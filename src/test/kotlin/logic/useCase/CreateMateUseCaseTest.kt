@@ -34,6 +34,7 @@ class CreateMateUseCaseTest {
     fun `should return user data when user enter username and password and not exists before`() {
 
         every { authenticationRepository.getAllUsers() } returns users
+        every { authenticationRepository.createMate(any(), any()) } returns User("newId", "newTestUsername", "testPassword", UserRole.USER)
 
         val result = createUserUseCase("newTestUsername", "testPassword")
 
