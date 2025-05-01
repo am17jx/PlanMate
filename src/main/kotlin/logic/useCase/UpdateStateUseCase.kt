@@ -11,7 +11,7 @@ import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.StateNotFoundException
 import org.example.logic.utils.UnauthorizedException
 
-class EditStateUseCase(
+class UpdateStateUseCase(
     private val projectRepository: ProjectRepository,
     private val authenticationRepository: AuthenticationRepository,
     private val updateProjectUseCase: UpdateProjectUseCase,

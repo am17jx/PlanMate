@@ -9,6 +9,6 @@ import org.koin.dsl.module
 
 val uiModule =
     module {
-        single { NavigationController(Route.LoginRoute) }
+        single { NavigationController(startDestination = Route.LoginRoute) }
         singleOf(::MainUiController)
     }
