@@ -1,9 +1,14 @@
 package di
 
+import org.example.data.repository.TaskRepositoryImpl
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.*
 import org.example.logic.useCase.CreateProjectUseCase
+import org.example.logic.repositries.AuthenticationRepository
+import org.example.logic.repositries.TaskRepository
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import java.util.*
 
@@ -87,6 +92,7 @@ val repositoryModule = module {
         }
     }
 
+    singleOf(::TaskRepositoryImpl) { bind<TaskRepository>() }
 
     // ====== Audit Log Repository (Dummy Implementation) ======
     single<AuditLogRepository> {
