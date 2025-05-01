@@ -7,23 +7,19 @@ import org.example.logic.repositries.ProjectRepository
 class ProjectRepositoryImpl(
     private val localProjectDataSource: LocalProjectDataSource,
 ) : ProjectRepository {
-    override fun createProject(project: Project): Project {
-        TODO("Not yet implemented")
-    }
+    override fun createProject(project: Project): Project =
+        localProjectDataSource.createProject(project)
 
-    override fun updateProject(updatedProject: Project): Project {
-        TODO("Not yet implemented")
-    }
+    override fun updateProject(updatedProject: Project): Project =
+        localProjectDataSource.updateProject(updatedProject)
 
     override fun deleteProject(projectId: String) {
-        TODO("Not yet implemented")
+        localProjectDataSource.deleteProject(projectId)
     }
 
-    override fun getAllProjects(): List<Project> {
-        TODO("Not yet implemented")
-    }
+    override fun getAllProjects(): List<Project> =
+        localProjectDataSource.getAllProjects()
 
-    override fun getProjectById(projectId: String): Project {
-        TODO("Not yet implemented")
-    }
+    override fun getProjectById(projectId: String): Project =
+        localProjectDataSource.getProjectById(projectId)
 }
