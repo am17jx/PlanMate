@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.10"
+    jacoco
 }
 
 group = "org.example"
@@ -24,4 +25,27 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(20)
+}
+
+jacoco {
+    toolVersion = "0.8.11" // latest stable
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // run tests first
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+    }
 }
