@@ -2,14 +2,12 @@ package di
 
 import org.example.data.repository.ProjectRepositoryImpl
 import org.example.data.repository.TaskRepositoryImpl
-import org.example.logic.models.Project
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.useCase.CreateProjectUseCase
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -69,36 +67,6 @@ val repositoryModule =
             }
         }
 
-        // ====== Project Repository (Dummy Implementation) ======
-        single<ProjectRepository> {
-            object : ProjectRepository {
-                private val projects = mutableListOf<Project>()
-
-                override fun createProject(project: Project): Project {
-                    projects.add(project)
-                    return project
-                }
-
-                override fun getAllProjects(): List<Project> = projects
-
-                override fun getProjectById(id: String): Project = projects.find { it.id == id }!!
-
-                override fun updateProject(updatedProject: Project): Project {
-                    val index = projects.indexOfFirst { it.id == updatedProject.id }
-                    if (index != -1) {
-                        projects[index] = updatedProject
-                        return updatedProject
-                    } else {
-                        throw IllegalArgumentException("Project not found")
-                    }
-                }
-
-                override fun deleteProject(projectId: String) {
-                    projects.removeIf { it.id == projectId }
-                }
-            }
-        }
-
         // ====== Audit Log Repository (Dummy Implementation) ======
         single<AuditLogRepository> {
             object : AuditLogRepository {
@@ -120,15 +88,6 @@ val repositoryModule =
 
                 override fun getEntityLogByLogId(auditLogId: String): org.example.logic.models.AuditLog? = null
             }
-        }
-
-        // ====== CreateProjectUseCase ======
-        single {
-            CreateProjectUseCase(
-                projectRepository = get(),
-                auditLogRepository = get(),
-                authenticationRepository = get(),
-            )
         }
 
         singleOf(::TaskRepositoryImpl) { bind<TaskRepository>() }
