@@ -87,7 +87,7 @@ class CreateTaskUseCaseTest {
         val taskName = "Test"
         val projectId = Uuid.random().toHexString()
         val stateId = Uuid.random().toHexString()
-        every { projectRepository.getProjectById(any()) } returns null
+        every { projectRepository.getProjectById(any()) } returns Exception()
 
         assertThrows<ProjectNotFoundException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)

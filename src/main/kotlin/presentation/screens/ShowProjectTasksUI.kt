@@ -1,10 +1,10 @@
 package org.example.presentation.screens
 
-import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
+import org.example.logic.useCase.creatTask.CreateTaskUseCase
 import org.example.logic.utils.ProjectNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
