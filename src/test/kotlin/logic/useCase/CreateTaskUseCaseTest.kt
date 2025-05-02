@@ -7,12 +7,11 @@ import io.mockk.verify
 import mockdata.createProject
 import mockdata.createState
 import mockdata.createTask
-import mockdata.createUser
-import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
+import org.example.logic.useCase.creatTask.CreateTaskUseCase
 import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

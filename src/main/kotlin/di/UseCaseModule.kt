@@ -1,8 +1,8 @@
 package di
 
-import logic.useCase.*
 import org.example.logic.useCase.GetAllProjectsUseCase
 import org.example.logic.useCase.LoginUserUseCase
+import org.example.logic.useCase.creatTask.CreateTaskUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 

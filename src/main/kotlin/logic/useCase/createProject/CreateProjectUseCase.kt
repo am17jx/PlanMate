@@ -1,6 +1,8 @@
-package org.example.logic.useCase
+package org.example.logic.useCase.createProject
 
 import kotlinx.datetime.Clock
+import org.example.logic.command.CreateAuditLogCommand
+import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
@@ -18,16 +20,34 @@ class CreateProjectUseCase(
     operator fun invoke(projectName: String): Project {
         checkUserRole()
         checkInputValidation(projectName)
+
+        return createAndLogProject(projectName)
+    }
+
+    private fun createAndLogProject(projectName: String): Project {
+        val projectId = Uuid.random().getCroppedId()
+        val audit = createLog(projectId, projectName)
         val newProject =
             Project(
-                id = Uuid.random().getCroppedId(),
+                id = projectId,
                 name = projectName,
                 states = emptyList(),
-                auditLogsIds = emptyList(),
+                auditLogsIds = listOf(audit.id),
             )
-        val audit = createLog(newProject)
-        return projectRepository.createProject(newProject.copy(auditLogsIds = listOf(audit.id)))
-            ?: throw ProjectCreationFailedException(PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE)
+        val auditCommand = CreateAuditLogCommand(auditLogRepository, audit)
+        val projectCreateCommand = ProjectCreateCommand(projectRepository, newProject)
+        val createProjectCommandTransaction = TransactionalCommand(
+            listOf(projectCreateCommand, auditCommand),
+            ProjectCreationFailedException(PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE)
+        )
+        try {
+            createProjectCommandTransaction.execute()
+        } catch (e: ProjectCreationFailedException) {
+            throw e
+        }
+
+        return newProject
+
     }
 
     private fun checkInputValidation(projectName: String) {
@@ -47,21 +67,17 @@ class CreateProjectUseCase(
         authenticationRepository.getCurrentUser()
             ?: throw NoLoggedInUserException(NO_LOGGED_IN_USER_EXCEPTION_MESSAGE)
 
-    private fun createLog(project: Project): AuditLog {
+    private fun createLog(projectId: String, projectName: String): AuditLog {
         val currentTime = Clock.System.now()
-        val auditLog =
-            AuditLog(
-                id = Uuid.random().getCroppedId(),
-                userId = getCurrentUser().id,
-                action = "User ${getCurrentUser().username} created project ${project.name} at $currentTime",
-                timestamp = currentTime.epochSeconds,
-                entityType = AuditLogEntityType.PROJECT,
-                entityId = project.id,
-                actionType = AuditLogActionType.CREATE,
-            )
-
-        return auditLogRepository.createAuditLog(auditLog)
-            ?: throw AuditInputException(AUDIT_INPUT_EXCEPTION_MESSAGE)
+        return AuditLog(
+            id = Uuid.random().getCroppedId(),
+            userId = getCurrentUser().id,
+            action = "User ${getCurrentUser().username} created project $projectName at $currentTime",
+            timestamp = currentTime.epochSeconds,
+            entityType = AuditLogEntityType.PROJECT,
+            entityId = projectId,
+            actionType = AuditLogActionType.CREATE,
+        )
     }
 
     companion object {

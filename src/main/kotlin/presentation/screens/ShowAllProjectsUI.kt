@@ -1,6 +1,7 @@
 package org.example.presentation.screens
 
 import org.example.logic.useCase.*
+import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.presentation.role.ProjectScreensOptions
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer

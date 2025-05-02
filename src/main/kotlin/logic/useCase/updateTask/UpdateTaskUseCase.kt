@@ -1,14 +1,11 @@
-package org.example.logic.usecases
+package org.example.logic.useCase.updateTask
 
 import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TaskCreateCommand
-import org.example.logic.command.TaskUpdateCommand
 import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.*
 import org.example.logic.utils.*
 import java.util.*
-import kotlin.uuid.Uuid
 
 class UpdateTaskUseCase(
     private val taskRepository: TaskRepository,
@@ -38,7 +35,7 @@ class UpdateTaskUseCase(
             throw e
         }
 
-        return updatedTask
+        return updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(auditCommand.getCreatedLog()?.id ?: ""))
 
     }
 

@@ -26,4 +26,8 @@ class TaskRepositoryImpl(
     override fun getTaskById(taskId: String): Task? {
         return localTaskDataSource.getTaskById(taskId)
     }
+
+    override fun deleteTasksByStateId(stateId: String, projectId: String) {
+        return localTaskDataSource.deleteTasksByStateId(stateId,projectId)
+    }
 }

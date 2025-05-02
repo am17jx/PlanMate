@@ -1,8 +1,7 @@
-package logic.useCase
+package org.example.logic.useCase.creatTask
 
 import kotlinx.datetime.*
 import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TaskCreateCommand
 import org.example.logic.command.TransactionalCommand
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository

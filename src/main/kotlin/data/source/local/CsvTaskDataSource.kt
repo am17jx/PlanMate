@@ -47,6 +47,11 @@ class CsvTaskDataSource(
         return tasks.firstOrNull { it.id == taskId }
     }
 
+    override fun deleteTasksByStateId(stateId: String, projectId: String) {
+        tasks.removeIf { it.stateId == stateId && it.projectId == projectId }
+        writeCsvTasks()
+    }
+
 
     private fun readCsvTasks() {
         csvReader.readLines().toTasks().let { updatedTasks ->

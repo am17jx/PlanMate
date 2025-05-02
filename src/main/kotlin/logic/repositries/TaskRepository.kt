@@ -8,4 +8,5 @@ interface TaskRepository {
     fun deleteTask(taskId: String)
     fun getAllTasks(): List<Task>
     fun getTaskById(taskId: String): Task?
+    fun deleteTasksByStateId(stateId: String, projectId: String)
 }

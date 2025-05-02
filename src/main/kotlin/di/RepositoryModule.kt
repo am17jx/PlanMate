@@ -4,7 +4,7 @@ import org.example.data.repository.TaskRepositoryImpl
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.*
-import org.example.logic.useCase.CreateProjectUseCase
+import org.example.logic.useCase.createProject.CreateProjectUseCase
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.TaskRepository
 import org.koin.core.module.dsl.bind
