@@ -1,13 +1,10 @@
 package di
 
 import logic.useCase.*
-import org.example.logic.useCase.*
-import org.example.logic.usecases.UpdateTaskUseCase
 import org.example.logic.useCase.deleteProject.DeleteProjectUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-
 
 val useCaseModule =
     module {
