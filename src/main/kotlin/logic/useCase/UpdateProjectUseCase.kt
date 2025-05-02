@@ -1,7 +1,7 @@
 package org.example.logic.useCase
 
 import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalUpdateProjectCommand
+import org.example.logic.command.TransactionCommands
 import org.example.logic.command.UpdateProjectCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
@@ -33,7 +33,7 @@ class UpdateProjectUseCase(
         val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
         val updateProjectCommand = UpdateProjectCommand(projectRepository, newProject, originalProject)
 
-        val updateCommandTransaction = TransactionalUpdateProjectCommand(listOf(updateProjectCommand, auditCommand))
+        val updateCommandTransaction = TransactionCommands(listOf(updateProjectCommand, auditCommand))
         try {
             updateCommandTransaction.execute()
             updatedProjectResult = newProject.copy(
