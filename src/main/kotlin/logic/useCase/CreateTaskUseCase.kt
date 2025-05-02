@@ -29,7 +29,7 @@ class CreateTaskUseCase(
     }
 
     private fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
-        val taskId = Uuid.random().toHexString()
+        val taskId = Uuid.random().getCroppedId()
         val logId = createAuditLog(taskId, taskName, loggedInUser)
         return taskRepository.createTask(
             Task(
@@ -48,7 +48,7 @@ class CreateTaskUseCase(
         return auditLogRepository
             .createAuditLog(
                 AuditLog(
-                    id = Uuid.random().toHexString(),
+                    id = Uuid.random().getCroppedId(),
                     userId = loggedInUser.id,
                     action = "user ${loggedInUser.username} created task $name at ${timestampNow.formattedString()}",
                     timestamp = timestampNow.epochSeconds,
