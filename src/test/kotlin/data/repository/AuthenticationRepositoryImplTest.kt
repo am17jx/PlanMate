@@ -9,6 +9,7 @@ import org.example.logic.models.UserRole
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class AuthenticationRepositoryImplTest {
     private lateinit var localAuthenticationDataSource: LocalAuthenticationDataSource
@@ -80,5 +81,23 @@ class AuthenticationRepositoryImplTest {
         val result = authenticationRepository.getAllUsers()
 
         assertThat(result).isEqualTo(users)
+    }
+
+    @Test
+    fun `getUserId should throw exception when user is not found`() {
+        every { localAuthenticationDataSource.getAllUsers() } returns users
+
+        assertThrows<NoSuchElementException> {
+            authenticationRepository.login("wrongUser", "wrongPassword")
+        }
+    }
+
+    @Test
+    fun `getUserRole should throw exception when user is not found`() {
+        every { localAuthenticationDataSource.getAllUsers() } returns users
+
+        assertThrows<NoSuchElementException> {
+            authenticationRepository.login("nonExistentUser", "wrongPassword")
+        }
     }
 }
