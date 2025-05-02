@@ -1,5 +1,7 @@
 package org.example.logic.useCase.deleteTask
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.example.logic.command.CreateAuditLogCommand
 import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.AuditLog
@@ -10,6 +12,7 @@ import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
 import org.example.logic.utils.UnableToDeleteTaskException
+import org.example.logic.utils.formattedString
 import org.example.logic.utils.getCroppedId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -30,10 +33,11 @@ class DeleteTaskUseCase(
 
     @OptIn(ExperimentalUuidApi::class)
     private fun saveAuditLog(taskId: String): AuditLog {
+        val timestampNow = Clock.System.now()
         val auditLog = AuditLog(
             id = Uuid.random().getCroppedId(),
             userId = userUseCase().id,
-            action = "${userUseCase().username} deleted task with id $taskId",
+            action = "${userUseCase().username} deleted task with id $taskId at ${timestampNow.formattedString()}",
             timestamp = System.currentTimeMillis(),
             entityType = AuditLogEntityType.TASK,
             entityId = taskId,
