@@ -30,17 +30,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Clean and Build (compile check)
-        run: ./gradlew clean assemble
-
-      - name: Run unit tests
-        run: ./gradlew testDebugUnitTest
-
-      - name: Generate JaCoCo test coverage report
-        run: ./gradlew jacocoTestReport
-
-      - name: Verify test coverage
-        run: ./gradlew jacocoTestCoverageVerification
+      - name: Build and Run Tests
+        run: ./gradlew clean build jacocoTestReport jacocoTestCoverageVerification
 
       - name: Upload JaCoCo HTML Report
         uses: actions/upload-artifact@v4
