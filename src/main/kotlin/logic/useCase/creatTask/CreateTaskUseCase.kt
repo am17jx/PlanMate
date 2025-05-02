@@ -1,4 +1,4 @@
-package org.example.logic.useCase.creatTask
+package logic.useCase
 
 import kotlinx.datetime.*
 import org.example.logic.command.CreateAuditLogCommand
@@ -8,6 +8,7 @@ import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.models.*
+import org.example.logic.useCase.creatTask.TaskCreateCommand
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -31,7 +32,7 @@ class CreateTaskUseCase(
     }
 
     private fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
-        val taskId = Uuid.random().toHexString()
+        val taskId = Uuid.random().getCroppedId()
         val taskAuditLog = createAuditLog(taskId, taskName, loggedInUser)
         val newTask = Task(
             id = taskId,
@@ -61,7 +62,7 @@ class CreateTaskUseCase(
     private fun createAuditLog(taskId: String, name: String, loggedInUser: User): AuditLog {
         val timestampNow = Clock.System.now()
         return AuditLog(
-            id = Uuid.random().toHexString(),
+            id = Uuid.random().getCroppedId(),
             userId = loggedInUser.id,
             action = "user ${loggedInUser.username} created task $name at ${timestampNow.formattedString()}",
             timestamp = timestampNow.epochSeconds,

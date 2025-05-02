@@ -1,4 +1,4 @@
-package org.example.logic.useCase.createProject
+package org.example.logic.useCase
 
 import kotlinx.datetime.Clock
 import org.example.logic.command.CreateAuditLogCommand

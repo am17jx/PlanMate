@@ -85,7 +85,7 @@ class CreateProjectUseCaseTest {
     @Test
     fun `should throw BlankInputException when projectName is blank`() {
         val projectName = ""
-        every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+        every { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
             createProjectUseCase(projectName)
