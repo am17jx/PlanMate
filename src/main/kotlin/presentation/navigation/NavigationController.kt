@@ -3,7 +3,7 @@ package org.example.presentation.navigation
 class NavigationController(
     private val startDestination: Route
 ) {
-    private val navigationBackStack: MutableList<Route> = mutableListOf(startDestination)
+    private val navigationBackStack: MutableList<Route> = mutableListOf()
     private lateinit var navigationCallBack: NavigationCallBack
 
     fun registerNavigationCallBack(navigationCallBack: NavigationCallBack) {
