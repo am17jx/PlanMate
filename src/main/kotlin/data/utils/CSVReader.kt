@@ -11,7 +11,11 @@ class CSVReader(
 
     init {
         if (!file.exists()) {
-            throw FileNotFoundException(FILE_NOT_FOUND_ERROR_MESSAGE)
+            val parentDir = file.parentFile
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs()
+            }
+            file.createNewFile()
         }
         if (!file.canRead()) {
             throw IOException(CANNOT_READ_FILE_ERROR_MESSAGE)
