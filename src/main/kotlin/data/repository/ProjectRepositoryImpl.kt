@@ -20,6 +20,6 @@ class ProjectRepositoryImpl(
     override fun getAllProjects(): List<Project> =
         localProjectDataSource.getAllProjects()
 
-    override fun getProjectById(projectId: String): Project =
+    override fun getProjectById(projectId: String): Project? =
         localProjectDataSource.getProjectById(projectId)
 }

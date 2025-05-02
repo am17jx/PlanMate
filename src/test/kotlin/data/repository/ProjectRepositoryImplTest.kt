@@ -105,7 +105,7 @@ class ProjectRepositoryImplTest {
 
         verify(exactly = 1) { mockLocalDataSource.getProjectById(projectId) }
         assertThat(result).isNotNull()
-        assertThat(result.id).isEqualTo("1")
-        assertThat(result.name).isEqualTo("Project 1")
+        assertThat(result?.id).isEqualTo("1")
+        assertThat(result?.name).isEqualTo("Project 1")
     }
 }

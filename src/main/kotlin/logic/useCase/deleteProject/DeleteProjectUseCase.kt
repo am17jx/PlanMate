@@ -2,7 +2,7 @@ package org.example.logic.useCase.deleteProject
 
 import org.example.logic.command.Command
 import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionCommands
+import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
@@ -35,7 +35,7 @@ class DeleteProjectUseCase(
 
         command.add(deleteProject)
         command.add(auditCommand)
-        TransactionCommands(
+        TransactionalCommand(
             command,
             UnableToDeleteProjectException("Cannot delete project with existing tasks.")
         ).execute()

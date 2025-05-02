@@ -9,7 +9,6 @@ import org.example.logic.models.Project
 import org.example.logic.useCase.CreateProjectUseCase.Companion.PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE
 import org.example.logic.utils.ProjectCreationFailedException
 import org.example.logic.utils.ProjectNotChangedException
-import org.example.logic.utils.ProjectNotFoundException
 import java.io.IOException
 
 class CsvProjectDataSource(
@@ -48,9 +47,8 @@ class CsvProjectDataSource(
 
     override fun getAllProjects(): List<Project> = projects
 
-    override fun getProjectById(projectId: String): Project =
+    override fun getProjectById(projectId: String): Project? =
         projects.find { it.id == projectId }
-            ?: throw ProjectNotFoundException("Project not found")
 
     private fun saveToFile() {
         csvWriter.writeLines(projects.toCsvLines())

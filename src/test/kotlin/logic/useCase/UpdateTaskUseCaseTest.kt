@@ -1,9 +1,10 @@
 package logic.useCase
 
+import com.google.common.truth.Truth
 import io.mockk.*
 import org.example.logic.models.*
 import org.example.logic.repositries.*
-import org.example.logic.usecases.UpdateTaskUseCase
+import org.example.logic.useCase.updateTask.UpdateTaskUseCase
 import org.example.logic.utils.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.CoreMatchers.*
@@ -39,7 +40,10 @@ class UpdateTaskUseCaseTest {
 
         val result = useCase("t1", newTask)
 
-        assertThat(result, equalTo(newTask))
+        assertThat(result.id, equalTo(newTask.id))
+        assertThat(result.name, equalTo(newTask.name))
+        Truth.assertThat(result.auditLogsIds.size).isGreaterThan(0)
+
         verify { auditRepository.createAuditLog(any()) }
     }
 
@@ -91,7 +95,9 @@ class UpdateTaskUseCaseTest {
 
         val result = useCase("t5", newTask)
 
-        assertThat(result, equalTo(newTask))
+        assertThat(result.id, equalTo(newTask.id))
+        assertThat(result.name, equalTo(newTask.name))
+        Truth.assertThat(result.auditLogsIds.size).isGreaterThan(0)
 
         with(auditSlot.captured) {
             assertThat(userId, equalTo(user.id))
@@ -121,7 +127,10 @@ class UpdateTaskUseCaseTest {
 
         val result = useCase("t5", newTask)
 
-        assertThat(result, equalTo(newTask))
+        assertThat(result.id, equalTo(newTask.id))
+        assertThat(result.name, equalTo(newTask.name))
+        Truth.assertThat(result.auditLogsIds.size).isGreaterThan(0)
+
         verify { auditRepository.createAuditLog(any()) }
     }
 

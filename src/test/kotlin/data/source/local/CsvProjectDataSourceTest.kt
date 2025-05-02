@@ -159,8 +159,8 @@ class CsvProjectDataSourceTest {
 
         val result = dataSource.getProjectById(projectId)
 
-        assertThat(result.id).isEqualTo("2")
-        assertThat(result.name).isEqualTo("Project 2")
+        assertThat(result?.id).isEqualTo("2")
+        assertThat(result?.name).isEqualTo("Project 2")
     }
 
     @Test
