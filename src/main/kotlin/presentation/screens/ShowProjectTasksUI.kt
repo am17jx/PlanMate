@@ -42,7 +42,6 @@ class ShowProjectTasksUI(
     private fun loadTasks() {
         try {
             projectTasks = getProjectTasksUseCase(projectId)
-            displaySwimLanesTasksTable()
             getUserSelectedOption()
         } catch (e: Exception) {
             handleError(e)
@@ -72,6 +71,7 @@ class ShowProjectTasksUI(
 
     private fun getUserSelectedOption() {
         while (true) {
+            displaySwimLanesTasksTable()
             displayOptions()
             val userInput = reader.readInt() ?: -1
             when (userInput) {
@@ -144,7 +144,7 @@ class ShowProjectTasksUI(
     private fun readSelectedState(): String {
         viewer.display("Select a state from the following states:")
         project.states.forEachIndexed { index, state ->
-            viewer.display("$index. ${state.title} (id = ${state.id})")
+            viewer.display("- ${state.title} (id = ${state.id})")
         }
         while (true) {
             viewer.display("Enter state ID: ")

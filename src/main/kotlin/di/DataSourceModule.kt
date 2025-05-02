@@ -10,25 +10,61 @@ import org.example.data.source.local.contract.LocalTaskDataSource
 import org.example.data.source.local.cotract.LocalAuditLogDataSource
 import org.example.data.utils.CSVReader
 import org.example.data.utils.CSVWriter
+import org.example.data.utils.Constants
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import org.koin.core.module.dsl.bind
+import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 import java.io.File
 
 val dataSourceModule = module {
+    single<File> { (filePath : String) -> File(filePath) }
+    single<CSVReader>(named("tasks-reader")) {
+        val file: File = get { parametersOf(Constants.FileNames.TASKS_CSV_FILE_PATH) }
+        CSVReader(file)
+    }
+    single<CSVWriter>(named("tasks-writer")) {
+        val file: File = get { parametersOf(Constants.FileNames.TASKS_CSV_FILE_PATH) }
+        CSVWriter(file)
+    }
+    single<CSVReader>(named("users-reader")) {
+        val file: File = get { parametersOf(Constants.FileNames.AUTH_CSV_FILE_PATH) }
+        CSVReader(file)
+    }
+    single<CSVWriter>(named("users-writer")) {
+        val file: File = get { parametersOf(Constants.FileNames.AUTH_CSV_FILE_PATH) }
+        CSVWriter(file)
+    }
+    single<CSVReader>(named("projects-reader")) {
+        val file: File = get { parametersOf(Constants.FileNames.PROJECTS_CSV_FILE_PATH) }
+        CSVReader(file)
+    }
+    single<CSVWriter>(named("projects-writer")) {
+        val file: File = get { parametersOf(Constants.FileNames.PROJECTS_CSV_FILE_PATH) }
+        CSVWriter(file)
+    }
+    single<CSVReader>(named("audit-logs-reader")) {
+        val file: File = get { parametersOf(Constants.FileNames.AUDIT_LOGS_CSV_FILE_PATH) }
+        CSVReader(file)
+    }
+    single<CSVWriter>(named("audit-logs-writer")) {
+        val file: File = get { parametersOf(Constants.FileNames.AUDIT_LOGS_CSV_FILE_PATH) }
+        CSVWriter(file)
+    }
     single<LocalTaskDataSource> {
-        val file = File("tasks.csv")
-        CsvTaskDataSource(CSVReader(file), CSVWriter(file))
+        CsvTaskDataSource(get(qualifier = named("tasks-reader")), get(qualifier = named("tasks-writer")))
     }
 
     single<LocalAuditLogDataSource> {
-        val file = File("audit.csv")
-        CsvAuditLogDataSource(CSVReader(file), CSVWriter(file))
+        CsvAuditLogDataSource(get(qualifier = named("audit-logs-reader")), get(qualifier = named("audit-logs-writer")))
     }
     single<LocalProjectDataSource> {
-        val file = File("projects.csv")
-        CsvProjectDataSource(CSVReader(file), CSVWriter(file))
+        CsvProjectDataSource(get(qualifier = named("projects-reader")), get(qualifier = named("projects-writer")))
     }
     single<LocalAuthenticationDataSource> {
-        val file = File("users.csv")
-        CsvAuthenticationDataSource(CSVWriter(file), CSVReader(file))
+        CsvAuthenticationDataSource(get(qualifier = named("users-writer")), get(qualifier = named("users-reader")))
+
     }
 }
