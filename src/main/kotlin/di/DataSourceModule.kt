@@ -20,7 +20,7 @@ import org.koin.core.qualifier.named
 import java.io.File
 
 val dataSourceModule = module {
-    single<File> { (filePath : String) -> File(filePath) }
+    factory<File> { (filePath : String) -> File(filePath) }
     single<CSVReader>(named("tasks-reader")) {
         val file: File = get { parametersOf(Constants.FileNames.TASKS_CSV_FILE_PATH) }
         CSVReader(file)
@@ -54,17 +54,20 @@ val dataSourceModule = module {
         CSVWriter(file)
     }
     single<LocalTaskDataSource> {
-        CsvTaskDataSource(get(qualifier = named("tasks-reader")), get(qualifier = named("tasks-writer")))
+        val file = File("tasks.csv")
+        CsvTaskDataSource(CSVReader(file), CSVWriter(file))
     }
 
     single<LocalAuditLogDataSource> {
-        CsvAuditLogDataSource(get(qualifier = named("audit-logs-reader")), get(qualifier = named("audit-logs-writer")))
+        val file = File("audit.csv")
+        CsvAuditLogDataSource(CSVReader(file), CSVWriter(file))
     }
     single<LocalProjectDataSource> {
-        CsvProjectDataSource(get(qualifier = named("projects-reader")), get(qualifier = named("projects-writer")))
+        val file = File("projects.csv")
+        CsvProjectDataSource(CSVReader(file), CSVWriter(file))
     }
     single<LocalAuthenticationDataSource> {
-        CsvAuthenticationDataSource(get(qualifier = named("users-writer")), get(qualifier = named("users-reader")))
-
+        val file = File("users.csv")
+        CsvAuthenticationDataSource(CSVWriter(file), CSVReader(file))
     }
 }

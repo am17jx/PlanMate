@@ -13,8 +13,6 @@ class GetProjectTasksUseCase(
         return taskRepository
             .getAllTasks()
             .filter { isTaskForProject(it, projectId) }
-            .takeIf { it.isNotEmpty() }
-            ?: throw TaskNotFoundException(NO_TASKS_FOUND_ERROR_MESSAGE.plus(projectId))
     }
 
     private fun isTaskForProject(
@@ -30,6 +28,5 @@ class GetProjectTasksUseCase(
 
     companion object {
         const val PROJECT_ID_BLANK_ERROR_MESSAGE = "Project id cannot be blank"
-        const val NO_TASKS_FOUND_ERROR_MESSAGE = "No tasks found for project with id"
     }
 }

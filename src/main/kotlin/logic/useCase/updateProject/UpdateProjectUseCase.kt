@@ -93,17 +93,17 @@ class UpdateProjectUseCase(
                 deletedStateId = project.states.subtract(updatedProject.states.toSet()).first().id
                 "${currentUser.username} deleted a state: ${
                     project.states.subtract(updatedProject.states.toSet()).first().title
-                }, from ${project.name}"
+                } from ${project.name}"
             }
 
             project.states.size < updatedProject.states.size ->
                 "${currentUser.username} add  state: ${
                     updatedProject.states.subtract(project.states.toSet()).first().title
-                }, to ${project.name}"
+                } to ${project.name}"
 
             else -> {
                 val statesDifference = (updatedProject.states.subtract(project.states.toSet()) + project.states.subtract(updatedProject.states.toSet())).toList()
-                "${currentUser.username} updated state : ${statesDifference[1].title} to state:${statesDifference[0].title}, in ${project.name}"
+                "${currentUser.username} updated state : ${statesDifference[1].title} to state:${statesDifference[0].title} in ${project.name}"
             }
 
         }

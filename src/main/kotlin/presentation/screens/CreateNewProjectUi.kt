@@ -33,6 +33,7 @@ class CreateNewProjectUi(
             println("❌ Error: ${e.message}")
         } catch (e: Exception) {
             println("❌ Unexpected error: ${e.message}")
+            e.printStackTrace()
         }
 
         println("\nReturning to Admin Home...")

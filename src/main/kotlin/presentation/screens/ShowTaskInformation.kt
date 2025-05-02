@@ -18,7 +18,7 @@ class ShowTaskInformation(
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
     private val viewer: Viewer,
-    private val reader: Reader
+    private val reader: Reader,
 ) {
     fun showTaskInformation(taskId: String){
         var isRunning = true
@@ -46,12 +46,14 @@ class ShowTaskInformation(
                 }
             } catch (e: Exception) {
                 viewer.display("Error: ${e.message}")
+                isRunning=false
             }
         }
     }
     private fun displayTaskDetails(task: Task , stateName: String) {
         viewer.display("Task Information: ")
-        viewer.display("ID: ${task.id}")
+        viewer.display("stateId : ${task.stateId}")
+        viewer.display("taskID: ${task.id}")
         viewer.display("Name: ${task.name}")
         viewer.display("Added By: ${task.addedBy}")
         viewer.display("State: $stateName")
