@@ -1,6 +1,8 @@
 package di
 
 import org.example.data.repository.TaskRepositoryImpl
+import org.example.logic.models.Project
+import org.example.logic.models.State
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.*
@@ -10,10 +12,10 @@ import org.example.logic.repositries.TaskRepository
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import presentation.utils.io.Reader
 import java.util.*
 
 val repositoryModule = module {
-
     // ====== Authentication Repository ======
     single<AuthenticationRepository> {
         object : AuthenticationRepository {
@@ -61,7 +63,14 @@ val repositoryModule = module {
     // ====== Project Repository (Dummy Implementation) ======
     single<ProjectRepository> {
         object : ProjectRepository {
-            private val projects = mutableListOf<org.example.logic.models.Project>()
+            private val projects = mutableListOf<Project>(
+                Project(
+                    id = UUID.randomUUID().toString(),
+                    name = "Project 1",
+                    states = listOf(State(title = "fdf", id = "1")),
+                    auditLogsIds = listOf()
+                )
+            )
 
             override fun createProject(project: org.example.logic.models.Project): org.example.logic.models.Project? {
                 projects.add(project)
@@ -114,10 +123,11 @@ val repositoryModule = module {
             ): List<org.example.logic.models.AuditLog> {
                 return logs.filter { it.entityId == entityId && it.entityType == entityType }
             }
+
             override fun getEntityLogByLogId(
                 auditLogId: String,
             ): org.example.logic.models.AuditLog? {
-               return null
+                return null
             }
         }
     }

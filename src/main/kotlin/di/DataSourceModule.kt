@@ -16,5 +16,11 @@ val dataSourceModule = module {
         val file = File("tasks.csv")
         CsvTaskDataSource(CSVReader(file), CSVWriter(file))
     }
-    singleOf(::CsvAuditLogDataSource) { bind<LocalAuditLogDataSource>()}
+
+    single<LocalAuditLogDataSource> {
+        val file = File("audit.csv")
+        CsvAuditLogDataSource(CSVReader(file), CSVWriter(file))
+    }
+
+//    singleOf(::CsvAuditLogDataSource) { bind<LocalAuditLogDataSource>()}
 }
