@@ -6,7 +6,7 @@ import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskUseCase
-import org.example.logic.usecases.UpdateTaskUseCase
+import org.example.logic.useCase.updateTask.UpdateTaskUseCase
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -16,7 +16,7 @@ class ShowTaskInformation(
     private val getStateNameUseCase: GetStateNameUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val getEntityAuditLogsUseCase:GetEntityAuditLogsUseCase,
+    private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
     private val viewer: Viewer,
     private val reader: Reader
 ) {

@@ -1,8 +1,7 @@
 package di
 
+import logic.useCase.CreateTaskUseCase
 import org.example.logic.useCase.*
-import org.example.logic.useCase.creatTask.CreateTaskUseCase
-import org.example.logic.useCase.createProject.CreateProjectUseCase
 import org.example.logic.useCase.deleteProject.DeleteProjectUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase

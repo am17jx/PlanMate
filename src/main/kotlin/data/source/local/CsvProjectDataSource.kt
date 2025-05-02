@@ -6,10 +6,9 @@ import org.example.data.utils.CSVWriter
 import org.example.data.utils.mapper.toCsvLines
 import org.example.data.utils.mapper.toProjectList
 import org.example.logic.models.Project
-import org.example.logic.useCase.createProject.CreateProjectUseCase.Companion.PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE
+import org.example.logic.useCase.CreateProjectUseCase.Companion.PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE
 import org.example.logic.utils.ProjectCreationFailedException
 import org.example.logic.utils.ProjectNotChangedException
-import org.example.logic.utils.ProjectNotFoundException
 import java.io.IOException
 
 class CsvProjectDataSource(

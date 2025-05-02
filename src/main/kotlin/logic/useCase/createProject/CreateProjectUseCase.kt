@@ -7,6 +7,7 @@ import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
+import org.example.logic.useCase.createProject.ProjectCreateCommand
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -85,7 +86,6 @@ class CreateProjectUseCase(
         const val PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE = "Failed to create project"
         const val NO_LOGGED_IN_USER_EXCEPTION_MESSAGE = "No logged-in user found"
         const val UNAUTHORIZED_EXCEPTION_MESSAGE = "Only admins can create projects"
-        const val AUDIT_INPUT_EXCEPTION_MESSAGE = "Failed to create audit log"
         const val PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE = "Project name should not exceed 16 characters"
     }
 }

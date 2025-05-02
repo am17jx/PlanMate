@@ -1,6 +1,7 @@
 package org.example.presentation.screens
 
-import org.example.logic.useCase.createProject.CreateProjectUseCase
+
+import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.*
 
 class CreateNewProjectUi(
