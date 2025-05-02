@@ -101,7 +101,7 @@ class DeleteStateUseCaseTest {
     @Test
     fun `should throw ProjectNotFoundException when no project found with the given id`() {
         every { authenticationRepository.getCurrentUser() } returns createUser()
-        every { projectRepository.getProjectById(any()) } returns Exception()
+        every { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
             deleteStateUseCase(stateId, dummyProject.id)

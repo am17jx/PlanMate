@@ -48,9 +48,8 @@ class CsvProjectDataSource(
 
     override fun getAllProjects(): List<Project> = projects
 
-    override fun getProjectById(projectId: String): Project =
+    override fun getProjectById(projectId: String): Project? =
         projects.find { it.id == projectId }
-            ?: throw ProjectNotFoundException("Project not found")
 
     private fun saveToFile() {
         csvWriter.writeLines(projects.toCsvLines())

@@ -11,5 +11,5 @@ interface LocalProjectDataSource {
 
     fun getAllProjects(): List<Project>
 
-    fun getProjectById(projectId: String): Project
+    fun getProjectById(projectId: String): Project?
 }
