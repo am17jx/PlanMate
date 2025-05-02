@@ -1,5 +1,7 @@
 package org.example.di
 
+import data.source.CsvAuthenticationDataSource
+import data.source.local.contract.LocalAuthenticationDataSource
 import org.example.data.source.CsvAuditLogDataSource
 import org.example.data.source.local.CsvProjectDataSource
 import org.example.data.source.local.CsvTaskDataSource
@@ -8,10 +10,7 @@ import org.example.data.source.local.contract.LocalTaskDataSource
 import org.example.data.source.local.cotract.LocalAuditLogDataSource
 import org.example.data.utils.CSVReader
 import org.example.data.utils.CSVWriter
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import org.koin.core.module.dsl.bind
 import java.io.File
 
 val dataSourceModule = module {
@@ -28,5 +27,8 @@ val dataSourceModule = module {
         val file = File("projects.csv")
         CsvProjectDataSource(CSVReader(file), CSVWriter(file))
     }
-//    singleOf(::CsvAuditLogDataSource) { bind<LocalAuditLogDataSource>()}
+    single<LocalAuthenticationDataSource> {
+        val file = File("users.csv")
+        CsvAuthenticationDataSource(CSVWriter(file), CSVReader(file))
+    }
 }
