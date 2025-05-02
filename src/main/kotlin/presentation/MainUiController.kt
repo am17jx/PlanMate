@@ -1,24 +1,26 @@
 package org.example.presentation
 
 import org.example.logic.models.UserRole
+import org.example.logic.useCase.CreateProjectUseCase
 import org.example.presentation.navigation.NavigationCallBack
 import org.example.presentation.navigation.NavigationController
 import org.example.presentation.navigation.Route
-import org.example.presentation.role.Admin
-import org.example.presentation.role.Mate
-import org.example.presentation.role.User
+import org.example.presentation.role.AdminOptions
+import org.example.presentation.role.MateOptions
+import org.example.presentation.role.SharedOptions
 import org.example.presentation.screens.*
 import org.koin.java.KoinJavaComponent.getKoin
 import kotlin.system.exitProcess
+
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
 class MainUiController(
     private val navigationController: NavigationController,
+    private val navigationController: NavigationController,
     private val viewer: Viewer,
     private val reader: Reader
 ) : NavigationCallBack {
-
     init {
         navigationController.registerNavigationCallBack(this)
     }
@@ -47,10 +49,19 @@ class MainUiController(
                 )
             }
 
-            is Route.ShowAllProjectsRoute -> {
-                ShowAllProjectsUI(userFactory(route.userRole)) {
-                    navigationController.popBackStack()
-                }
+            is Route.ProjectsOverviewUI -> {
+                ProjectsOverviewUI.create(
+                    onNavigateToShowProjectTasksUI = { projectId ->
+                        navigationController.navigateTo(Route.ShowProjectTasksRoute(projectId = projectId))
+                    },
+                    onNavigateToProjectStatusUI = { projectId ->
+                        navigationController.navigateTo(Route.ProjectStatusRoute(projectId = projectId))
+                    },
+                    onNavigateBack = {
+                        navigationController.popBackStack()
+                    },
+                    projectScreensOptions = userFactory(route.userRole),
+                )
             }
 
             is Route.CreateProjectRoute -> {
@@ -71,6 +82,7 @@ class MainUiController(
                 )
             }
 
+            is Route.ProjectStatusRoute -> route.projectId
         }
     }
 
@@ -79,10 +91,9 @@ class MainUiController(
         exitProcess(0)
     }
 
-    private fun userFactory(type: UserRole): User {
-        return when (type) {
-            UserRole.ADMIN -> Admin()
-            UserRole.USER -> Mate()
+    private fun userFactory(type: UserRole): SharedOptions =
+        when (type) {
+            UserRole.ADMIN -> AdminOptions()
+            UserRole.USER -> MateOptions()
         }
-    }
 }

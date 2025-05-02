@@ -11,7 +11,7 @@ import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.UpdateStateUseCase
-import org.example.logic.useCase.UpdateProjectUseCase
+import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

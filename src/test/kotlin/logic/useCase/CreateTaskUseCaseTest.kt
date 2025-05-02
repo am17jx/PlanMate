@@ -7,13 +7,15 @@ import io.mockk.verify
 import mockdata.createProject
 import mockdata.createState
 import mockdata.createTask
-import mockdata.createUser
-import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.utils.*
+import org.example.logic.useCase.creatTask.CreateTaskUseCase
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.StateNotFoundException
+import org.example.logic.utils.UserNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -45,19 +47,23 @@ class CreateTaskUseCaseTest {
     @Test
     fun `should return created task when there is no blank input parameters and project and state exist`() {
         val taskName = "Write CreateTaskUseCase test cases"
-        val projectId = Uuid.random().toHexString()
-        val stateId = Uuid.random().toHexString()
-        every { taskRepository.createTask(any()) } returns createTask(
-            name = taskName,
-            projectId = projectId,
-            stateId = stateId,
-            auditLogsIds = listOf("task-id")
-        )
-        every { projectRepository.getProjectById(any()) } returns createProject(
-            id = projectId, states = listOf(
-                createState(id = stateId)
+        val projectId = Uuid.random().getCroppedId()
+        val stateId = Uuid.random().getCroppedId()
+        every { taskRepository.createTask(any()) } returns
+            createTask(
+                name = taskName,
+                projectId = projectId,
+                stateId = stateId,
+                auditLogsIds = listOf("task-id"),
             )
-        )
+        every { projectRepository.getProjectById(any()) } returns
+            createProject(
+                id = projectId,
+                states =
+                    listOf(
+                        createState(id = stateId),
+                    ),
+            )
 
         val result = createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
 
@@ -86,8 +92,8 @@ class CreateTaskUseCaseTest {
     @Test
     fun `should throw ProjectNotFoundException when project doesn't exist`() {
         val taskName = "Test"
-        val projectId = Uuid.random().toHexString()
-        val stateId = Uuid.random().toHexString()
+        val projectId = Uuid.random().getCroppedId()
+        val stateId = Uuid.random().getCroppedId()
         every { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
@@ -98,7 +104,7 @@ class CreateTaskUseCaseTest {
     @Test
     fun `should throw StateNotFoundException when state doesn't exist`() {
         val taskName = "Test"
-        val projectId = Uuid.random().toHexString()
+        val projectId = Uuid.random().getCroppedId()
         val stateId = "1"
         val differentStateId = "3"
         every { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = differentStateId)))
@@ -111,8 +117,8 @@ class CreateTaskUseCaseTest {
     @Test
     fun `should throw UserNotFoundException when no user is logged in`() {
         val taskName = "Test"
-        val projectId = Uuid.random().toHexString()
-        val stateId = Uuid.random().toHexString()
+        val projectId = Uuid.random().getCroppedId()
+        val stateId = Uuid.random().getCroppedId()
         every { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = stateId)))
         every { authenticationRepository.getCurrentUser() } returns null
 
@@ -123,14 +129,26 @@ class CreateTaskUseCaseTest {
 
     companion object {
         @JvmStatic
-        fun provideBlankInputScenarios() = Stream.of(
-            Arguments.argumentSet(
-                "blank task name", "", Uuid.random().toHexString(), Uuid.random().toHexString()
-            ), Arguments.argumentSet(
-                "blank project id", "test name", "", Uuid.random().toHexString()
-            ), Arguments.argumentSet(
-                "blank state id", "test name", Uuid.random().toHexString(), ""
+        fun provideBlankInputScenarios() =
+            Stream.of(
+                Arguments.argumentSet(
+                    "blank task name",
+                    "",
+                    Uuid.random().getCroppedId(),
+                    Uuid.random().getCroppedId(),
+                ),
+                Arguments.argumentSet(
+                    "blank project id",
+                    "test name",
+                    "",
+                    Uuid.random().getCroppedId(),
+                ),
+                Arguments.argumentSet(
+                    "blank state id",
+                    "test name",
+                    Uuid.random().getCroppedId(),
+                    "",
+                ),
             )
-        )
     }
 }
