@@ -1,6 +1,6 @@
 package org.example.logic.command
 
-class TransactionCommands(private val commands: List<Command>) : Command {
+class TransactionCommands(private val commands: List<Command>, private val exception: Exception =Exception()) : Command {
 
     private val executedCommands = mutableListOf<Command>()
 
@@ -11,7 +11,7 @@ class TransactionCommands(private val commands: List<Command>) : Command {
                 executedCommands.add(command)
             } catch (e: Exception) {
                 undo()
-                throw e
+                throw exception
 
             }
         }
