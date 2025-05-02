@@ -58,13 +58,13 @@ val dataSourceModule = module {
     }
 
     single<LocalAuditLogDataSource> {
-        CsvAuditLogDataSource(get(qualifier = named("audit-log-reader")), get(qualifier = named("audit-log-writer")))
+        CsvAuditLogDataSource(get(qualifier = named("audit-logs-reader")), get(qualifier = named("audit-logs-writer")))
     }
     single<LocalProjectDataSource> {
         CsvProjectDataSource(get(qualifier = named("projects-reader")), get(qualifier = named("projects-writer")))
     }
     single<LocalAuthenticationDataSource> {
-        CsvAuthenticationDataSource(get(qualifier = named("users-reader")), get(qualifier = named("users-writer")))
+        CsvAuthenticationDataSource(get(qualifier = named("users-writer")), get(qualifier = named("users-reader")))
 
     }
 }
