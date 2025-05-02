@@ -1,7 +1,7 @@
 package org.example.logic.useCase.deleteTask
 
 import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionCommands
+import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
@@ -24,7 +24,7 @@ class DeleteTaskUseCase(
         val auditLog = saveAuditLog(taskId)
         val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
         val deleteTasksCommand = DeleteTaskCommand(taskRepository, getTaskByIdUseCase(taskId))
-        TransactionCommands(listOf(auditCommand, deleteTasksCommand), UnableToDeleteTaskException("Cannot delete task"))
+        TransactionalCommand(listOf(auditCommand, deleteTasksCommand), UnableToDeleteTaskException("Cannot delete task"))
 
     }
 

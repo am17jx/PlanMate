@@ -116,7 +116,7 @@ class UpdateStateUseCaseTest {
     @Test
     fun `should throw ProjectNotFoundException when no project found with the given id`() {
         every { authenticationRepository.getCurrentUser() } returns createUser()
-        every { projectRepository.getProjectById(any()) } returns null
+        every { projectRepository.getProjectById(any()) } throws Exception()
 
         assertThrows<ProjectNotFoundException> {
             updateStateUseCase(newTitle, stateId, dummyProject.id)

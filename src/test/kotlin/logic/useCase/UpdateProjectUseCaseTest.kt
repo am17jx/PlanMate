@@ -106,7 +106,7 @@ class UpdateProjectUseCaseTest {
     fun `should throw ProjectNotFoundException when project does not exist`() {
         val updatedProject = createProject(name = "Updated")
         every { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.ADMIN)
-        every { projectRepository.getProjectById(updatedProject.id) } returns null
+        every { projectRepository.getProjectById(updatedProject.id) } throws  Exception()
 
         assertThrows<ProjectNotFoundException> {
             updateProjectUseCase(updatedProject)
