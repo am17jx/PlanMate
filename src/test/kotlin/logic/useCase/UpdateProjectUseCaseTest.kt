@@ -3,6 +3,7 @@ package logic.useCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import mockdata.createAuditLog
 import mockdata.createProject
@@ -28,6 +29,7 @@ class UpdateProjectUseCaseTest {
     fun setup() {
         projectRepository = mockk(relaxed = true)
         auditLogRepository = mockk(relaxed = true)
+         auditLogRepository = spyk<AuditLogRepository>()
         authenticationRepository = mockk(relaxed = true)
         updateProjectUseCase = UpdateProjectUseCase(projectRepository, auditLogRepository, authenticationRepository)
     }
@@ -68,6 +70,8 @@ class UpdateProjectUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns createUser(role=UserRole.ADMIN)
         every { projectRepository.getProjectById(updatedProject.id) } returns createProject()
         every { auditLogRepository.createAuditLog(any()) } throws Exception()
+        //every { auditLogRepository.deleteAuditLog(any()) } throws Exception()
+
 
         assertThrows<ProjectNotChangedException> {
             updateProjectUseCase(updatedProject)

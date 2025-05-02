@@ -11,6 +11,5 @@ fun main() {
         modules(appModule)
     }
 
-    println("Loading, Please wait...")
     val consoleUi: MainUiController = getKoin().get()
 }

@@ -10,18 +10,18 @@ import org.example.logic.models.State
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.useCase.EditStateUseCase
+import org.example.logic.useCase.UpdateStateUseCase
 import org.example.logic.useCase.UpdateProjectUseCase
 import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class EditStateUseCaseTest {
+class UpdateStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var authenticationRepository: AuthenticationRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
-    private lateinit var editStateUseCase: EditStateUseCase
+    private lateinit var updateStateUseCase: UpdateStateUseCase
     private val dummyProject =
         createProject(
             id = "1",
@@ -41,7 +41,7 @@ class EditStateUseCaseTest {
         projectRepository = mockk()
         authenticationRepository = mockk()
         updateProjectUseCase = mockk()
-        editStateUseCase = EditStateUseCase(projectRepository, authenticationRepository, updateProjectUseCase)
+        updateStateUseCase = UpdateStateUseCase(projectRepository, authenticationRepository, updateProjectUseCase)
     }
 
     @Test
@@ -57,7 +57,7 @@ class EditStateUseCaseTest {
         every { updateProjectUseCase(any()) } returns
             dummyProject.copy(states = updatedStates)
 
-        val updatedProject = editStateUseCase(newTitle, stateId, dummyProject.id)
+        val updatedProject = updateStateUseCase(newTitle, stateId, dummyProject.id)
 
         verify { projectRepository.getProjectById(any()) }
         verify { authenticationRepository.getCurrentUser() }
@@ -71,7 +71,7 @@ class EditStateUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
-            editStateUseCase(blankStateName, stateId, dummyProject.id)
+            updateStateUseCase(blankStateName, stateId, dummyProject.id)
         }
     }
 
@@ -81,7 +81,7 @@ class EditStateUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
-            editStateUseCase(newTitle, blankStateId, dummyProject.id)
+            updateStateUseCase(newTitle, blankStateId, dummyProject.id)
         }
     }
 
@@ -91,7 +91,7 @@ class EditStateUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
-            editStateUseCase(newTitle, stateId, blankProjectId)
+            updateStateUseCase(newTitle, stateId, blankProjectId)
         }
     }
 
@@ -100,7 +100,7 @@ class EditStateUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.USER)
 
         assertThrows<UnauthorizedException> {
-            editStateUseCase(newTitle, stateId, dummyProject.id)
+            updateStateUseCase(newTitle, stateId, dummyProject.id)
         }
     }
 
@@ -109,7 +109,7 @@ class EditStateUseCaseTest {
         every { authenticationRepository.getCurrentUser() } returns null
 
         assertThrows<NoLoggedInUserException> {
-            editStateUseCase(newTitle, stateId, dummyProject.id)
+            updateStateUseCase(newTitle, stateId, dummyProject.id)
         }
     }
 
@@ -119,7 +119,7 @@ class EditStateUseCaseTest {
         every { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
-            editStateUseCase(newTitle, stateId, dummyProject.id)
+            updateStateUseCase(newTitle, stateId, dummyProject.id)
         }
     }
 
@@ -129,7 +129,7 @@ class EditStateUseCaseTest {
         every { projectRepository.getProjectById(any()) } returns createProject()
 
         assertThrows<StateNotFoundException> {
-            editStateUseCase(newTitle, "5", dummyProject.id)
+            updateStateUseCase(newTitle, "5", dummyProject.id)
         }
     }
 }
