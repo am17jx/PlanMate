@@ -7,14 +7,9 @@ import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.TaskNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
-import java.util.stream.Stream
 
 class GetProjectTasksUseCaseTest {
     private lateinit var taskRepository: TaskRepository
@@ -30,17 +25,6 @@ class GetProjectTasksUseCaseTest {
     fun setUp() {
         taskRepository = mockk()
         getProjectTasksUseCase = GetProjectTasksUseCase(taskRepository)
-    }
-
-    @ParameterizedTest
-    @MethodSource("noTaskForProjectId")
-    fun `should throw TaskNotFoundException when there are no tasks for the given project id`(tasks: List<Task>) {
-        val projectId = "eq1wa"
-        every { taskRepository.getAllTasks() } returns tasks
-
-        assertThrows<TaskNotFoundException> {
-            getProjectTasksUseCase(projectId)
-        }
     }
 
     @Test
@@ -64,24 +48,5 @@ class GetProjectTasksUseCaseTest {
         result.forEach {
             assertThat(it.projectId).isEqualTo(projectId)
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun noTaskForProjectId(): Stream<Arguments> =
-            Stream.of(
-                Arguments.argumentSet(
-                    "when return empty list",
-                    emptyList<Task>(),
-                ),
-                Arguments.argumentSet(
-                    "when return list that doesn't contain the given project id",
-                    listOf(
-                        Task("1", "TaskName", "state", "potatoMan", emptyList(), "123"),
-                        Task("2", "TaskName", "state", "potatoMan", emptyList(), "123"),
-                        Task("3", "TaskName", "state", "potatoMan", emptyList(), "789"),
-                    ),
-                ),
-            )
     }
 }

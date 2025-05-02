@@ -1,7 +1,6 @@
 package org.example.presentation
 
 import org.example.logic.models.UserRole
-import org.example.logic.useCase.CreateProjectUseCase
 import org.example.presentation.navigation.NavigationCallBack
 import org.example.presentation.navigation.NavigationController
 import org.example.presentation.navigation.Route
@@ -10,15 +9,14 @@ import org.example.presentation.role.MateOptions
 import org.example.presentation.role.SharedOptions
 import org.example.presentation.screens.*
 import org.koin.java.KoinJavaComponent.getKoin
-import kotlin.system.exitProcess
-
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.system.exitProcess
 
 class MainUiController(
     private val navigationController: NavigationController,
     private val viewer: Viewer,
-    private val reader: Reader
+    private val reader: Reader,
 ) : NavigationCallBack {
     init {
         navigationController.registerNavigationCallBack(this)
@@ -28,23 +26,23 @@ class MainUiController(
         when (route) {
             is Route.LoginRoute -> {
                 LoginUI(
-                    onNavigateToAdminHome = {navigationController.navigateTo(Route.AdminHomeRoute)},
-                    onNavigateToShowAllProjects = { navigationController.navigateTo(Route.ShowAllProjectsRoute(it))},
+                    onNavigateToAdminHome = { navigationController.navigateTo(Route.AdminHomeRoute) },
+                    onNavigateToShowAllProjects = { navigationController.navigateTo(Route.ProjectsOverviewUI(it)) },
                     loginUserUseCase = getKoin().get(),
                     reader = reader,
-                    viewer = viewer
+                    viewer = viewer,
                 )
             }
 
             is Route.AdminHomeRoute -> {
                 AdminHomeUI(
-                    onNavigateToShowAllProjectsUI = { navigationController.navigateTo(Route.ShowAllProjectsRoute(it)) },
+                    onNavigateToShowAllProjectsUI = { navigationController.navigateTo(Route.ProjectsOverviewUI(it)) },
                     onNavigateToCreateProject = { navigationController.navigateTo(Route.CreateProjectRoute) },
                     onNavigateToCreateUser = { navigationController.navigateTo(Route.CreateUserRoute) },
                     onNavigateToOnBackStack = { navigationController.popBackStack() },
                     viewer = viewer,
                     reader = reader,
-                    userRole = UserRole.ADMIN
+                    userRole = UserRole.ADMIN,
                 )
             }
 
@@ -59,7 +57,7 @@ class MainUiController(
                     onNavigateBack = {
                         navigationController.popBackStack()
                     },
-                    projectScreensOptions = userFactory(route.userRole)
+                    projectScreensOptions = userFactory(route.userRole),
                 )
             }
 
@@ -68,7 +66,7 @@ class MainUiController(
                     createProjectUseCase = getKoin().get(),
                     onBack = { navigationController.navigateTo(Route.AdminHomeRoute) },
                     reader = reader,
-                    viewer = viewer
+                    viewer = viewer,
                 )
             }
 
@@ -76,18 +74,18 @@ class MainUiController(
                 ShowProjectTasksUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
-
                     onNavigateToTaskDetails = {
                         navigationController.navigateTo(Route.TaskDetailsRoute(taskId = it))
-                    }
+                    },
                 )
             }
+
             is Route.CreateUserRoute -> {
                 CreateUserUi(
                     createMateUseCase = getKoin().get(),
                     reader = reader,
                     viewer = viewer,
-                    onBack = { navigationController.popBackStack() }
+                    onBack = { navigationController.popBackStack() },
                 )
             }
 
@@ -106,7 +104,7 @@ class MainUiController(
                     viewer = getKoin().get(),
                     reader = getKoin().get(),
                     deleteTaskUseCase = getKoin().get(),
-                    updateTaskUseCase = getKoin().get()
+                    updateTaskUseCase = getKoin().get(),
                 ).showTaskInformation(taskId = route.taskId)
             }
         }
@@ -117,10 +115,9 @@ class MainUiController(
         exitProcess(0)
     }
 
-    private fun userFactory(type:UserRole): SharedOptions {
-        return when(type){
+    private fun userFactory(type: UserRole): SharedOptions =
+        when (type) {
             UserRole.ADMIN -> AdminOptions()
             UserRole.USER -> MateOptions()
         }
-    }
 }

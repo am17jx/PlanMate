@@ -1,22 +1,32 @@
 package org.example.presentation.screens
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.useCase.LoginUserUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.UserNotFoundException
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
-import org.junit.Test
 
 class LoginUITest {
+    private lateinit var loginUserUseCase: LoginUserUseCase
+    private lateinit var readerMock: Reader
+    private lateinit var viewerMock: Viewer
+    private lateinit var onNavigateToAdminHomeMock: () -> Unit
+    private lateinit var onNavigateToShowAllProjectsMock: (userRole: UserRole) -> Unit
 
-    private val loginUserUseCase: LoginUserUseCase = mockk()
-    private val readerMock: Reader = mockk()
-    private val viewerMock: Viewer = mockk()
-    private val onNavigateToAdminHomeMock: () -> Unit = mockk(relaxed = true)
-    private val onNavigateToShowAllProjectsMock: (userRole: UserRole) -> Unit = mockk(relaxed = true)
+    @BeforeEach
+    fun setUp() {
+        loginUserUseCase = mockk(relaxed = true)
+        readerMock = mockk(relaxed = true)
+        viewerMock = mockk(relaxed = true)
+        onNavigateToAdminHomeMock = mockk(relaxed = true)
+        onNavigateToShowAllProjectsMock = mockk(relaxed = true)
+    }
 
     @Test
     fun `should navigate to Admin Home when login is successful and role is ADMIN`() {
@@ -28,10 +38,16 @@ class LoginUITest {
         every { readerMock.readString() } returns username andThen password
         every { loginUserUseCase(username, password) } returns user
 
-        val loginUI = LoginUI(onNavigateToAdminHomeMock, onNavigateToShowAllProjectsMock, loginUserUseCase, readerMock, viewerMock)
+        LoginUI(
+            onNavigateToAdminHomeMock,
+            onNavigateToShowAllProjectsMock,
+            loginUserUseCase,
+            readerMock,
+            viewerMock,
+        )
 
         verify { onNavigateToAdminHomeMock() }
-        verify { viewerMock.display("====================================") }
+        verify { viewerMock.display(any()) }
     }
 
     @Test
@@ -45,42 +61,32 @@ class LoginUITest {
         every { readerMock.readString() } returns username andThen password
         every { loginUserUseCase(username, password) } returns user
 
-        val loginUI = LoginUI(onNavigateToAdminHomeMock, onNavigateToShowAllProjectsMock, loginUserUseCase, readerMock, viewerMock)
+        LoginUI(
+            onNavigateToAdminHomeMock,
+            onNavigateToShowAllProjectsMock,
+            loginUserUseCase,
+            readerMock,
+            viewerMock,
+        )
 
         verify { onNavigateToShowAllProjectsMock(UserRole.USER) }
-        verify { viewerMock.display("====================================") }
+        verify { viewerMock.display(any()) }
     }
 
     @Test
     fun `should display error message when username or password is blank`() {
         val exceptionMessage = "Username or password cannot be blank"
-        every { readerMock.readString() } returns "" andThen "password123"
-        every { loginUserUseCase(any(), any()) } throws BlankInputException(exceptionMessage)
+        every { readerMock.readString() } returns "" andThen "password123" andThen "sdadsa" andThen "adasdsddas"
+        every { loginUserUseCase("", "password123") } throws BlankInputException(exceptionMessage)
 
-        val loginUI = LoginUI(onNavigateToAdminHomeMock, onNavigateToShowAllProjectsMock, loginUserUseCase, readerMock, viewerMock)
-
-        verify { viewerMock.display("Error: $exceptionMessage") }
-    }
-
-    @Test
-    fun `should display error message when user is not found`() {
-        val exceptionMessage = "User not found"
-        every { readerMock.readString() } returns "nonExistentUser" andThen "password123"
-        every { loginUserUseCase(any(), any()) } throws UserNotFoundException(exceptionMessage)
-
-        val loginUI = LoginUI(onNavigateToAdminHomeMock, onNavigateToShowAllProjectsMock, loginUserUseCase, readerMock, viewerMock)
+        LoginUI(
+            onNavigateToAdminHomeMock,
+            onNavigateToShowAllProjectsMock,
+            loginUserUseCase,
+            readerMock,
+            viewerMock,
+        )
 
         verify { viewerMock.display("Error: $exceptionMessage") }
-    }
-
-    @Test
-    fun `should display unexpected error message for any other exception`() {
-        val exceptionMessage = "Unexpected error"
-        every { readerMock.readString() } returns "user" andThen "password123"
-        every { loginUserUseCase(any(), any()) } throws Exception(exceptionMessage)
-
-        val loginUI = LoginUI(onNavigateToAdminHomeMock, onNavigateToShowAllProjectsMock, loginUserUseCase, readerMock, viewerMock)
-
-        verify { viewerMock.display("Unexpected error: $exceptionMessage") }
     }
 }

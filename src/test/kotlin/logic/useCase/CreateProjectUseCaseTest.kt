@@ -5,13 +5,17 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import mockdata.createProject
+import mockdata.createUser
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.useCase.createProject.CreateProjectUseCase
-import org.example.logic.utils.*
+import org.example.logic.useCase.CreateProjectUseCase
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.NoLoggedInUserException
+import org.example.logic.utils.ProjectCreationFailedException
+import org.example.logic.utils.UnauthorizedException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -91,6 +95,7 @@ class CreateProjectUseCaseTest {
             createProjectUseCase(projectName)
         }
     }
+
     @Test
     fun `should throw ProjectCreationFailedException when projectName is larger than 16`() {
         val projectName = "plan mate plan mate plan mate plan mate plan mate"
@@ -120,12 +125,12 @@ class CreateProjectUseCaseTest {
             createProjectUseCase(projectName)
         }
     }
+
     @Test
     fun `should throws ProjectCreationFailedException when audit log return exception`() {
         val projectName = "Test Project"
         every { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
         every { auditLogRepository.createAuditLog(any()) } throws Exception()
-
 
         assertThrows<ProjectCreationFailedException> {
             createProjectUseCase(projectName)

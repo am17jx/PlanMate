@@ -11,7 +11,7 @@ import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskUseCase
-import org.example.logic.usecases.UpdateTaskUseCase
+import org.example.logic.useCase.updateTask.UpdateTaskUseCase
 import org.example.presentation.screens.ShowTaskInformation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

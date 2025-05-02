@@ -24,24 +24,27 @@ class LoginUI(
         viewer.display(" Welcome to the Task Management System ")
         viewer.display("====================================")
 
-        viewer.display("Enter username: ")
-        val username = reader.readString()
+        while (true) {
+            viewer.display("Enter username: ")
+            val username = reader.readString()
 
-        viewer.display("Enter password: ")
-        val password = reader.readString()
+            viewer.display("Enter password: ")
+            val password = reader.readString()
 
-        try {
-            val user = loginUserUseCase(username, password)
-            when (user.role) {
-                UserRole.ADMIN -> onNavigateToAdminHome()
-                UserRole.USER -> onNavigateToShowAllProjects(user.role)
+            try {
+                val user = loginUserUseCase(username, password)
+                when (user.role) {
+                    UserRole.ADMIN -> onNavigateToAdminHome()
+                    UserRole.USER -> onNavigateToShowAllProjects(user.role)
+                }
+                break
+            } catch (e: BlankInputException) {
+                viewer.display("Error: ${e.message}")
+            } catch (e: UserNotFoundException) {
+                viewer.display("Error: ${e.message}")
+            } catch (e: Exception) {
+                viewer.display("Unexpected error: ${e.message}")
             }
-        } catch (e: BlankInputException) {
-            viewer.display("Error: ${e.message}")
-        } catch (e: UserNotFoundException) {
-            viewer.display("Error: ${e.message}")
-        } catch (e: Exception) {
-            viewer.display("Unexpected error: ${e.message}")
         }
     }
 }
