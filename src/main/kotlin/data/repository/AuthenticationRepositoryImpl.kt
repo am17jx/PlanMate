@@ -19,8 +19,9 @@ class AuthenticationRepositoryImpl(
 
     @OptIn(ExperimentalUuidApi::class)
     override fun createMate(username: String, hashedPassword: String): User {
-        localAuthenticationDataSource.saveUser(User(Uuid.random().getCroppedId(),username,hashedPassword, UserRole.USER))
-        return User(Uuid.random().getCroppedId(),username,hashedPassword, UserRole.USER)
+        val user = User(Uuid.random().getCroppedId(),username,hashedPassword, UserRole.USER)
+        localAuthenticationDataSource.saveUser(user)
+        return user
     }
 
     override fun login(username: String, hashedPassword: String): User {
@@ -36,10 +37,19 @@ class AuthenticationRepositoryImpl(
 
 
     private fun getUserId(username: String, hashedPassword: String): String {
-        return getAllUsers().first { it.username == username && it.password == hashedPassword }.id
+        try {
+            return getAllUsers().first { it.username == username && it.password == hashedPassword }.id
+        } catch(e: NoSuchElementException) {
+            throw NoSuchElementException("User not found")
+        }
+
     }
 
     private fun getUserRole(username: String, hashedPassword: String): UserRole {
-        return getAllUsers().first { it.username == username && it.password == hashedPassword }.role
+        try {
+            return getAllUsers().first { it.username == username && it.password == hashedPassword }.role
+        } catch(e: NoSuchElementException) {
+            throw NoSuchElementException("User not found")
+        }
     }
 }
