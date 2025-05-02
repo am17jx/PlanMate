@@ -1,7 +1,7 @@
 package org.example.logic.useCase
 
 import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalUpdateProjectCommand
+import org.example.logic.command.TransactionalCommand
 import org.example.logic.command.UpdateProjectCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
@@ -28,14 +28,17 @@ class UpdateProjectUseCase(
 
     private fun saveUpdatedProject(originalProject: Project, newProject: Project, currentUser: User): Project {
         val updatedProjectResult: Project
+        val auditLog = createAuditLogInstance(originalProject, newProject, currentUser)
 
-        val auditLog = saveAuditLog(originalProject, newProject, currentUser)
         val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
         val updateProjectCommand = UpdateProjectCommand(projectRepository, newProject, originalProject)
+        val updateProjectCommandTransaction = TransactionalCommand(
+            listOf(updateProjectCommand, auditCommand),
+            ProjectNotChangedException("Project Not changed")
+        )
 
-        val updateCommandTransaction = TransactionalUpdateProjectCommand(listOf(updateProjectCommand, auditCommand))
         try {
-            updateCommandTransaction.execute()
+            updateProjectCommandTransaction.execute()
             updatedProjectResult = newProject.copy(
                 name = newProject.name,
                 id = newProject.id,
@@ -44,14 +47,13 @@ class UpdateProjectUseCase(
             )
         } catch (e: ProjectNotChangedException) {
             throw ProjectNotChangedException("Project Not changed: ${e.message}")
-
         }
 
         return updatedProjectResult
 
     }
 
-    private fun saveAuditLog(project: Project, updatedProject: Project, currentUser: User): AuditLog {
+    private fun createAuditLogInstance(project: Project, updatedProject: Project, currentUser: User): AuditLog {
         val actionBuilder = actionBuilder(project, updatedProject, currentUser)
         val auditLog = AuditLog(
             id = UUID.randomUUID().toString(),

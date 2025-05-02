@@ -1,6 +1,9 @@
 package logic.useCase
 
 import kotlinx.datetime.*
+import org.example.logic.command.CreateAuditLogCommand
+import org.example.logic.command.TaskCreateCommand
+import org.example.logic.command.TransactionalCommand
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
@@ -30,33 +33,43 @@ class CreateTaskUseCase(
 
     private fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
         val taskId = Uuid.random().toHexString()
-        val logId = createAuditLog(taskId, taskName, loggedInUser)
-        return taskRepository.createTask(
-            Task(
-                id = taskId,
-                name = taskName,
-                stateId = stateId,
-                projectId = projectId,
-                addedBy = loggedInUser.id,
-                auditLogsIds = listOf(logId)
-            )
+        val taskAuditLog = createAuditLog(taskId, taskName, loggedInUser)
+        val newTask = Task(
+            id = taskId,
+            name = taskName,
+            stateId = stateId,
+            projectId = projectId,
+            addedBy = loggedInUser.id,
+            auditLogsIds = listOf(taskAuditLog.id)
         )
+
+        val auditCommand = CreateAuditLogCommand(auditLogRepository, taskAuditLog)
+        val taskCreateCommand = TaskCreateCommand(taskRepository, newTask)
+        val createTaskCommandTransaction = TransactionalCommand(
+            listOf(taskCreateCommand, auditCommand),
+            TaskNotCreatedException("Project Not changed")
+        )
+        try {
+            createTaskCommandTransaction.execute()
+        }catch (e :TaskNotCreatedException){
+            throw e
+        }
+
+        return newTask
+
     }
 
-    private fun createAuditLog(taskId: String, name: String, loggedInUser: User): String {
+    private fun createAuditLog(taskId: String, name: String, loggedInUser: User): AuditLog {
         val timestampNow = Clock.System.now()
-        return auditLogRepository
-            .createAuditLog(
-                AuditLog(
-                    id = Uuid.random().toHexString(),
-                    userId = loggedInUser.id,
-                    action = "user ${loggedInUser.username} created task $name at ${timestampNow.formattedString()}",
-                    timestamp = timestampNow.epochSeconds,
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = taskId,
-                    actionType = AuditLogActionType.CREATE
-                )
-            ).id
+        return AuditLog(
+            id = Uuid.random().toHexString(),
+            userId = loggedInUser.id,
+            action = "user ${loggedInUser.username} created task $name at ${timestampNow.formattedString()}",
+            timestamp = timestampNow.epochSeconds,
+            entityType = AuditLogEntityType.TASK,
+            entityId = taskId,
+            actionType = AuditLogActionType.CREATE
+        )
     }
 
     private fun getLoggedInUserOrThrow() = authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
@@ -65,7 +78,7 @@ class CreateTaskUseCase(
 
     private fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->
-            if(project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
+            if (project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
         } ?: throw ProjectNotFoundException(NO_PROJECT_FOUND_ERROR_MESSAGE)
     }
 
@@ -80,7 +93,8 @@ class CreateTaskUseCase(
             stateId.isBlank() -> throw BlankInputException(BLANK_STATE_ID_ERROR_MESSAGE)
         }
     }
-    companion object{
+
+    companion object {
         const val NO_STATE_FOUND_ERROR_MESSAGE = "No state found with this ID"
         const val NO_PROJECT_FOUND_ERROR_MESSAGE = "No project found with this ID"
         const val BLANK_TASK_NAME_ERROR_MESSAGE = "Task name cannot be blank"
