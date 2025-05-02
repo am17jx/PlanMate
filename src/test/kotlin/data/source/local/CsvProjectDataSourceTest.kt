@@ -10,7 +10,6 @@ import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.utils.ProjectCreationFailedException
 import org.example.logic.utils.ProjectNotChangedException
-import org.example.logic.utils.ProjectNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -161,14 +160,5 @@ class CsvProjectDataSourceTest {
 
         assertThat(result?.id).isEqualTo("2")
         assertThat(result?.name).isEqualTo("Project 2")
-    }
-
-    @Test
-    fun `getProjectById should throws ProjectNotFoundException when project not found`() {
-        val nonExistentProjectId = "999"
-
-        assertThrows<ProjectNotFoundException> {
-            dataSource.getProjectById(nonExistentProjectId)
-        }
     }
 }

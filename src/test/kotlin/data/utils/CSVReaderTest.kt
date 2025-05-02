@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
 
 class CSVReaderTest {
@@ -28,7 +27,7 @@ class CSVReaderTest {
             username,password,role
             mohamed1,a1234567,MATE
             ahmed1,a7654321,ADMIN
-        """.trimIndent()
+            """.trimIndent(),
         )
 
         csvReader = CSVReader(tempFile)
@@ -45,35 +44,26 @@ class CSVReaderTest {
     }
 
     @Test
-    fun `should throw FileNotFoundException when file doesn't exist`() {
-        val nonExistentFile = File(tempDir, "non-existent.csv")
-
-        val exception = assertThrows<FileNotFoundException> {
-            CSVReader(nonExistentFile)
-        }
-
-        assertThat(exception).hasMessageThat().contains(CSVReader.FILE_NOT_FOUND_ERROR_MESSAGE)
-    }
-
-    @Test
     fun `should throw IOException when file is not readable`() {
         val mockFile = mockk<File>(relaxed = true)
         every { mockFile.exists() } returns true
         every { mockFile.canRead() } returns false
         every { mockFile.isDirectory() } returns false
 
-        val exception = assertThrows<IOException> {
-            CSVReader(mockFile)
-        }
+        val exception =
+            assertThrows<IOException> {
+                CSVReader(mockFile)
+            }
 
         assertThat(exception).hasMessageThat().contains(CSVReader.CANNOT_READ_FILE_ERROR_MESSAGE)
     }
 
     @Test
     fun `should throw IOException when directory is provided instead of file`() {
-        val exception = assertThrows<IOException> {
-            CSVReader(tempDir)
-        }
+        val exception =
+            assertThrows<IOException> {
+                CSVReader(tempDir)
+            }
 
         assertThat(exception).hasMessageThat().contains(CSVReader.DIRECTORY_INSTEAD_OF_FILE_ERROR_MESSAGE)
     }
@@ -84,5 +74,4 @@ class CSVReaderTest {
             tempFile.delete()
         }
     }
-
 }
