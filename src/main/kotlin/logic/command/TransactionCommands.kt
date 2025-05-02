@@ -1,8 +1,6 @@
 package org.example.logic.command
 
-import org.example.logic.utils.ProjectNotChangedException
-
-class TransactionalUpdateProjectCommand(private val commands: List<Command>) : Command {
+class TransactionCommands(private val commands: List<Command>) : Command {
 
     private val executedCommands = mutableListOf<Command>()
 
@@ -13,7 +11,7 @@ class TransactionalUpdateProjectCommand(private val commands: List<Command>) : C
                 executedCommands.add(command)
             } catch (e: Exception) {
                 undo()
-                throw ProjectNotChangedException("Project Not changed")
+                throw e
 
             }
         }
