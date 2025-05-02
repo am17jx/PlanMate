@@ -10,4 +10,7 @@ sealed interface Route {
     data class ShowProjectTasksRoute(val projectId: String) : Route
     data class ProjectStatusRoute(val projectId: String) : Route
     data object CreateUserRoute : Route
+    data class TaskDetailsRoute(val taskId: String) : Route
+
 }
+

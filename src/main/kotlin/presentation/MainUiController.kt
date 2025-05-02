@@ -17,7 +17,6 @@ import presentation.utils.io.Viewer
 
 class MainUiController(
     private val navigationController: NavigationController,
-    private val navigationController: NavigationController,
     private val viewer: Viewer,
     private val reader: Reader
 ) : NavigationCallBack {
@@ -60,7 +59,7 @@ class MainUiController(
                     onNavigateBack = {
                         navigationController.popBackStack()
                     },
-                    projectScreensOptions = userFactory(route.userRole),
+                    projectScreensOptions = userFactory(route.userRole)
                 )
             }
 
@@ -73,6 +72,16 @@ class MainUiController(
                 )
             }
 
+            is Route.ShowProjectTasksRoute -> {
+                ShowProjectTasksUI.create(
+                    projectId = route.projectId,
+                    onNavigateBack = navigationController::popBackStack,
+
+                    onNavigateToTaskDetails = {
+                        navigationController.navigateTo(Route.TaskDetailsRoute(taskId = it))
+                    }
+                )
+            }
             is Route.CreateUserRoute -> {
                 CreateUserUi(
                     createMateUseCase = getKoin().get(),
@@ -82,7 +91,24 @@ class MainUiController(
                 )
             }
 
-            is Route.ProjectStatusRoute -> route.projectId
+            is Route.ProjectStatusRoute -> {
+                ProjectStatusUI.create(
+                    projectId = route.projectId,
+                    onNavigateBack = navigationController::popBackStack,
+                )
+            }
+
+            is Route.TaskDetailsRoute -> {
+                ShowTaskInformation(
+                    getEntityAuditLogsUseCase = getKoin().get(),
+                    getStateNameUseCase = getKoin().get(),
+                    getTaskByIdUseCase = getKoin().get(),
+                    viewer = getKoin().get(),
+                    reader = getKoin().get(),
+                    deleteTaskUseCase = getKoin().get(),
+                    updateTaskUseCase = getKoin().get()
+                ).showTaskInformation(taskId = route.taskId)
+            }
         }
     }
 
@@ -91,9 +117,10 @@ class MainUiController(
         exitProcess(0)
     }
 
-    private fun userFactory(type: UserRole): SharedOptions =
-        when (type) {
+    private fun userFactory(type:UserRole): SharedOptions {
+        return when(type){
             UserRole.ADMIN -> AdminOptions()
             UserRole.USER -> MateOptions()
         }
+    }
 }

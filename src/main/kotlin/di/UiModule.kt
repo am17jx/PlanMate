@@ -16,7 +16,7 @@ import presentation.utils.TablePrinter
 
 val uiModule =
     module {
-        single { NavigationController(startDestination = Route.ProjectsOverviewUI(userRole = UserRole.ADMIN)) }
+        single { NavigationController(startDestination = Route.LoginRoute) }
         singleOf(::MainUiController)
         singleOf(::ConsoleReader) { bind<Reader>() }
         singleOf(::ConsoleViewer) { bind<Viewer>() }
