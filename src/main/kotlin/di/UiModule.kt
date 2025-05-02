@@ -7,7 +7,8 @@ import presentation.utils.io.ConsoleReader
 import presentation.utils.io.ConsoleViewer
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
-import org.example.logic.useCase.CreateMateUseCase // ✅ هذا هو السطر المفقود
+import org.example.logic.useCase.CreateMateUseCase
+import org.koin.dsl.module
 
 val uiModule = module {
     single<Viewer> { ConsoleViewer() }

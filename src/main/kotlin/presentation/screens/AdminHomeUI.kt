@@ -25,7 +25,7 @@ class AdminHomeUI(
         viewer.display("4. Back")
         viewer.display("Enter your choice: ")
 
-        val choice = reader.readInt()
+        val choice = reader.readInt() ?: -1
         when (choice) {
             1 -> onNavigateToShowAllProjectsUI(userRole)
             2 -> onNavigateToCreateProject()
