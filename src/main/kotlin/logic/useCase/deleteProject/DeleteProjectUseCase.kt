@@ -1,5 +1,6 @@
 package org.example.logic.useCase.deleteProject
 
+import kotlinx.datetime.Clock
 import org.example.logic.command.Command
 import org.example.logic.command.CreateAuditLogCommand
 import org.example.logic.command.TransactionalCommand
@@ -13,6 +14,7 @@ import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskCommand
 import org.example.logic.utils.UnableToDeleteProjectException
+import org.example.logic.utils.formattedString
 import java.util.*
 
 class DeleteProjectUseCase(
@@ -42,10 +44,11 @@ class DeleteProjectUseCase(
     }
 
     private fun saveAuditLog(projectId: String): AuditLog {
+        val timestampNow = Clock.System.now()
         val auditLog = AuditLog(
             id = UUID.randomUUID().toString(),
             userId = userUseCase().id,
-            action = "${userUseCase().username} deleted project with id $projectId",
+            action = "${userUseCase().username} deleted project with id $projectId at ${timestampNow.formattedString()}",
             timestamp = System.currentTimeMillis(),
             entityType = AuditLogEntityType.PROJECT,
             entityId = projectId,
