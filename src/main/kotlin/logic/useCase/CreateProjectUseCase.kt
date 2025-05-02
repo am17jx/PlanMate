@@ -27,7 +27,6 @@ class CreateProjectUseCase(
             )
         val audit = createLog(newProject)
         return projectRepository.createProject(newProject.copy(auditLogsIds = listOf(audit.id)))
-            ?: throw ProjectCreationFailedException(PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE)
     }
 
     private fun checkInputValidation(projectName: String) {
@@ -61,15 +60,12 @@ class CreateProjectUseCase(
             )
 
         return auditLogRepository.createAuditLog(auditLog)
-            ?: throw AuditInputException(AUDIT_INPUT_EXCEPTION_MESSAGE)
     }
 
     companion object {
         const val BLANK_INPUT_EXCEPTION_MESSAGE = "Project name cannot be blank"
-        const val PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE = "Failed to create project"
         const val NO_LOGGED_IN_USER_EXCEPTION_MESSAGE = "No logged-in user found"
         const val UNAUTHORIZED_EXCEPTION_MESSAGE = "Only admins can create projects"
-        const val AUDIT_INPUT_EXCEPTION_MESSAGE = "Failed to create audit log"
         const val PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE = "Project name should not exceed 16 characters"
     }
 }
