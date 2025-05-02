@@ -10,6 +10,7 @@ import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskNotFoundException
+import org.example.logic.utils.getCroppedId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -45,7 +46,7 @@ class GetEntityAuditLogsUseCaseTest {
 
     @Test
     fun `should throw TaskNotFoundException when entity type is Task and there is no logs for it`(){
-        val taskId = Uuid.random().toHexString()
+        val taskId = Uuid.random().getCroppedId()
         every { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
 
         assertThrows<TaskNotFoundException> {
@@ -55,7 +56,7 @@ class GetEntityAuditLogsUseCaseTest {
 
     @Test
     fun `should throw ProjectNotFoundException when entity type is Project and there is no logs for it`(){
-        val projectId = Uuid.random().toHexString()
+        val projectId = Uuid.random().getCroppedId()
         every { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
 
         assertThrows<ProjectNotFoundException> {
@@ -77,10 +78,10 @@ class GetEntityAuditLogsUseCaseTest {
         @JvmStatic
         fun provideExistingEntitiesScenarios(): Stream<Arguments> = Stream.of(
             Arguments.argumentSet(
-                "existing task", Uuid.random().toHexString(), AuditLogEntityType.TASK
+                "existing task", Uuid.random().getCroppedId(), AuditLogEntityType.TASK
             ),
             Arguments.argumentSet(
-                "existing project", Uuid.random().toHexString(), AuditLogEntityType.PROJECT
+                "existing project", Uuid.random().getCroppedId(), AuditLogEntityType.PROJECT
             ),
         )
     }

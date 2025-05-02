@@ -22,7 +22,7 @@ class CreateStateUseCase(
         val project = getProject(projectId)
         val newState =
             State(
-                id = Uuid.random().toHexString(),
+                id = Uuid.random().getCroppedId(),
                 title = stateName,
             )
         val updatedProject =
