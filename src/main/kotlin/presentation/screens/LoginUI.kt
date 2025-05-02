@@ -34,6 +34,7 @@ class LoginUI(
             println("Error: ${e.message}")
         } catch (e: Exception) {
             println("Unexpected error: ${e.message}")
+            e.printStackTrace()
         }
     }
 }

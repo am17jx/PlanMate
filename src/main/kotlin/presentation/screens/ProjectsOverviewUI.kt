@@ -28,7 +28,6 @@ class ProjectsOverviewUI(
     private val options: Map<String, String> = projectScreensOptions.showAllProjectsOptions()
 
     init {
-        showAllProjects()
         showMainMenu()
     }
 
@@ -69,6 +68,7 @@ class ProjectsOverviewUI(
 
     private fun showMainMenu() {
         while (true) {
+            showAllProjects()
             viewer.display("\n=== Project Menu ===")
             val sortedOptions=options.toSortedMap()
             sortedOptions.forEach { option ->
@@ -87,7 +87,7 @@ class ProjectsOverviewUI(
                 MainMenuOption.DELETE_PROJECT -> deleteProject()
                 MainMenuOption.SHOW_PROJECT_LOGS -> showProjectLogsInTable()
                 MainMenuOption.BACK -> {
-                    backToLogin()
+                    back()
                     return
                 }
 
@@ -98,6 +98,7 @@ class ProjectsOverviewUI(
 
     private fun showProjectLogsInTable() {
         try {
+            viewer.display("Please enter the project ID:")
             val projectId = reader.readString()
             val projectLogs = getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
             val actions = projectLogs.map { it.action }
@@ -110,7 +111,7 @@ class ProjectsOverviewUI(
         }
     }
 
-    private fun backToLogin() {
+    private fun back() {
             onNavigateBack()
     }
 
@@ -119,7 +120,7 @@ class ProjectsOverviewUI(
             viewer.display("Please enter the project ID:")
             val projectId = reader.readString()
             deleteProjectUseCase(projectId)
-            viewer.display("Project deleted successfully. [Stub implementation]")
+            viewer.display("Project deleted successfully.")
         } catch (e: Exception) {
             viewer.display("Failed to delete project: ${e.message}")
         }

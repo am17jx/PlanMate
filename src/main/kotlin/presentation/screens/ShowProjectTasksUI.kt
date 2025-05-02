@@ -51,6 +51,7 @@ class ShowProjectTasksUI(
     private fun displaySwimLanesTasksTable() {
         if (project.states.isEmpty()) {
             viewer.display("<==========( No States Added yet )==========>")
+            return
         }
         val (statesHeaders, tasksColumns) = getTableHeadersAndColumns()
         tablePrinter.printTable(
@@ -122,6 +123,7 @@ class ShowProjectTasksUI(
         val stateId = readSelectedState()
         try {
             createTaskUseCase(taskName, projectId, stateId)
+            loadTasks()
         } catch (e: Exception) {
             handleError(e)
         }

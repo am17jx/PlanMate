@@ -1,20 +1,24 @@
 package org.example.presentation
 
 import org.example.logic.models.UserRole
-import org.example.logic.useCase.CreateProjectUseCase
 import org.example.presentation.navigation.NavigationCallBack
 import org.example.presentation.navigation.NavigationController
 import org.example.presentation.navigation.Route
+
 import org.example.presentation.role.AdminOptions
 import org.example.presentation.role.MateOptions
 import org.example.presentation.role.SharedOptions
 import org.example.presentation.screens.*
+import org.example.presentation.screens.*
+import org.koin.java.KoinJavaComponent.get
 import org.koin.java.KoinJavaComponent.getKoin
 import kotlin.system.exitProcess
 
+
 class MainUiController(
-    private val navigationController: NavigationController,
+    private val navigationController: NavigationController
 ) : NavigationCallBack {
+
     init {
         navigationController.registerNavigationCallBack(this)
     }
@@ -29,7 +33,7 @@ class MainUiController(
                             UserRole.USER -> navigationController.navigateTo(Route.ProjectsOverviewUI(userRole = it))
                         }
                     },
-                    loginUserUseCase = getKoin().get(),
+                    loginUserUseCase = getKoin().get()
                 )
             }
 
@@ -55,14 +59,14 @@ class MainUiController(
                     onNavigateBack = {
                         navigationController.popBackStack()
                     },
-                    projectScreensOptions = userFactory(route.userRole),
+                    projectScreensOptions = userFactory(route.userRole)
                 )
             }
 
             is Route.CreateProjectRoute -> {
                 CreateNewProjectUi(
-                    createProjectUseCase = getKoin().get<CreateProjectUseCase>(),
-                    onBack = { navigationController.navigateTo(Route.AdminHomeRoute) },
+                    createProjectUseCase = getKoin().get(),
+                    onBack = { navigationController.navigateTo(Route.AdminHomeRoute) }
                 )
             }
 
@@ -70,14 +74,31 @@ class MainUiController(
                 ShowProjectTasksUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
+
                     onNavigateToTaskDetails = {
-                        // TODO("navigate to task details")
-                        println("navigating to task details with id $it")
-                    },
+                        navigationController.navigateTo(Route.TaskDetailsRoute(taskId = it))
+                    }
                 )
             }
 
-            is Route.ProjectStatusRoute -> route.projectId
+            is Route.ProjectStatusRoute -> {
+                ProjectStatusUI.create(
+                    projectId = route.projectId,
+                    onNavigateBack = navigationController::popBackStack,
+                )
+            }
+
+            is Route.TaskDetailsRoute -> {
+                ShowTaskInformation(
+                    getEntityAuditLogsUseCase = getKoin().get(),
+                    getStateNameUseCase = getKoin().get(),
+                    getTaskByIdUseCase = getKoin().get(),
+                    viewer = getKoin().get(),
+                    reader = getKoin().get(),
+                    deleteTaskUseCase = getKoin().get(),
+                    updateTaskUseCase = getKoin().get()
+                ).showTaskInformation(taskId = route.taskId)
+            }
         }
     }
 
@@ -86,9 +107,10 @@ class MainUiController(
         exitProcess(0)
     }
 
-    private fun userFactory(type: UserRole): SharedOptions =
-        when (type) {
+    private fun userFactory(type:UserRole): SharedOptions {
+        return when(type){
             UserRole.ADMIN -> AdminOptions()
             UserRole.USER -> MateOptions()
         }
+    }
 }
