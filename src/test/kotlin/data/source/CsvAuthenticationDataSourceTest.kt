@@ -1,6 +1,8 @@
 package data.source
 
 import com.google.common.truth.Truth.assertThat
+import org.example.data.utils.CSVReader
+import org.example.data.utils.CSVWriter
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.AfterEach
@@ -18,7 +20,7 @@ class CsvAuthenticationDataSourceTest {
     fun setup() {
         testFile = File.createTempFile("test_users", ".csv")
         expectedFile = File.createTempFile("expected_users", ".csv")
-        dataSource = CsvAuthenticationDataSource(testFile)
+        dataSource = CsvAuthenticationDataSource(CSVWriter(testFile), CSVReader(testFile))
     }
 
     @AfterEach
