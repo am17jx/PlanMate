@@ -1,10 +1,16 @@
 package org.example.logic.useCase.updateTask
 
+import kotlinx.datetime.Clock
 import org.example.logic.command.CreateAuditLogCommand
 import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
-import org.example.logic.repositries.*
-import org.example.logic.utils.*
+import org.example.logic.repositries.AuditLogRepository
+import org.example.logic.repositries.AuthenticationRepository
+import org.example.logic.repositries.TaskRepository
+import org.example.logic.utils.NoLoggedInUserException
+import org.example.logic.utils.TaskNotChangedException
+import org.example.logic.utils.TaskNotFoundException
+import org.example.logic.utils.formattedString
 import java.util.*
 
 class UpdateTaskUseCase(
@@ -17,21 +23,21 @@ class UpdateTaskUseCase(
         val existingTask = getExistingTaskOrThrow(taskId)
         ensureTaskIsChanged(existingTask, updatedTask)
         val currentUser = getCurrentUserOrThrow()
-        return updateAndLogTask(existingTask,updatedTask, currentUser)
+        return updateAndLogTask(existingTask, updatedTask, currentUser)
     }
-    private fun updateAndLogTask(oldTask: Task,updatedTask:Task, currentUser: User): Task {
+
+    private fun updateAndLogTask(oldTask: Task, updatedTask: Task, currentUser: User): Task {
 
         val taskAuditLog = logAudit(currentUser, updatedTask, oldTask)
 
         val auditCommand = CreateAuditLogCommand(auditLogRepository, taskAuditLog)
         val taskUpdatedCommand = TaskUpdateCommand(taskRepository, updatedTask, oldTask)
         val updateTaskCommandTransaction = TransactionalCommand(
-            listOf(taskUpdatedCommand, auditCommand),
-            TaskNotChangedException("Task Not changed")
+            listOf(taskUpdatedCommand, auditCommand), TaskNotChangedException("Task Not changed")
         )
         try {
             updateTaskCommandTransaction.execute()
-        }catch (e :TaskNotChangedException){
+        } catch (e: TaskNotChangedException) {
             throw e
         }
 
@@ -39,20 +45,21 @@ class UpdateTaskUseCase(
 
     }
 
-    private fun logAudit(user: User, oldTask: Task, newTask: Task):AuditLog {
-    return AuditLog(
+    private fun logAudit(user: User, oldTask: Task, newTask: Task): AuditLog {
+        val timestampNow = Clock.System.now()
+        return AuditLog(
             id = UUID.randomUUID().toString(),
             userId = user.id,
-            action = "Updated task from stateId=${oldTask.stateId} to stateId=${newTask.stateId}",
+            action = "Updated task from stateId=${oldTask.stateId} to stateId=${newTask.stateId} at ${timestampNow.formattedString()}",
             timestamp = System.currentTimeMillis(),
             entityType = AuditLogEntityType.TASK,
             entityId = newTask.id,
             actionType = AuditLogActionType.UPDATE
         )
     }
+
     private fun getExistingTaskOrThrow(taskId: String): Task {
-        return taskRepository.getTaskById(taskId)
-            ?: throw TaskNotFoundException("Task with id $taskId not found")
+        return taskRepository.getTaskById(taskId) ?: throw TaskNotFoundException("Task with id $taskId not found")
     }
 
     private fun ensureTaskIsChanged(oldTask: Task, newTask: Task) {
@@ -62,8 +69,7 @@ class UpdateTaskUseCase(
     }
 
     private fun getCurrentUserOrThrow(): User {
-        return authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No logged-in user found")
+        return authenticationRepository.getCurrentUser() ?: throw NoLoggedInUserException("No logged-in user found")
     }
 
 }

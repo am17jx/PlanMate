@@ -1,5 +1,6 @@
 package org.example.logic.useCase.updateProject
 
+import kotlinx.datetime.Clock
 import org.example.logic.command.Command
 import org.example.logic.command.CreateAuditLogCommand
 import org.example.logic.command.TransactionalCommand
@@ -83,6 +84,7 @@ class UpdateProjectUseCase(
 
     private fun actionBuilder(project: Project, updatedProject: Project, currentUser: User): Pair<String, String> {
         var deletedStateId = ""
+        val timestampNow = Clock.System.now()
         val action = when {
             project.name != updatedProject.name ->
                 "${currentUser.username} changed Project name from ${project.name} to ${updatedProject.name}"
@@ -105,7 +107,7 @@ class UpdateProjectUseCase(
             }
 
         }
-        return Pair(action,deletedStateId)
+        return Pair(action + "at ${timestampNow.formattedString()}",deletedStateId)
     }
 
     private fun currentUser(): User {
