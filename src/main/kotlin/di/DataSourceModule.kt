@@ -9,10 +9,12 @@ import org.example.data.utils.CSVWriter
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.core.module.dsl.bind
+import java.io.File
 
 val dataSourceModule = module {
-    singleOf(::CSVReader)
-    singleOf(::CSVWriter)
-    singleOf(::CsvTaskDataSource) { bind<LocalTaskDataSource>()}
+    single<LocalTaskDataSource> {
+        val file = File("tasks.csv")
+        CsvTaskDataSource(CSVReader(file), CSVWriter(file))
+    }
     singleOf(::CsvAuditLogDataSource) { bind<LocalAuditLogDataSource>()}
 }
