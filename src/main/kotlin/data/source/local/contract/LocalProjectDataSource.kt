@@ -1,11 +1,11 @@
-package org.example.logic.repositries
+package org.example.data.source.local.contract
 
 import org.example.logic.models.Project
 
-interface ProjectRepository {
+interface LocalProjectDataSource {
     fun createProject(project: Project): Project
 
-    fun updateProject(updatedProject: Project): Project?
+    fun updateProject(updatedProject: Project): Project
 
     fun deleteProject(projectId: String)
 
