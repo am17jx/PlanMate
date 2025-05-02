@@ -7,6 +7,7 @@ import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskUseCase
 import org.example.logic.usecases.UpdateTaskUseCase
+import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -36,7 +37,7 @@ class ShowTaskInformation(
                         deleteTask(taskId)
                         isRunning = false
                     }
-                    "3" -> showLogs(taskId)
+                    "3" -> showTaskLogs(taskId)
                     "4" -> {
                         viewer.display("Exiting...")
                         isRunning = false
@@ -97,23 +98,22 @@ class ShowTaskInformation(
         }
     }
 
-    private fun showLogs(taskId: String){
+    private fun showTaskLogs(taskId: String) {
         try {
-            val logs = getEntityAuditLogsUseCase(taskId, AuditLogEntityType.TASK)
-            viewer.display("Task Logs for Task ID: $taskId")
-            if(logs.isEmpty()){
+            val taskLogs = getEntityAuditLogsUseCase(taskId, AuditLogEntityType.TASK)
+            if (taskLogs.isEmpty()) {
                 viewer.display("No logs found for this task.")
-            } else{
-                logs.forEach {log ->
-                    viewer.display("$log.action")
-                }
+                return
             }
-        } catch (e: Exception){
+            val actions = taskLogs.map { it.action }
+            val tablePrinter = TablePrinter(viewer, reader)
+            tablePrinter.printTable(
+                headers = listOf("Actions"),
+                columnValues = listOf(actions)
+            )
+        } catch (e: Exception) {
             viewer.display("Error fetching logs: ${e.message}")
         }
     }
-
-
-
 
 }
