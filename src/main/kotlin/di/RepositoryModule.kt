@@ -1,12 +1,10 @@
 package di
 
 import org.example.data.repository.AuditLogRepositoryImpl
+import org.example.data.repository.AuthenticationRepositoryImpl
 import org.example.data.repository.ProjectRepositoryImpl
 import org.example.data.repository.TaskRepositoryImpl
-import org.example.logic.models.User
-import org.example.logic.models.UserRole
 import org.example.logic.repositries.*
-import org.example.logic.useCase.createProject.CreateProjectUseCase
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
@@ -22,4 +20,5 @@ val repositoryModule =
         singleOf(::TaskRepositoryImpl) { bind<TaskRepository>() }
         singleOf(::ProjectRepositoryImpl) { bind<ProjectRepository>() }
         singleOf(::AuditLogRepositoryImpl) { bind<AuditLogRepository>() }
+        singleOf(::AuthenticationRepositoryImpl) { bind<AuthenticationRepository>()}
     }
