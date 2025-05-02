@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import mockdata.createProject
+import mockdata.createUser
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
@@ -13,6 +14,7 @@ import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.NoLoggedInUserException
+import org.example.logic.utils.ProjectCreationFailedException
 import org.example.logic.utils.UnauthorizedException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -87,8 +89,19 @@ class CreateProjectUseCaseTest {
     @Test
     fun `should throw BlankInputException when projectName is blank`() {
         val projectName = ""
+        every { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
+            createProjectUseCase(projectName)
+        }
+    }
+
+    @Test
+    fun `should throw ProjectCreationFailedException when given project name is too long`() {
+        val projectName = "Test Project from the main to my life"
+        every { authenticationRepository.getCurrentUser() } returns createUser()
+
+        assertThrows<ProjectCreationFailedException> {
             createProjectUseCase(projectName)
         }
     }
