@@ -1,4 +1,4 @@
-package data.source.local.contract
+package org.example.data.source.local.contract
 
 import org.example.logic.models.User
 

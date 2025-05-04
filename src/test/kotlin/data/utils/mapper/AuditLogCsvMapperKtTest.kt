@@ -2,9 +2,9 @@ package data.utils.mapper
 
 import com.google.common.truth.Truth.assertThat
 import mockdata.createAuditLog
-import org.example.data.utils.mapper.toAuditLogs
-import org.example.data.utils.mapper.toCsvRow
-import org.example.data.utils.mapper.toCsvRows
+import org.example.data.source.local.csv.utils.mapper.toAuditLogs
+import org.example.data.source.local.csv.utils.mapper.toCsvRow
+import org.example.data.source.local.csv.utils.mapper.toCsvRows
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
 import java.util.UUID

@@ -5,11 +5,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import mockdata.createAuditLog
-import org.example.data.source.CsvAuditLogDataSource
-import org.example.data.utils.CSVReader
-import org.example.data.utils.CSVWriter
-import org.example.data.utils.mapper.toCsvRow
-import org.example.logic.models.AuditLog
+import org.example.data.source.local.csv.CsvAuditLogDataSource
+import org.example.data.source.local.csv.utils.CSVReader
+import org.example.data.source.local.csv.utils.CSVWriter
+import org.example.data.source.local.csv.utils.mapper.toCsvRow
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
 import org.junit.jupiter.api.BeforeEach

@@ -1,14 +1,12 @@
-package org.example.data.source
+package org.example.data.source.local.csv
 
-import org.example.data.source.local.cotract.LocalAuditLogDataSource
-import org.example.data.utils.CSVReader
-import org.example.data.utils.CSVWriter
-import org.example.data.utils.mapper.toAuditLogs
-import org.example.data.utils.mapper.toCsvRows
+import org.example.data.source.local.contract.LocalAuditLogDataSource
+import org.example.data.source.local.csv.utils.CSVReader
+import org.example.data.source.local.csv.utils.CSVWriter
+import org.example.data.source.local.csv.utils.mapper.toAuditLogs
+import org.example.data.source.local.csv.utils.mapper.toCsvRows
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogEntityType
-import org.example.logic.models.Task
-import java.io.File
 
 class CsvAuditLogDataSource(private val csvReader: CSVReader, private val csvWriter: CSVWriter) :
     LocalAuditLogDataSource {

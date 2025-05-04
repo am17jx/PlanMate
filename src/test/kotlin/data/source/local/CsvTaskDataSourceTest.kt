@@ -4,9 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.data.source.local.CsvTaskDataSource
-import org.example.data.utils.CSVReader
-import org.example.data.utils.CSVWriter
+import org.example.data.source.local.csv.CsvTaskDataSource
+import org.example.data.source.local.csv.utils.CSVReader
+import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.logic.models.Task
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

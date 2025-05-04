@@ -1,10 +1,9 @@
 package org.example.data.repository
 
-import org.example.data.source.local.cotract.LocalAuditLogDataSource
+import org.example.data.source.local.contract.LocalAuditLogDataSource
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 
 class AuditLogRepositoryImpl(
     private val localAuditLogDataSource: LocalAuditLogDataSource
