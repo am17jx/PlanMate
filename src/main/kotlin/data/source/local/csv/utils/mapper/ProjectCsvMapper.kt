@@ -1,4 +1,4 @@
-package org.example.data.utils.mapper
+package org.example.data.source.local.csv.utils.mapper
 
 import org.example.data.utils.Constants.ProjectParsingKeys.AUDIT_LOGS_IDS_INDEX
 import org.example.data.utils.Constants.ProjectParsingKeys.ID_INDEX

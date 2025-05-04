@@ -1,12 +1,12 @@
 package data.source
 
 import com.google.common.truth.Truth.assertThat
-import org.example.data.utils.CSVReader
-import org.example.data.utils.CSVWriter
+import org.example.data.source.local.csv.CsvAuthenticationDataSource
+import org.example.data.source.local.csv.utils.CSVReader
+import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File

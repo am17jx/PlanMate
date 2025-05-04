@@ -1,4 +1,4 @@
-package org.example.data.utils.mapper
+package org.example.data.source.local.csv.utils.mapper
 
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType

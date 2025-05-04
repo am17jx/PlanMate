@@ -1,6 +1,6 @@
 package org.example.data.repository
 
-import data.source.local.contract.LocalAuthenticationDataSource
+import org.example.data.source.local.contract.LocalAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository

@@ -1,10 +1,10 @@
 package data.utils.mapper
 
 import com.google.common.truth.Truth.assertThat
-import org.example.data.utils.mapper.toCsvLine
-import org.example.data.utils.mapper.toCsvLines
-import org.example.data.utils.mapper.toProject
-import org.example.data.utils.mapper.toProjectList
+import org.example.data.source.local.csv.utils.mapper.toCsvLine
+import org.example.data.source.local.csv.utils.mapper.toCsvLines
+import org.example.data.source.local.csv.utils.mapper.toProject
+import org.example.data.source.local.csv.utils.mapper.toProjectList
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.junit.jupiter.api.Test

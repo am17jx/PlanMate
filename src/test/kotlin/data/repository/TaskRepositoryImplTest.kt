@@ -7,7 +7,6 @@ import io.mockk.verify
 import mockdata.createTask
 import org.example.data.repository.TaskRepositoryImpl
 import org.example.data.source.local.contract.LocalTaskDataSource
-import org.example.logic.models.Task
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
