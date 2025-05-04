@@ -48,4 +48,4 @@ bin/
 /audit.csv
 /projects.csv
 /audit-logs.csv
-.env
+/.env
