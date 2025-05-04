@@ -3,7 +3,7 @@ package data.utils
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import org.example.data.utils.CSVReader
+import org.example.data.source.local.csv.utils.CSVReader
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

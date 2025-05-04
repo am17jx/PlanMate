@@ -1,12 +1,13 @@
 package data.repository
 
 import com.google.common.truth.Truth.assertThat
-import data.source.local.contract.LocalAuthenticationDataSource
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.example.data.repository.AuthenticationRepositoryImpl
+import org.example.data.source.local.contract.LocalAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

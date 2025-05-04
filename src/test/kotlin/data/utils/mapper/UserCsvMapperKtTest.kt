@@ -1,9 +1,9 @@
 package data.utils.mapper
 
 import com.google.common.truth.Truth.assertThat
-import org.example.data.utils.mapper.toCsvRow
-import org.example.data.utils.mapper.toCsvRows
-import org.example.data.utils.mapper.toUsers
+import org.example.data.source.local.csv.utils.mapper.toCsvRow
+import org.example.data.source.local.csv.utils.mapper.toCsvRows
+import org.example.data.source.local.csv.utils.mapper.toUsers
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.Assertions.*

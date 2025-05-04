@@ -1,4 +1,4 @@
-package org.example.data.source.local.cotract
+package org.example.data.source.local.contract
 
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogEntityType

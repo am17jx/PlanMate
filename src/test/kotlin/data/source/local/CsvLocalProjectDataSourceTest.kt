@@ -2,10 +2,10 @@ package data.source.local
 
 import com.google.common.truth.Truth.assertThat
 import io.mockk.*
-import org.example.data.source.local.CsvProjectDataSource
-import org.example.data.utils.CSVReader
-import org.example.data.utils.CSVWriter
-import org.example.data.utils.mapper.toCsvLines
+import org.example.data.source.local.csv.CsvProjectDataSource
+import org.example.data.source.local.csv.utils.CSVReader
+import org.example.data.source.local.csv.utils.CSVWriter
+import org.example.data.source.local.csv.utils.mapper.toCsvLines
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.utils.ProjectCreationFailedException

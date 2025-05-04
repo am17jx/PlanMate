@@ -1,10 +1,10 @@
-package org.example.data.source.local
+package org.example.data.source.local.csv
 
 import org.example.data.source.local.contract.LocalTaskDataSource
-import org.example.data.utils.CSVReader
-import org.example.data.utils.CSVWriter
-import org.example.data.utils.mapper.toCsvLines
-import org.example.data.utils.mapper.toTasks
+import org.example.data.source.local.csv.utils.CSVReader
+import org.example.data.source.local.csv.utils.CSVWriter
+import org.example.data.source.local.csv.utils.mapper.toCsvLines
+import org.example.data.source.local.csv.utils.mapper.toTasks
 import org.example.logic.models.Task
 
 class CsvTaskDataSource(
