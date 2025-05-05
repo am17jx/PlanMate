@@ -8,6 +8,7 @@ import org.example.data.mapper.toProject
 import org.example.data.mapper.toProjectDTO
 import org.example.data.models.ProjectDTO
 import org.example.data.source.remote.contract.RemoteProjectDataSource
+import org.example.data.utils.Constants.ID
 import org.example.logic.models.Project
 import org.example.logic.utils.*
 
@@ -25,7 +26,7 @@ class MongoProjectDataSource(
 
     override suspend fun updateProject(updatedProject: Project): Project {
         try {
-            mongoClient.replaceOne(Filters.eq("id", updatedProject.id), updatedProject.toProjectDTO())
+            mongoClient.replaceOne(Filters.eq(ID, updatedProject.id), updatedProject.toProjectDTO())
             return updatedProject
         } catch (e: Exception) {
             throw UpdateItemFailedException("project update failed")
@@ -35,7 +36,7 @@ class MongoProjectDataSource(
 
     override suspend fun deleteProject(projectId: String) {
         try {
-            mongoClient.deleteOne(Filters.eq("id", projectId))
+            mongoClient.deleteOne(Filters.eq(ID, projectId))
         } catch (e: Exception) {
             throw DeleteItemFailedException("project delete failed")
         }
@@ -51,7 +52,7 @@ class MongoProjectDataSource(
 
     override suspend fun getProjectById(projectId: String): Project? {
         try {
-            return mongoClient.find(Filters.eq("id", projectId)).firstOrNull()?.toProject()
+            return mongoClient.find(Filters.eq(ID, projectId)).firstOrNull()?.toProject()
         } catch (e: Exception) {
             throw GetItemByIdFailedException("project get by id failed")
         }

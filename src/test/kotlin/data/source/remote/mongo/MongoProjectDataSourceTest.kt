@@ -13,6 +13,7 @@ import org.example.data.mapper.toProjectDTO
 import org.example.data.models.ProjectDTO
 import org.example.data.source.remote.contract.RemoteProjectDataSource
 import org.example.data.source.remote.mongo.MongoProjectDataSource
+import org.example.data.utils.Constants.ID
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.utils.*
@@ -124,7 +125,7 @@ class MongoProjectDataSourceTest {
 
         val createProject = remoteProjectDataSource.updateProject(newProject)
 
-        coVerify(exactly = 1) { mongoClientCollection.replaceOne(Filters.eq("id", newProject.id), projectDTO, any()) }
+        coVerify(exactly = 1) { mongoClientCollection.replaceOne(Filters.eq(ID, newProject.id), projectDTO, any()) }
 
         advanceUntilIdle()
         assertThat(createProject).isEqualTo(newProject)
@@ -148,7 +149,7 @@ class MongoProjectDataSourceTest {
 
         coEvery {remoteProjectDataSource.updateProject(newProject) } throws UpdateItemFailedException("")
 
-        coVerify(exactly = 0) { mongoClientCollection.replaceOne(Filters.eq("id", newProject.id), projectDTO, any())}
+        coVerify(exactly = 0) { mongoClientCollection.replaceOne(Filters.eq(ID, newProject.id), projectDTO, any())}
     }
 
 
