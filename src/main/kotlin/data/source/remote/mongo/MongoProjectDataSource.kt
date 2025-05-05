@@ -20,7 +20,7 @@ class MongoProjectDataSource(
             mongoClient.insertOne(project.toProjectDTO())
             return project
         } catch (e: Exception) {
-            throw CreationItemFailedException("project creation failed")
+            throw CreationItemFailedException("project creation failed ${e.message}")
         }
     }
 
@@ -29,7 +29,7 @@ class MongoProjectDataSource(
             mongoClient.replaceOne(Filters.eq(ID, updatedProject.id), updatedProject.toProjectDTO())
             return updatedProject
         } catch (e: Exception) {
-            throw UpdateItemFailedException("project update failed")
+            throw UpdateItemFailedException("project update failed ${e.message}")
 
         }
     }
@@ -38,7 +38,7 @@ class MongoProjectDataSource(
         try {
             mongoClient.deleteOne(Filters.eq(ID, projectId))
         } catch (e: Exception) {
-            throw DeleteItemFailedException("project delete failed")
+            throw DeleteItemFailedException("project delete failed ${e.message}")
         }
     }
 
@@ -46,7 +46,7 @@ class MongoProjectDataSource(
         try {
             return mongoClient.find().toList().map { it.toProject() }
         } catch (e: Exception) {
-            throw GetItemsFailedException("projects get failed")
+            throw GetItemsFailedException("projects get failed ${e.message}")
         }
     }
 
@@ -54,7 +54,7 @@ class MongoProjectDataSource(
         try {
             return mongoClient.find(Filters.eq(ID, projectId)).firstOrNull()?.toProject()
         } catch (e: Exception) {
-            throw GetItemByIdFailedException("project get by id failed")
+            throw GetItemByIdFailedException("project get by id failed ${e.message}")
         }
     }
 }
