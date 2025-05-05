@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.1.20"
     jacoco
 }
 
@@ -18,6 +18,12 @@ dependencies {
     testImplementation("com.google.truth:truth:1.4.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.12.1")
     testImplementation("io.mockk:mockk:1.13.16")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+
 }
 
 tasks.test {
