@@ -6,7 +6,6 @@ import com.mongodb.kotlin.client.coroutine.MongoCollection
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.example.data.mapper.toProjectDTO
 import org.example.data.models.ProjectDTO
@@ -57,7 +56,7 @@ class MongoProjectDataSourceTest {
         coVerify(exactly = 1) { mongoClientCollection.find(filter = any()) }
     }
     @Test
-    fun `should throw GetItemsFailedException exception when try to get projects from MongoDB`() = runTest{
+    fun `should throw GetItemsFailedException exception when try to get projects fails in MongoDB`() = runTest{
 
         coEvery {  mongoClientCollection.find(filter = any())} throws GetItemsFailedException("")
 
@@ -87,7 +86,7 @@ class MongoProjectDataSourceTest {
     }
 
     @Test
-    fun `should throw CreationItemFailedException exception when create project at MongoDB`() = runTest {
+    fun `should throw CreationItemFailedException exception when create project fails in MongoDB`() = runTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
@@ -132,7 +131,7 @@ class MongoProjectDataSourceTest {
     }
 
     @Test
-    fun `should throw UpdateCreationFailedException exception when update project at MongoDB`() = runTest {
+    fun `should throw UpdateCreationFailedException exception when update project fails in MongoDB`() = runTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
@@ -163,7 +162,7 @@ class MongoProjectDataSourceTest {
 
 
     @Test
-    fun `should throw GetProjectByIdFailedException exception when get project by Id project at MongoDB`() = runTest {
+    fun `should throw GetProjectByIdFailedException exception when get project by by ID fails in MongoDB`() = runTest {
 
         coEvery{ mongoClientCollection.find(filter = any()) }throws GetItemByIdFailedException("")
 
@@ -181,7 +180,7 @@ class MongoProjectDataSourceTest {
 
 
     @Test
-    fun `should throw DeleteProjectFailedException exception when delete project by Id at MongoDB`() = runTest {
+    fun `should throw DeleteProjectFailedException exception when deleting project by ID fails in MongoDB`() = runTest {
 
         coEvery {  mongoClientCollection.deleteOne(filter = any(), options = any()) } throws DeleteItemFailedException("")
 
