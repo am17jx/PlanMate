@@ -9,31 +9,51 @@ import org.example.data.mapper.toProjectDTO
 import org.example.data.models.ProjectDTO
 import org.example.data.source.remote.contract.RemoteProjectDataSource
 import org.example.logic.models.Project
+import org.example.logic.utils.*
 
 class MongoProjectDataSource(
-    private val mongoClient: MongoCollection<ProjectDTO>
+    private val mongoClient: MongoCollection<ProjectDTO>,
 ) : RemoteProjectDataSource {
     override suspend fun createProject(project: Project): Project {
-        mongoClient.insertOne(project.toProjectDTO())
-        return project
+        try {
+            mongoClient.insertOne(project.toProjectDTO())
+            return project
+        } catch (e: Exception) {
+            throw CreationItemFailedException("project creation failed")
+        }
     }
 
     override suspend fun updateProject(updatedProject: Project): Project {
-        mongoClient.replaceOne(Filters.eq("id", updatedProject.id), updatedProject.toProjectDTO())
-        return updatedProject
+        try {
+            mongoClient.replaceOne(Filters.eq("id", updatedProject.id), updatedProject.toProjectDTO())
+            return updatedProject
+        } catch (e: Exception) {
+            throw UpdateItemFailedException("project update failed")
+
+        }
     }
 
     override suspend fun deleteProject(projectId: String) {
-        mongoClient.deleteOne(Filters.eq("id", projectId))
+        try {
+            mongoClient.deleteOne(Filters.eq("id", projectId))
+        } catch (e: Exception) {
+            throw DeleteItemFailedException("project delete failed")
+        }
     }
 
     override suspend fun getAllProjects(): List<Project> {
-        return mongoClient.find().toList().map { it.toProject()}
-
+        try {
+            return mongoClient.find().toList().map { it.toProject() }
+        } catch (e: Exception) {
+            throw GetItemsFailedException("projects get failed")
+        }
     }
 
     override suspend fun getProjectById(projectId: String): Project? {
-        return mongoClient.find(Filters.eq("id", projectId)).firstOrNull()?.toProject()
-
+        try {
+            return mongoClient.find(Filters.eq("id", projectId)).firstOrNull()?.toProject()
+        } catch (e: Exception) {
+            throw GetItemByIdFailedException("project get by id failed")
+        }
     }
 }
