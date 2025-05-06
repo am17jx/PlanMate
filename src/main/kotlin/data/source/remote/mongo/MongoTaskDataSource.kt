@@ -8,6 +8,8 @@ import org.example.data.mapper.toTask
 import org.example.data.mapper.toTaskDTO
 import org.example.data.models.TaskDTO
 import org.example.data.source.remote.contract.RemoteTaskDataSource
+import org.example.data.utils.Constants.ID
+import org.example.data.utils.Constants.STATE_ID_FIELD
 import org.example.logic.models.Task
 import org.example.logic.utils.*
 
@@ -26,7 +28,7 @@ class MongoTaskDataSource(
 
     override suspend fun updateTask(updatedTask: Task): Task {
         try {
-            mongoClient.replaceOne(Filters.eq("id", updatedTask.id), updatedTask.toTaskDTO())
+            mongoClient.replaceOne(Filters.eq(ID, updatedTask.id), updatedTask.toTaskDTO())
             return updatedTask
         } catch (e: Exception) {
             throw UpdateItemFailedException("project update failed ${e.message}")
@@ -36,7 +38,7 @@ class MongoTaskDataSource(
 
     override suspend fun deleteTask(taskId: String) {
         try {
-            mongoClient.deleteOne(Filters.eq("id", taskId))
+            mongoClient.deleteOne(Filters.eq(ID, taskId))
         } catch (e: Exception) {
             throw DeleteItemFailedException("project delete failed ${e.message}")
         }
@@ -53,7 +55,7 @@ class MongoTaskDataSource(
 
     override suspend fun getTaskById(taskId: String): Task? {
         try {
-            return mongoClient.find(Filters.eq("id", taskId)).firstOrNull()?.toTask()
+            return mongoClient.find(Filters.eq(ID, taskId)).firstOrNull()?.toTask()
         } catch (e: Exception) {
             throw GetItemByIdFailedException("task get by id failed ${e.message}")
         }
@@ -62,7 +64,7 @@ class MongoTaskDataSource(
 
     override suspend fun deleteTasksByStateId(stateId: String, taskId: String) {
         try {
-            mongoClient.deleteOne(Filters.and(Filters.eq("stateId", stateId), (Filters.eq("id", taskId))))
+            mongoClient.deleteOne(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), (Filters.eq(ID, taskId))))
         } catch (e: Exception) {
             throw DeleteItemFailedException("task delete failed ${e.message}")
         }
