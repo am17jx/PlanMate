@@ -68,23 +68,22 @@ class MongoTaskDataSourceTest {
     inner class UpdateTaskTests {
         @Test
         fun `updateTask should return task when task is updated `() = runTest {
-            val idFieldName = "id"
+
             val replaceResult = mockk<UpdateResult>(relaxed = true)
             coEvery {
-                mongoClient.replaceOne(Filters.eq(idFieldName, testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(ID_FIELD, testTasks[0].id), testTaskDTOs[0], any())
             } returns replaceResult
 
             val result = mongoTaskDataSource.updateTask(testTasks[0])
 
             assertEquals(testTasks[0], result)
-            coVerify { mongoClient.replaceOne(Filters.eq(idFieldName, testTasks[0].id), testTaskDTOs[0], any()) }
+            coVerify { mongoClient.replaceOne(Filters.eq(ID_FIELD, testTasks[0].id), testTaskDTOs[0], any()) }
         }
 
         @Test
         fun `updateTask should throw UpdateItemFailedException  when update task fails`() = runTest {
-            val idFieldName = "id"
             coEvery {
-                mongoClient.replaceOne(Filters.eq(idFieldName, testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(ID_FIELD, testTasks[0].id), testTaskDTOs[0], any())
             } throws UpdateItemFailedException("")
 
             assertThrows<UpdateItemFailedException> { mongoTaskDataSource.updateTask(testTasks[0]) }
@@ -121,8 +120,8 @@ class MongoTaskDataSourceTest {
 
         @Test
         fun `getTaskById should return null when  task not found`() = runTest {
-            val idFieldName = "id"
-            coEvery { mongoClient.find(Filters.eq(idFieldName, "10")).firstOrNull() } returns null
+
+            coEvery { mongoClient.find(Filters.eq(ID_FIELD, "10")).firstOrNull() } returns null
 
             val result = mongoTaskDataSource.getTaskById("10")
 
@@ -160,11 +159,11 @@ class MongoTaskDataSourceTest {
             val taskId = "4"
             val deleteResult = mockk<DeleteResult>(relaxed = true)
 
-            coEvery { mongoClient.deleteOne(Filters.eq("id", taskId), any()) } returns deleteResult
+            coEvery { mongoClient.deleteOne(Filters.eq(ID_FIELD, taskId), any()) } returns deleteResult
 
             mongoTaskDataSource.deleteTask(taskId)
 
-            coVerify { mongoClient.deleteOne(Filters.eq("id", taskId), any()) }
+            coVerify { mongoClient.deleteOne(Filters.eq(ID_FIELD, taskId), any()) }
         }
 
         @Test
@@ -184,13 +183,13 @@ class MongoTaskDataSourceTest {
             val deleteResult = mockk<DeleteResult>(relaxed = true)
 
             coEvery {
-                mongoClient.deleteOne(Filters.and(Filters.eq("stateId", stateId), Filters.eq("id", taskId)), any())
+                mongoClient.deleteOne(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID_FIELD, taskId)), any())
             } returns deleteResult
 
             mongoTaskDataSource.deleteTasksByStateId(stateId, taskId)
 
             coVerify {
-                mongoClient.deleteOne(Filters.and(Filters.eq("stateId", stateId), Filters.eq("id", taskId)), any())
+                mongoClient.deleteOne(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID_FIELD, taskId)), any())
             }
         }
 
@@ -205,6 +204,10 @@ class MongoTaskDataSourceTest {
                 assertThrows<DeleteItemFailedException> { mongoTaskDataSource.deleteTasksByStateId(stateId, taskId) }
             }
 
+    }
+    companion object{
+        const val STATE_ID_FIELD = "stateId"
+        const val ID_FIELD = "id"
     }
 
 
