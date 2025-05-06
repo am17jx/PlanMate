@@ -28,7 +28,6 @@ object Constants {
     const val ENTITY_TYPE = "entityType"
 
     const val STATE_ID_FIELD = "stateId"
-    const val ID_FIELD = "id"
 
 
 }
