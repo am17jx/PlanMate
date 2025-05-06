@@ -68,23 +68,23 @@ class MongoTaskDataSourceTest {
     inner class UpdateTaskTests {
         @Test
         fun `updateTask should return task when task is updated `() = runTest {
+            val idFieldName = "id"
             val replaceResult = mockk<UpdateResult>(relaxed = true)
-
             coEvery {
-                mongoClient.replaceOne(Filters.eq("id", testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(idFieldName, testTasks[0].id), testTaskDTOs[0], any())
             } returns replaceResult
 
             val result = mongoTaskDataSource.updateTask(testTasks[0])
 
             assertEquals(testTasks[0], result)
-            coVerify { mongoClient.replaceOne(Filters.eq("id", testTasks[0].id), testTaskDTOs[0], any()) }
+            coVerify { mongoClient.replaceOne(Filters.eq(idFieldName, testTasks[0].id), testTaskDTOs[0], any()) }
         }
 
         @Test
         fun `updateTask should throw UpdateItemFailedException  when update task fails`() = runTest {
-
+            val idFieldName = "id"
             coEvery {
-                mongoClient.replaceOne(Filters.eq("id", testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(idFieldName, testTasks[0].id), testTaskDTOs[0], any())
             } throws UpdateItemFailedException("")
 
             assertThrows<UpdateItemFailedException> { mongoTaskDataSource.updateTask(testTasks[0]) }
@@ -96,14 +96,9 @@ class MongoTaskDataSourceTest {
     inner class GetTaskTests {
         @Test
         fun `getAllTasks should return list of all available tasks `() = runTest {
-            val dto = listOf(
-                TaskDTO("3", "Updated Task", "in_progress", "user3", listOf("audit4"), "proj3"),
-                TaskDTO("5", "remove Task", "in review", "user3", listOf("audit4"), "proj3"),
-            )
             val findFlow = mockk<FindFlow<List<TaskDTO>>>(relaxed = true)
-
             coEvery { mongoClient.find<List<TaskDTO>>(filter = any(), any()) } returns findFlow
-            coEvery { findFlow.firstOrNull() } returns dto
+            coEvery { findFlow.firstOrNull() } returns testTaskDTOs
 
             val result = mongoTaskDataSource.getTaskById("5")
 
@@ -114,7 +109,6 @@ class MongoTaskDataSourceTest {
         @Test
         fun `getTaskById should return task when task found`() = runTest {
             val findFlow = mockk<FindFlow<TaskDTO>>(relaxed = true)
-
             every { mongoClient.find<TaskDTO>(filter = any()) } returns findFlow
             coEvery { findFlow.firstOrNull() } returns testTaskDTOs[0]
 
@@ -127,7 +121,8 @@ class MongoTaskDataSourceTest {
 
         @Test
         fun `getTaskById should return null when  task not found`() = runTest {
-            coEvery { mongoClient.find(Filters.eq("id", "10")).firstOrNull() } returns null
+            val idFieldName = "id"
+            coEvery { mongoClient.find(Filters.eq(idFieldName, "10")).firstOrNull() } returns null
 
             val result = mongoTaskDataSource.getTaskById("10")
 
