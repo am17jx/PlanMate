@@ -12,8 +12,10 @@ import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
 import org.example.data.source.remote.contract.RemoteProjectDataSource
+import org.example.data.source.remote.contract.RemoteTaskDataSource
 import org.example.data.source.remote.mongo.MongoAuthenticationDataSource
 import org.example.data.source.remote.mongo.MongoProjectDataSource
+import org.example.data.source.remote.mongo.MongoTaskDataSource
 import org.example.data.source.remote.mongo.PlanMateDataBase
 import org.example.data.utils.Constants
 import org.koin.core.parameter.parametersOf
@@ -75,5 +77,6 @@ val dataSourceModule = module {
 
     single<RemoteProjectDataSource>{ MongoProjectDataSource(PlanMateDataBase.projectDoc) }
     single<RemoteAuthenticationDataSource> { MongoAuthenticationDataSource(PlanMateDataBase.userDoc) }
+    single<RemoteTaskDataSource> { MongoTaskDataSource(PlanMateDataBase.taskDoc) }
 
 }
