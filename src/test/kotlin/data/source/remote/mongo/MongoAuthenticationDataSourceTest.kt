@@ -1,15 +1,10 @@
 package data.source.remote.mongo
 
-import com.google.common.truth.Truth.assertThat
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.example.data.mapper.toUser
 import org.example.data.mapper.toUserDTO
 import org.example.data.models.UserDTO
 import org.example.data.source.remote.mongo.MongoAuthenticationDataSource
@@ -21,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MongoAuthenticationDataSourceTest {
     private lateinit var mongoCollection: MongoCollection<UserDTO>
     private lateinit var remoteAuthenticationDataSource: MongoAuthenticationDataSource
@@ -44,7 +38,7 @@ class MongoAuthenticationDataSourceTest {
 
 
     @Test
-    fun `saveUser should CreationItemFailedException exception when insert in mongo fails`() = runTest {
+    fun `saveUser should throw CreationItemFailedException when insert in mongo fails`() = runTest {
         coEvery { mongoCollection.insertOne(userDTO, any()) } throws Exception()
 
         assertThrows<CreationItemFailedException> {
@@ -61,7 +55,7 @@ class MongoAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `getAllUsers should throw GetItemsFailedException exception when get all users from mongo fails`() = runTest {
+    fun `getAllUsers should throw GetItemsFailedException when get all users from mongo fails`() = runTest {
         coEvery { mongoCollection.find(filter = any()) } throws Exception()
 
         assertThrows<GetItemsFailedException> {
