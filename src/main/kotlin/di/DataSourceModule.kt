@@ -11,8 +11,10 @@ import org.example.data.source.local.csv.CsvTaskDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.remote.contract.RemoteAuditLogDataSource
+import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
 import org.example.data.source.remote.contract.RemoteProjectDataSource
 import org.example.data.source.remote.mongo.MongoAuditLogDataSource
+import org.example.data.source.remote.mongo.MongoAuthenticationDataSource
 import org.example.data.source.remote.mongo.MongoProjectDataSource
 import org.example.data.source.remote.mongo.PlanMateDataBase
 import org.example.data.utils.Constants
@@ -74,6 +76,7 @@ val dataSourceModule = module {
     }
 
     single<RemoteProjectDataSource>{ MongoProjectDataSource(PlanMateDataBase.projectDoc) }
+    single<RemoteAuthenticationDataSource> { MongoAuthenticationDataSource(PlanMateDataBase.userDoc) }
     single<RemoteAuditLogDataSource> { MongoAuditLogDataSource(PlanMateDataBase.auditLogDoc) }
 
 }
