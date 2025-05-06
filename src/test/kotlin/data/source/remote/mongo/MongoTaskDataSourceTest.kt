@@ -15,6 +15,8 @@ import kotlinx.coroutines.test.runTest
 import org.example.data.mapper.toTaskDTO
 import org.example.data.models.TaskDTO
 import org.example.data.source.remote.mongo.MongoTaskDataSource
+import org.example.data.utils.Constants.ID_FIELD
+import org.example.data.utils.Constants.STATE_ID_FIELD
 import org.example.logic.models.Task
 import org.example.logic.utils.*
 import org.junit.jupiter.api.Test
@@ -205,10 +207,5 @@ class MongoTaskDataSourceTest {
             }
 
     }
-    companion object{
-        const val STATE_ID_FIELD = "stateId"
-        const val ID_FIELD = "id"
-    }
-
 
 }
