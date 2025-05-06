@@ -2,6 +2,7 @@ package org.example.data.source.remote.mongo
 
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.github.cdimascio.dotenv.dotenv
+import org.example.data.models.AuditLogDTO
 import org.example.data.models.ProjectDTO
 import org.example.data.models.UserDTO
 import org.example.data.utils.Constants
@@ -26,6 +27,6 @@ object PlanMateDataBase {
     val projectDoc = database.getCollection<ProjectDTO>(collectionName = PROJECTS_DOCUMENTATION)
     val taskDoc = database.getCollection<Task>(collectionName = TASKS_DOCUMENTATION)
     val userDoc = database.getCollection<UserDTO>(collectionName = USERS_DOCUMENTATION)
-    val auditLogDoc = database.getCollection<AuditLog>(collectionName = AUDIT_LOGS_DOCUMENTATION)
+    val auditLogDoc = database.getCollection<AuditLogDTO>(collectionName = AUDIT_LOGS_DOCUMENTATION)
 
 }
