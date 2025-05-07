@@ -2,7 +2,7 @@ package presentation.screens
 
 import com.google.common.truth.Truth.assertThat
 import io.mockk.*
-import logic.useCase.CreateTaskUseCase
+import org.example.logic.useCase.CreateTaskUseCase
 import mockdata.createProject
 import mockdata.createTask
 import org.example.logic.models.State
