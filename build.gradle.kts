@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.20"
+    kotlin("plugin.serialization") version "1.9.21"
     jacoco
 }
 
@@ -13,6 +14,8 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
     implementation("io.insert-koin:koin-core:4.0.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+
     testImplementation(kotlin("test"))
     // tests
     testImplementation("com.google.truth:truth:1.4.2")
