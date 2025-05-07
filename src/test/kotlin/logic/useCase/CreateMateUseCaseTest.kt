@@ -1,8 +1,10 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
@@ -31,10 +33,10 @@ class CreateMateUseCaseTest {
     }
 
     @Test
-    fun `should return user data when user enter username and password and not exists before`() {
+    fun `should return user data when user enter username and password and not exists before`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
-        every { authenticationRepository.createMate(any(), any()) } returns User("newId", "newTestUsername", "testPassword", UserRole.USER)
+        coEvery { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.createMate(any(), any()) } returns User("newId", "newTestUsername", "testPassword", UserRole.USER)
 
         val result = createUserUseCase("newTestUsername", "testPassword")
 
@@ -42,33 +44,33 @@ class CreateMateUseCaseTest {
     }
 
     @Test
-    fun `should throw exception with type UserAlreadyExistsException when user enter username is exists before`() {
+    fun `should throw exception with type UserAlreadyExistsException when user enter username is exists before`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<UserAlreadyExistsException> { createUserUseCase("testUsername", "testPassword") }
     }
 
     @Test
-    fun `should throw exception with type BlankInputException when user not enter username`() {
+    fun `should throw exception with type BlankInputException when user not enter username`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<BlankInputException> { createUserUseCase("", "testPassword") }
     }
 
     @Test
-    fun `should throw exception with type BlankInputException when user not enter password`() {
+    fun `should throw exception with type BlankInputException when user not enter password`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<BlankInputException> { createUserUseCase("newTestUsername", "") }
     }
 
     @Test
-    fun `should throw exception with type InvalidUserNameInputException when user enter username with spaces`() {
+    fun `should throw exception with type InvalidUserNameInputException when user enter username with spaces`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<InvalidUserNameInputException> { createUserUseCase("new testUsername", "testPassword") }
     }

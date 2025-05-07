@@ -2,6 +2,7 @@ package logic.useCase
 
 import com.google.common.truth.Truth
 import io.mockk.*
+import kotlinx.coroutines.test.runTest
 import org.example.logic.models.*
 import org.example.logic.repositries.*
 import org.example.logic.useCase.updateTask.UpdateTaskUseCase
@@ -30,13 +31,13 @@ class UpdateTaskUseCaseTest {
     }
 
     @Test
-    fun `should return updated task when task is modified`() {
+    fun `should return updated task when task is modified`() = runTest {
         val oldTask = Task("t1", "Old", "s1", "u1", emptyList(), "p1")
         val newTask = oldTask.copy(name = "Updated")
-        every { taskRepository.getTaskById("t1") } returns oldTask
-        every { taskRepository.updateTask(newTask) } returns newTask
-        every { authRepository.getCurrentUser() } returns user
-        every { auditRepository.createAuditLog(any()) } returnsArgument 0
+        coEvery { taskRepository.getTaskById("t1") } returns oldTask
+        coEvery { taskRepository.updateTask(newTask) } returns newTask
+        coEvery { authRepository.getCurrentUser() } returns user
+        coEvery { auditRepository.createAuditLog(any()) } returnsArgument 0
 
         val result = useCase("t1", newTask)
 
@@ -44,14 +45,14 @@ class UpdateTaskUseCaseTest {
         assertThat(result.name, equalTo(newTask.name))
         Truth.assertThat(result.auditLogsIds.size).isGreaterThan(0)
 
-        verify { auditRepository.createAuditLog(any()) }
+        coVerify { auditRepository.createAuditLog(any()) }
     }
 
     @Test
-    fun `should throw TaskNotChangedException when task is not modified`() {
+    fun `should throw TaskNotChangedException when task is not modified`() = runTest {
         val task = Task("t2", "Same", "s1", "u1", emptyList(), "p1")
 
-        every { taskRepository.getTaskById("t2") } returns task
+        coEvery { taskRepository.getTaskById("t2") } returns task
 
         assertThrows<TaskNotChangedException> {
             useCase("t2", task)
@@ -59,8 +60,8 @@ class UpdateTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw TaskNotFoundException when task does not exist`() {
-        every { taskRepository.getTaskById("t3") } returns null
+    fun `should throw TaskNotFoundException when task does not exist`() = runTest {
+        coEvery { taskRepository.getTaskById("t3") } returns null
 
          assertThrows<TaskNotFoundException> {
             useCase("t3", Task("t3", "Missing", "s1", "u1", emptyList(), "p1"))
@@ -68,30 +69,30 @@ class UpdateTaskUseCaseTest {
     }
 
     @Test
-    fun `should return updated task when only stateId is changed`() {
+    fun `should return updated task when only stateId is changed`() = runTest {
         val oldTask = Task("t4", "Do Something", "s1", "u1", emptyList(), "p1")
         val newTask = oldTask.copy(stateId = "s2")
-        every { taskRepository.getTaskById("t4") } returns oldTask
-        every { taskRepository.updateTask(newTask) } returns newTask
-        every { authRepository.getCurrentUser() } returns user
-        every { auditRepository.createAuditLog(any()) } returnsArgument 0
+        coEvery { taskRepository.getTaskById("t4") } returns oldTask
+        coEvery { taskRepository.updateTask(newTask) } returns newTask
+        coEvery { authRepository.getCurrentUser() } returns user
+        coEvery { auditRepository.createAuditLog(any()) } returnsArgument 0
 
         val result = useCase("t4", newTask)
 
         assertThat(result.stateId, equalTo("s2"))
-        verify { auditRepository.createAuditLog(any()) }
+        coVerify { auditRepository.createAuditLog(any()) }
     }
 
     @Test
-    fun `should return updated task and create audit log when both name and stateId are changed`() {
+    fun `should return updated task and create audit log when both name and stateId are changed`() = runTest {
         val oldTask = Task("t5", "Old Task", "s1", "u1", emptyList(), "p1")
         val newTask = oldTask.copy(name = "New Task", stateId = "s3")
 
-        every { taskRepository.getTaskById("t5") } returns oldTask
-        every { taskRepository.updateTask(newTask) } returns newTask
-        every { authRepository.getCurrentUser() } returns user
+        coEvery { taskRepository.getTaskById("t5") } returns oldTask
+        coEvery { taskRepository.updateTask(newTask) } returns newTask
+        coEvery { authRepository.getCurrentUser() } returns user
         val auditSlot = slot<AuditLog>()
-        every { auditRepository.createAuditLog(capture(auditSlot)) } returnsArgument 0
+        coEvery { auditRepository.createAuditLog(capture(auditSlot)) } returnsArgument 0
 
         val result = useCase("t5", newTask)
 
@@ -107,8 +108,8 @@ class UpdateTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw TaskNotFoundException when task is null on retrieval`() {
-        every { taskRepository.getTaskById("t6") } returns null
+    fun `should throw TaskNotFoundException when task is null on retrieval`() = runTest {
+        coEvery { taskRepository.getTaskById("t6") } returns null
 
         assertThrows<TaskNotFoundException> {
             useCase("t6", Task("t6", "Name", "s1", "u1", emptyList(), "p1"))
@@ -116,14 +117,14 @@ class UpdateTaskUseCaseTest {
     }
 
     @Test
-    fun `should return updated task when user is logged in`() {
+    fun `should return updated task when user is logged in`() = runTest {
         val oldTask = Task("t5", "Old Task", "s1", "u1", emptyList(), "p1")
         val newTask = oldTask.copy(name = "Updated Task", stateId = "s2")
 
-        every { taskRepository.getTaskById("t5") } returns oldTask
-        every { taskRepository.updateTask(newTask) } returns newTask
-        every { authRepository.getCurrentUser() } returns user
-        every { auditRepository.createAuditLog(any()) } returnsArgument 0
+        coEvery { taskRepository.getTaskById("t5") } returns oldTask
+        coEvery { taskRepository.updateTask(newTask) } returns newTask
+        coEvery { authRepository.getCurrentUser() } returns user
+        coEvery { auditRepository.createAuditLog(any()) } returnsArgument 0
 
         val result = useCase("t5", newTask)
 
@@ -131,17 +132,17 @@ class UpdateTaskUseCaseTest {
         assertThat(result.name, equalTo(newTask.name))
         Truth.assertThat(result.auditLogsIds.size).isGreaterThan(0)
 
-        verify { auditRepository.createAuditLog(any()) }
+        coEvery { auditRepository.createAuditLog(any()) }
     }
 
     @Test
-    fun `should throw NoLoggedInUserException when no user is logged in`() {
+    fun `should throw NoLoggedInUserException when no user is logged in`() = runTest {
         val oldTask = Task("t8", "Old Task", "s1", "u1", emptyList(), "p1")
         val updatedTask = oldTask.copy(name = "Updated Task") // to make it different
 
-        every { taskRepository.getTaskById("t8") } returns oldTask
-        every { taskRepository.updateTask(updatedTask) } returns updatedTask
-        every { authRepository.getCurrentUser() } returns null
+        coEvery { taskRepository.getTaskById("t8") } returns oldTask
+        coEvery { taskRepository.updateTask(updatedTask) } returns updatedTask
+        coEvery { authRepository.getCurrentUser() } returns null
 
         assertThrows<NoLoggedInUserException> {
             useCase("t8", updatedTask)

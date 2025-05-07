@@ -1,8 +1,9 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetTaskByIdUseCase
@@ -10,8 +11,6 @@ import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidInputException
 import org.example.logic.utils.TaskNotFoundException
 import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -28,10 +27,10 @@ class GetTaskByIdUseCaseTest {
     }
 
     @Test
-    fun `should return task by ID when task exists`() {
+    fun `should return task by ID when task exists`() = runTest {
         val taskID = "1"
         val expectedTask = Task(taskID, "task", "1", "description", emptyList(), "2")
-        every { taskRepository.getTaskById(taskID) } returns expectedTask
+        coEvery { taskRepository.getTaskById(taskID) } returns expectedTask
 
         val result = getTaskByIdUseCase(taskID)
 
@@ -39,9 +38,9 @@ class GetTaskByIdUseCaseTest {
     }
 
     @Test
-    fun `should throw TaskNotFoundException when task does not exist`() {
+    fun `should throw TaskNotFoundException when task does not exist`() = runTest {
         val taskID = "1"
-        every { taskRepository.getTaskById(taskID) } returns null
+        coEvery { taskRepository.getTaskById(taskID) } returns null
 
         assertThrows<TaskNotFoundException> {
             getTaskByIdUseCase(taskID)
@@ -49,7 +48,7 @@ class GetTaskByIdUseCaseTest {
     }
 
     @Test
-    fun `should throw BlankInputException when task ID is blank`() {
+    fun `should throw BlankInputException when task ID is blank`() = runTest {
         val taskID = ""
         assertThrows<BlankInputException> {
             getTaskByIdUseCase(taskID)
@@ -60,9 +59,9 @@ class GetTaskByIdUseCaseTest {
     @ValueSource(strings = ["fdd54-fd456", "894116s-45-5-6"])
     fun `should return task when id contains Letters or Digits or hyphens and not contain any special characters`(
         projectId: String
-    ) {
+    ) = runTest {
         val expectedTask = Task(projectId, "task", "1", "description", emptyList(), "2")
-        every { taskRepository.getTaskById(projectId) } returns expectedTask
+        coEvery { taskRepository.getTaskById(projectId) } returns expectedTask
 
         val result = getTaskByIdUseCase(projectId)
 
@@ -71,8 +70,8 @@ class GetTaskByIdUseCaseTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["45 45 #% &^", "423545@@!"])
-    fun `should throw InvalidInputException when id Contains special Characters`(projectId: String) {
-        every { taskRepository.getTaskById(projectId) } returns null
+    fun `should throw InvalidInputException when id Contains special Characters`(projectId: String) = runTest {
+        coEvery { taskRepository.getTaskById(projectId) } returns null
 
         assertThrows<InvalidInputException> {
             getTaskByIdUseCase(projectId)

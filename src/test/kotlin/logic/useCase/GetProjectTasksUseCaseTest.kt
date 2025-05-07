@@ -1,8 +1,9 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetProjectTasksUseCase
@@ -14,12 +15,11 @@ import org.junit.jupiter.api.assertThrows
 class GetProjectTasksUseCaseTest {
     private lateinit var taskRepository: TaskRepository
     private lateinit var getProjectTasksUseCase: GetProjectTasksUseCase
-    private val dummyTasks =
-        listOf(
-            Task("1", "TaskName", "state", "potatoMan", emptyList(), "123"),
-            Task("2", "TaskName", "state", "potatoMan", emptyList(), "123"),
-            Task("3", "TaskName", "state", "potatoMan", emptyList(), "789"),
-        )
+    private val dummyTasks = listOf(
+        Task("1", "TaskName", "state", "potatoMan", emptyList(), "123"),
+        Task("2", "TaskName", "state", "potatoMan", emptyList(), "123"),
+        Task("3", "TaskName", "state", "potatoMan", emptyList(), "789"),
+    )
 
     @BeforeEach
     fun setUp() {
@@ -28,9 +28,9 @@ class GetProjectTasksUseCaseTest {
     }
 
     @Test
-    fun `should throw BlankInputException when given blank project id`() {
+    fun `should throw BlankInputException when given blank project id`() = runTest {
         val projectId = ""
-        every { taskRepository.getAllTasks() } returns dummyTasks
+        coEvery { taskRepository.getAllTasks() } returns dummyTasks
 
         assertThrows<BlankInputException> {
             getProjectTasksUseCase(projectId)
@@ -38,9 +38,9 @@ class GetProjectTasksUseCaseTest {
     }
 
     @Test
-    fun `should return a list of tasks for the given project id`() {
+    fun `should return a list of tasks for the given project id`() = runTest {
         val projectId = "123"
-        every { taskRepository.getAllTasks() } returns dummyTasks
+        coEvery { taskRepository.getAllTasks() } returns dummyTasks
 
         val result = getProjectTasksUseCase(projectId)
 

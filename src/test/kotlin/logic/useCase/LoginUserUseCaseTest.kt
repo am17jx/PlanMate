@@ -1,15 +1,15 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.useCase.LoginUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.UserNotFoundException
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -31,10 +31,10 @@ class LoginUserUseCaseTest {
 
 
     @Test
-    fun `should return user data when user enter username and password that exists in users data`() {
+    fun `should return user data when user enter username and password that exists in users data`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
-        every { authenticationRepository.login(any(), any()) } returns users[0]
+        coEvery { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.login(any(), any()) } returns users[0]
 
         val result = loginUserUseCase("testUsername", "testPassword")
 
@@ -43,34 +43,34 @@ class LoginUserUseCaseTest {
 
 
     @Test
-    fun `should throw exception with type BlankInputException when user not enter username`() {
+    fun `should throw exception with type BlankInputException when user not enter username`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<BlankInputException> { loginUserUseCase("", "testPassword") }
     }
 
 
     @Test
-    fun `should throw exception with type BlankInputException when user not enter password`() {
+    fun `should throw exception with type BlankInputException when user not enter password`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<BlankInputException> { loginUserUseCase("testUsername", "") }
     }
 
     @Test
-    fun `should throw exception with type UserNotFoundException when user enter incorrect username`() {
+    fun `should throw exception with type UserNotFoundException when user enter incorrect username`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<UserNotFoundException> { loginUserUseCase("incorrectUsername", "testPassword") }
     }
 
     @Test
-    fun `should throw exception with type UserNotFoundException when user enter incorrect password`() {
+    fun `should throw exception with type UserNotFoundException when user enter incorrect password`() = runTest {
 
-        every { authenticationRepository.getAllUsers() } returns users
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         assertThrows<UserNotFoundException> { loginUserUseCase("testUsername", "incorrectPassword") }
     }

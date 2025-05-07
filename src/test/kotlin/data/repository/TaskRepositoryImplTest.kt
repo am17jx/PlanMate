@@ -1,17 +1,18 @@
 package data.repository
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import mockdata.createTask
 import org.example.data.repository.TaskRepositoryImpl
-import org.example.data.source.local.contract.LocalTaskDataSource
+import org.example.data.source.remote.contract.RemoteTaskDataSource
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class TaskRepositoryImplTest {
-    private lateinit var mockLocalTaskDataSource: LocalTaskDataSource
+    private lateinit var mockRemoteDataSource: RemoteTaskDataSource
     private lateinit var taskRepositoryImpl: TaskRepositoryImpl
 
     // Test data
@@ -21,13 +22,11 @@ class TaskRepositoryImplTest {
     )
 
     private val updatedTask = testTask.copy(
-        name = "Updated Task",
-        stateId = "state-2"
+        name = "Updated Task", stateId = "state-2"
     )
 
     private val taskList = listOf(
-        testTask,
-        createTask(
+        testTask, createTask(
             id = "task-2",
             name = "Task 2",
         )
@@ -35,66 +34,66 @@ class TaskRepositoryImplTest {
 
     @BeforeEach
     fun setUp() {
-        mockLocalTaskDataSource = mockk(relaxed = true)
-        taskRepositoryImpl = TaskRepositoryImpl(mockLocalTaskDataSource)
+        mockRemoteDataSource = mockk(relaxed = true)
+        taskRepositoryImpl = TaskRepositoryImpl(mockRemoteDataSource)
     }
 
     @Test
-    fun `should delegate createTask to local data source and return result`() {
-        every { mockLocalTaskDataSource.createTask(testTask) } returns testTask
+    fun `should delegate createTask to local data source and return result`() = runTest {
+        coEvery { mockRemoteDataSource.createTask(testTask) } returns testTask
 
         val result = taskRepositoryImpl.createTask(testTask)
 
-        verify(exactly = 1) { mockLocalTaskDataSource.createTask(testTask) }
+        coVerify(exactly = 1) { mockRemoteDataSource.createTask(testTask) }
         assertThat(result).isEqualTo(testTask)
     }
 
     @Test
-    fun `should delegate updateTask to local data source and return updated task`() {
-        every { mockLocalTaskDataSource.updateTask(updatedTask) } returns updatedTask
+    fun `should delegate updateTask to local data source and return updated task`() = runTest {
+        coEvery { mockRemoteDataSource.updateTask(updatedTask) } returns updatedTask
 
         val result = taskRepositoryImpl.updateTask(updatedTask)
 
-        verify(exactly = 1) { mockLocalTaskDataSource.updateTask(updatedTask) }
+        coVerify(exactly = 1) { mockRemoteDataSource.updateTask(updatedTask) }
         assertThat(result).isEqualTo(updatedTask)
     }
 
     @Test
-    fun `should delegate deleteTask to local data source`() {
+    fun `should delegate deleteTask to local data source`() = runTest {
         taskRepositoryImpl.deleteTask(testTask.id)
 
-        verify(exactly = 1) { mockLocalTaskDataSource.deleteTask(testTask.id) }
+        coVerify(exactly = 1) { mockRemoteDataSource.deleteTask(testTask.id) }
     }
 
     @Test
-    fun `should delegate getAllTasks to local data source and return task list`() {
-        every { mockLocalTaskDataSource.getAllTasks() } returns taskList
+    fun `should delegate getAllTasks to local data source and return task list`() = runTest {
+        coEvery { mockRemoteDataSource.getAllTasks() } returns taskList
 
         val result = taskRepositoryImpl.getAllTasks()
 
-        verify(exactly = 1) { mockLocalTaskDataSource.getAllTasks() }
+        coVerify(exactly = 1) { mockRemoteDataSource.getAllTasks() }
         assertThat(result).isEqualTo(taskList)
         assertThat(result).hasSize(2)
     }
 
     @Test
-    fun `should delegate getTaskById to local data source and return task when found`() {
-        every { mockLocalTaskDataSource.getTaskById(testTask.id) } returns testTask
+    fun `should delegate getTaskById to local data source and return task when found`() = runTest {
+        coEvery { mockRemoteDataSource.getTaskById(testTask.id) } returns testTask
 
         val result = taskRepositoryImpl.getTaskById(testTask.id)
 
-        verify(exactly = 1) { mockLocalTaskDataSource.getTaskById(testTask.id) }
+        coVerify(exactly = 1) { mockRemoteDataSource.getTaskById(testTask.id) }
         assertThat(result).isEqualTo(testTask)
     }
 
     @Test
-    fun `should return null when getTaskById is called for non-existent task`() {
+    fun `should return null when getTaskById is called for non-existent task`() = runTest {
         val nonExistentId = "non-existent-id"
-        every { mockLocalTaskDataSource.getTaskById(nonExistentId) } returns null
+        coEvery { mockRemoteDataSource.getTaskById(nonExistentId) } returns null
 
         val result = taskRepositoryImpl.getTaskById(nonExistentId)
 
-        verify(exactly = 1) { mockLocalTaskDataSource.getTaskById(nonExistentId) }
+        coVerify(exactly = 1) { mockRemoteDataSource.getTaskById(nonExistentId) }
         assertThat(result).isNull()
     }
 }

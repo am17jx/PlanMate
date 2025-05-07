@@ -44,17 +44,16 @@ class AdminHomeUITest {
 
         AdminHomeUI(
             viewer = object : Viewer {
-                override fun display(message: String?) {
-                    println(message)
-                }
-            },
+            override fun display(message: String?) {
+                println(message)
+            }
+        },
             reader = ConsoleReader(),
             userRole = UserRole.ADMIN,
             onNavigateToShowAllProjectsUI = { navigateToShowAllProjectsCalled = true },
             onNavigateToCreateProject = { navigateToCreateProjectCalled = true },
             onNavigateToCreateUser = { navigateToCreateUserCalled = true },
-            onNavigateToOnBackStack = { navigateToBackCalled = true }
-        )
+            onNavigateToOnBackStack = { navigateToBackCalled = true })
     }
 
     @Test

@@ -1,11 +1,12 @@
 package data.repository
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.example.data.repository.AuthenticationRepositoryImpl
-import org.example.data.source.local.contract.LocalAuthenticationDataSource
+import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.BeforeEach
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class AuthenticationRepositoryImplTest {
-    private lateinit var localAuthenticationDataSource: LocalAuthenticationDataSource
+    private lateinit var remoteAuthenticationDataSource: RemoteAuthenticationDataSource
     private lateinit var authenticationRepository: AuthenticationRepositoryImpl
 
     private val users = listOf(
@@ -25,13 +26,13 @@ class AuthenticationRepositoryImplTest {
 
     @BeforeEach
     fun setUp() {
-        localAuthenticationDataSource = mockk(relaxed = true)
-        authenticationRepository = AuthenticationRepositoryImpl(localAuthenticationDataSource)
+        remoteAuthenticationDataSource = mockk(relaxed = true)
+        authenticationRepository = AuthenticationRepositoryImpl(remoteAuthenticationDataSource)
     }
 
     @Test
-    fun `getCurrentUser should return logged in user when user is logged in`() {
-        every { authenticationRepository.getAllUsers() } returns users
+    fun `getCurrentUser should return logged in user when user is logged in`() = runTest {
+        coEvery { authenticationRepository.getAllUsers() } returns users
         authenticationRepository.login(testUsername, testPassword)
 
         val result = authenticationRepository.getCurrentUser()
@@ -40,8 +41,8 @@ class AuthenticationRepositoryImplTest {
     }
 
     @Test
-    fun `getCurrentUser should return null when user is not logged in`() {
-        every { authenticationRepository.getAllUsers() } returns users
+    fun `getCurrentUser should return null when user is not logged in`() = runTest {
+        coEvery { authenticationRepository.getAllUsers() } returns users
 
         val result = authenticationRepository.getCurrentUser()
 
@@ -49,8 +50,8 @@ class AuthenticationRepositoryImplTest {
     }
 
     @Test
-    fun `login should set and return the current user when user is logged in`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
+    fun `login should set and return the current user when user is logged in`() = runTest {
+        coEvery { remoteAuthenticationDataSource.getAllUsers() } returns users
 
         val loggedInUser = authenticationRepository.login(testUsername, testPassword)
         val currentUser = authenticationRepository.getCurrentUser()
@@ -63,30 +64,31 @@ class AuthenticationRepositoryImplTest {
 
 
     @Test
-    fun `createMate should save and return the created user when create new mate`() {
+    fun `createMate should save and return the created user when create new mate`() = runTest {
 
-        every { localAuthenticationDataSource.saveUser(any()) } returns Unit
+        coEvery { remoteAuthenticationDataSource.saveUser(any()) } returns Unit
 
         val createdUser = authenticationRepository.createMate(testUsername, testPassword)
 
-        verify { localAuthenticationDataSource.saveUser(any()) }
+        coVerify { remoteAuthenticationDataSource.saveUser(any()) }
         assertThat(createdUser.username).isEqualTo(testUsername)
         assertThat(createdUser.password).isEqualTo(testPassword)
         assertThat(createdUser.role).isEqualTo(UserRole.USER)
     }
 
     @Test
-    fun `getAllUsers should call getAllUsers function from localAuthenticationDataSource when get all users`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
+    fun `getAllUsers should call getAllUsers function from remoteAuthenticationDataSource when get all users`() =
+        runTest {
+            coEvery { remoteAuthenticationDataSource.getAllUsers() } returns users
 
-        val result = authenticationRepository.getAllUsers()
+            val result = authenticationRepository.getAllUsers()
 
-        assertThat(result).isEqualTo(users)
-    }
+            assertThat(result).isEqualTo(users)
+        }
 
     @Test
-    fun `getUserId should throw exception when user is not found`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
+    fun `getUserId should throw exception when user is not found`() = runTest {
+        coEvery { remoteAuthenticationDataSource.getAllUsers() } returns users
 
         assertThrows<NoSuchElementException> {
             authenticationRepository.login("wrongUser", "wrongPassword")
@@ -94,8 +96,8 @@ class AuthenticationRepositoryImplTest {
     }
 
     @Test
-    fun `getUserRole should throw exception when user is not found`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
+    fun `getUserRole should throw exception when user is not found`() = runTest {
+        coEvery { remoteAuthenticationDataSource.getAllUsers() } returns users
 
         assertThrows<NoSuchElementException> {
             authenticationRepository.login("nonExistentUser", "wrongPassword")

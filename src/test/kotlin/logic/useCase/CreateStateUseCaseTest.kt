@@ -1,9 +1,8 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
+import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createUser
 import org.example.logic.models.State
@@ -52,24 +51,24 @@ class CreateStateUseCaseTest {
     }
 
     @Test
-    fun `should return the updated project with the added state when given valid project id, state name is not blank and user is admin`() {
-        every { authenticationRepository.getCurrentUser() } returns createUser()
-        every { projectRepository.getProjectById(any()) } returns dummyProject
-        every { updateProjectUseCase(any()) } returns
+    fun `should return the updated project with the added state when given valid project id, state name is not blank and user is admin`() = runTest {
+        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery { projectRepository.getProjectById(any()) } returns dummyProject
+        coEvery { updateProjectUseCase(any()) } returns
             dummyProject.copy(states = dummyProject.states + State(id = "8", title = stateName))
 
         val updatedProject = createStateUseCase(stateName, dummyProject.id)
 
-        verify { projectRepository.getProjectById(any()) }
-        verify { authenticationRepository.getCurrentUser() }
+        coVerify { projectRepository.getProjectById(any()) }
+        coVerify { authenticationRepository.getCurrentUser() }
         assertThat(updatedProject.states).hasSize(4)
         assertThat(updatedProject.states.map { it.title }).contains(stateName)
     }
 
     @Test
-    fun `should throw BlankInputException when state name is blank`() {
+    fun `should throw BlankInputException when state name is blank`() = runTest {
         val blankStateName = ""
-        every { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
             createStateUseCase(blankStateName, dummyProject.id)
@@ -77,9 +76,9 @@ class CreateStateUseCaseTest {
     }
 
     @Test
-    fun `should throw BlankInputException when project id is blank`() {
+    fun `should throw BlankInputException when project id is blank`() = runTest {
         val blankProjectId = ""
-        every { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
             createStateUseCase(stateName, blankProjectId)
@@ -87,8 +86,8 @@ class CreateStateUseCaseTest {
     }
 
     @Test
-    fun `should throw UnauthorizedException when user is not an admin`() {
-        every { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.USER)
+    fun `should throw UnauthorizedException when user is not an admin`() = runTest {
+        coEvery { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.USER)
 
         assertThrows<UnauthorizedException> {
             createStateUseCase(stateName, dummyProject.id)
@@ -96,8 +95,8 @@ class CreateStateUseCaseTest {
     }
 
     @Test
-    fun `should throw NoLoggedInUserException when current user is null`() {
-        every { authenticationRepository.getCurrentUser() } returns null
+    fun `should throw NoLoggedInUserException when current user is null`() = runTest {
+        coEvery{ authenticationRepository.getCurrentUser() } returns null
 
         assertThrows<NoLoggedInUserException> {
             createStateUseCase(stateName, dummyProject.id)
@@ -105,9 +104,9 @@ class CreateStateUseCaseTest {
     }
 
     @Test
-    fun `should throw ProjectNotFoundException when no project found with the given id`() {
-        every { authenticationRepository.getCurrentUser() } returns createUser()
-        every { projectRepository.getProjectById(any()) } returns null
+    fun `should throw ProjectNotFoundException when no project found with the given id`() = runTest {
+        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
             createStateUseCase(stateName, dummyProject.id)

@@ -1,5 +1,6 @@
 package org.example.presentation.screens
 
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -36,7 +37,7 @@ class LoginUITest {
         val user = User(id = "1", username = username, password = password, role = UserRole.ADMIN)
 
         every { readerMock.readString() } returns username andThen password
-        every { loginUserUseCase(username, password) } returns user
+        coEvery { loginUserUseCase(username, password) } returns user
 
         LoginUI(
             onNavigateToAdminHomeMock,
@@ -59,7 +60,7 @@ class LoginUITest {
         val user = User(id = "2", username = username, password = password, role = UserRole.USER)
 
         every { readerMock.readString() } returns username andThen password
-        every { loginUserUseCase(username, password) } returns user
+        coEvery { loginUserUseCase(username, password) } returns user
 
         LoginUI(
             onNavigateToAdminHomeMock,
@@ -77,7 +78,7 @@ class LoginUITest {
     fun `should display error message when username or password is blank`() {
         val exceptionMessage = "Username or password cannot be blank"
         every { readerMock.readString() } returns "" andThen "password123" andThen "sdadsa" andThen "adasdsddas"
-        every { loginUserUseCase("", "password123") } throws BlankInputException(exceptionMessage)
+        coEvery { loginUserUseCase("", "password123") } throws BlankInputException(exceptionMessage)
 
         LoginUI(
             onNavigateToAdminHomeMock,

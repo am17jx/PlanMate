@@ -1,13 +1,18 @@
 package org.example.presentation.screens
 
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.useCase.CreateMateUseCase
-import org.example.logic.utils.*
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.InvalidUserNameInputException
+import org.example.logic.utils.UserAlreadyExistsException
+import org.junit.Test
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
-import org.junit.Test
 
 class CreateUserUiTest {
 
@@ -22,7 +27,7 @@ class CreateUserUiTest {
         val password = "password123"
         val user = User(id = "123", username = username, password = password, role = UserRole.USER)
         every { readerMock.readString() } returns username andThen password
-        every { createMateUseCase(username, password) } returns user
+        coEvery { createMateUseCase(username, password) } returns user
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -34,7 +39,7 @@ class CreateUserUiTest {
     fun `should return error message when username is blank`() {
         val exceptionMessage = "Username cannot be blank"
         every { readerMock.readString() } returns "" andThen "password123"
-        every { createMateUseCase(any(), any()) } throws BlankInputException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws BlankInputException(exceptionMessage)
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -46,7 +51,7 @@ class CreateUserUiTest {
     fun `should return error message when password is blank`() {
         val exceptionMessage = "Password cannot be blank"
         every { readerMock.readString() } returns "newUser" andThen ""
-        every { createMateUseCase(any(), any()) } throws BlankInputException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws BlankInputException(exceptionMessage)
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -58,7 +63,7 @@ class CreateUserUiTest {
     fun `should return error message when username is invalid`() {
         val exceptionMessage = "Invalid username input"
         every { readerMock.readString() } returns "invalid#user" andThen "password123"
-        every { createMateUseCase(any(), any()) } throws InvalidUserNameInputException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws InvalidUserNameInputException(exceptionMessage)
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -70,7 +75,7 @@ class CreateUserUiTest {
     fun `should return error message when user already exists`() {
         val exceptionMessage = "User already exists"
         every { readerMock.readString() } returns "existingUser" andThen "password123"
-        every { createMateUseCase(any(), any()) } throws UserAlreadyExistsException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws UserAlreadyExistsException(exceptionMessage)
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -82,7 +87,7 @@ class CreateUserUiTest {
     fun `should return error message when an unexpected exception occurs`() {
         val exceptionMessage = "Unexpected error"
         every { readerMock.readString() } returns "newUser" andThen "password123"
-        every { createMateUseCase(any(), any()) } throws Exception(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws Exception(exceptionMessage)
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 

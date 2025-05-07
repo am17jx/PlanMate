@@ -1,9 +1,8 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
+import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createState
 import mockdata.createTask
@@ -45,18 +44,18 @@ class CreateTaskUseCaseTest {
     }
 
     @Test
-    fun `should return created task when there is no blank input parameters and project and state exist`() {
+    fun `should return created task when there is no blank input parameters and project and state exist`() = runTest {
         val taskName = "Write CreateTaskUseCase test cases"
         val projectId = Uuid.random().getCroppedId()
         val stateId = Uuid.random().getCroppedId()
-        every { taskRepository.createTask(any()) } returns
+        coEvery { taskRepository.createTask(any()) } returns
             createTask(
                 name = taskName,
                 projectId = projectId,
                 stateId = stateId,
                 auditLogsIds = listOf("task-id"),
             )
-        every { projectRepository.getProjectById(any()) } returns
+        coEvery{ projectRepository.getProjectById(any()) } returns
             createProject(
                 id = projectId,
                 states =
@@ -67,10 +66,10 @@ class CreateTaskUseCaseTest {
 
         val result = createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
 
-        verify { projectRepository.getProjectById(projectId) }
-        verify { authenticationRepository.getCurrentUser() }
-        verify { taskRepository.createTask(any()) }
-        verify { auditLogRepository.createAuditLog(any()) }
+        coVerify { projectRepository.getProjectById(projectId) }
+        coVerify{ authenticationRepository.getCurrentUser() }
+        coVerify { taskRepository.createTask(any()) }
+        coVerify{ auditLogRepository.createAuditLog(any()) }
         assertThat(result.name).isEqualTo(taskName)
         assertThat(result.projectId).isEqualTo(projectId)
         assertThat(result.stateId).isEqualTo(stateId)
@@ -83,18 +82,18 @@ class CreateTaskUseCaseTest {
         taskName: String,
         projectId: String,
         stateId: String,
-    ) {
+    ) = runTest{
         assertThrows<BlankInputException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
         }
     }
 
     @Test
-    fun `should throw ProjectNotFoundException when project doesn't exist`() {
+    fun `should throw ProjectNotFoundException when project doesn't exist`() = runTest {
         val taskName = "Test"
         val projectId = Uuid.random().getCroppedId()
         val stateId = Uuid.random().getCroppedId()
-        every { projectRepository.getProjectById(any()) } returns null
+        coEvery { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
@@ -102,12 +101,12 @@ class CreateTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw StateNotFoundException when state doesn't exist`() {
+    fun `should throw StateNotFoundException when state doesn't exist`() = runTest {
         val taskName = "Test"
         val projectId = Uuid.random().getCroppedId()
         val stateId = "1"
         val differentStateId = "3"
-        every { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = differentStateId)))
+        coEvery{ projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = differentStateId)))
 
         assertThrows<StateNotFoundException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
@@ -115,12 +114,12 @@ class CreateTaskUseCaseTest {
     }
 
     @Test
-    fun `should throw UserNotFoundException when no user is logged in`() {
+    fun `should throw UserNotFoundException when no user is logged in`() = runTest {
         val taskName = "Test"
         val projectId = Uuid.random().getCroppedId()
         val stateId = Uuid.random().getCroppedId()
-        every { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = stateId)))
-        every { authenticationRepository.getCurrentUser() } returns null
+        coEvery { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = stateId)))
+        coEvery { authenticationRepository.getCurrentUser() } returns null
 
         assertThrows<UserNotFoundException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
