@@ -1,16 +1,11 @@
-package org.example.logic.useCase.updateProject
+package org.example.logic.useCase
 
 import kotlinx.datetime.Clock
-import org.example.logic.command.Command
-import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.useCase.GetProjectTasksUseCase
-import org.example.logic.useCase.deleteTask.DeleteTaskCommand
 import org.example.logic.utils.*
 import java.util.*
 
@@ -18,9 +13,6 @@ class UpdateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val auditLogRepository: AuditLogRepository,
     private val authenticationRepository: AuthenticationRepository,
-    private val getProjectTasksUseCase: GetProjectTasksUseCase,
-    private val taskRepository: TaskRepository
-
 ) {
     suspend operator fun invoke(updatedProject: Project): Project {
         if (updatedProject.name.isEmpty()) throw BlankInputException(BLANK_PROJECT_NAME_EXCEPTION_MESSAGE)
@@ -37,28 +29,15 @@ class UpdateProjectUseCase(
         val actionBuilder = actionBuilder(originalProject, newProject, currentUser)
         val auditLog = createAuditLogInstance(originalProject, newProject, currentUser, actionBuilder.first)
 
-        val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
-        val projectUpdateCommand = ProjectUpdateCommand(projectRepository, newProject, originalProject)
-
-        val tasksCommand: MutableList<Command> = mutableListOf()
-        if (actionBuilder.second.isNotEmpty()) getProjectTasksUseCase(newProject.id).filter { it.stateId == actionBuilder.second }
-            .forEach {
-                tasksCommand.add(DeleteTaskCommand(taskRepository, it))
-            }
-
-        tasksCommand.add(projectUpdateCommand)
-        tasksCommand.add(auditCommand)
-        val updateProjectCommandTransaction = TransactionalCommand(
-            tasksCommand, ProjectNotChangedException(PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE)
-        )
-
         try {
-            updateProjectCommandTransaction.execute()
-        } catch (e: ProjectNotChangedException) {
-            throw e
-        }
+            auditLogRepository.createAuditLog(auditLog)
 
-        return newProject.copy(auditLogsIds = newProject.auditLogsIds.plus(auditCommand.getCreatedLog()?.id ?: ""))
+            projectRepository.updateProject(newProject)
+            return newProject
+
+        } catch (e: Exception) {
+            throw ProjectNotChangedException(PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE)
+        }
 
     }
 

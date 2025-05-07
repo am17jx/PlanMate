@@ -3,7 +3,6 @@ package org.example.logic.useCase
 import org.example.logic.models.*
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
