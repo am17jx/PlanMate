@@ -5,7 +5,7 @@ import org.example.logic.useCase.*
 import org.example.logic.useCase.DeleteProjectUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskUseCase
 import org.example.logic.useCase.UpdateProjectUseCase
-import org.example.logic.useCase.updateTask.UpdateTaskUseCase
+import org.example.logic.useCase.UpdateTaskUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 

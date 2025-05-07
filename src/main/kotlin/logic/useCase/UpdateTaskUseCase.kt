@@ -1,8 +1,6 @@
-package org.example.logic.useCase.updateTask
+package org.example.logic.useCase
 
 import kotlinx.datetime.Clock
-import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
@@ -30,19 +28,17 @@ class UpdateTaskUseCase(
 
         val taskAuditLog = logAudit(currentUser, updatedTask, oldTask)
 
-        val auditCommand = CreateAuditLogCommand(auditLogRepository, taskAuditLog)
-        val taskUpdatedCommand = TaskUpdateCommand(taskRepository, updatedTask, oldTask)
-        val updateTaskCommandTransaction = TransactionalCommand(
-            listOf(taskUpdatedCommand, auditCommand), TaskNotChangedException("Task Not changed")
-        )
         try {
-            updateTaskCommandTransaction.execute()
-        } catch (e: TaskNotChangedException) {
-            throw e
+            val taskLog = auditLogRepository.createAuditLog(taskAuditLog)
+
+            taskRepository.updateTask(updatedTask)
+            return updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(taskLog.id ?: ""))
+
+        } catch (e: Exception) {
+
+            throw TaskNotChangedException("Task Not changed")
+
         }
-
-        return updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(auditCommand.getCreatedLog()?.id ?: ""))
-
     }
 
     private fun logAudit(user: User, oldTask: Task, newTask: Task): AuditLog {

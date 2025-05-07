@@ -7,7 +7,7 @@ import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskUseCase
-import org.example.logic.useCase.updateTask.UpdateTaskUseCase
+import org.example.logic.useCase.UpdateTaskUseCase
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
