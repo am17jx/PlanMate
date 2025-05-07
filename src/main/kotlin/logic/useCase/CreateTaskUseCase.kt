@@ -1,14 +1,11 @@
-package logic.useCase
+package org.example.logic.useCase
 
 import kotlinx.datetime.*
-import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalCommand
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.models.*
-import org.example.logic.useCase.creatTask.TaskCreateCommand
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -43,19 +40,14 @@ class CreateTaskUseCase(
             auditLogsIds = listOf(taskAuditLog.id)
         )
 
-        val auditCommand = CreateAuditLogCommand(auditLogRepository, taskAuditLog)
-        val taskCreateCommand = TaskCreateCommand(taskRepository, newTask)
-        val createTaskCommandTransaction = TransactionalCommand(
-            listOf(taskCreateCommand, auditCommand),
-            TaskNotCreatedException("Project Not changed")
-        )
         try {
-            createTaskCommandTransaction.execute()
-        }catch (e :TaskNotCreatedException){
-            throw e
-        }
+            auditLogRepository.createAuditLog(taskAuditLog)
 
-        return newTask
+            taskRepository.createTask(newTask)
+            return newTask
+        } catch (e: Exception) {
+            throw   TaskNotCreatedException("Project Not changed")
+        }
 
     }
 
