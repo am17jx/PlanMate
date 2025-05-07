@@ -1,6 +1,6 @@
 package org.example.data.mapper
 
-import org.example.data.models.AuditLogDTO
+import org.example.data.source.remote.models.AuditLogDTO
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType

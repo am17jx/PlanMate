@@ -8,7 +8,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.data.mapper.toProjectDTO
-import org.example.data.models.ProjectDTO
+import org.example.data.source.remote.models.ProjectDTO
 import org.example.data.source.remote.contract.RemoteProjectDataSource
 import org.example.data.source.remote.mongo.MongoProjectDataSource
 import org.example.data.utils.Constants.ID

@@ -1,6 +1,6 @@
 package org.example.data.mapper
 
-import org.example.data.models.UserDTO
+import org.example.data.source.remote.models.UserDTO
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 

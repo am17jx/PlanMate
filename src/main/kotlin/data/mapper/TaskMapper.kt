@@ -1,6 +1,6 @@
 package org.example.data.mapper
 
-import org.example.data.models.TaskDTO
+import org.example.data.source.remote.models.TaskDTO
 import org.example.logic.models.Task
 
 

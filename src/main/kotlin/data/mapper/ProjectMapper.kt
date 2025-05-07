@@ -1,6 +1,6 @@
 package org.example.data.mapper
 
-import org.example.data.models.ProjectDTO
+import org.example.data.source.remote.models.ProjectDTO
 import org.example.logic.models.Project
 
 fun ProjectDTO.toProject(): Project {
