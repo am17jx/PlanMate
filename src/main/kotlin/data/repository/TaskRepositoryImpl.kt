@@ -1,33 +1,34 @@
 package org.example.data.repository
 
 import org.example.data.source.local.contract.LocalTaskDataSource
+import org.example.data.source.remote.contract.RemoteTaskDataSource
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
 
 class TaskRepositoryImpl(
-    private val localTaskDataSource: LocalTaskDataSource
+    private val remoteTaskDataSource: RemoteTaskDataSource
 ): TaskRepository {
-    override fun createTask(task: Task): Task {
-        return localTaskDataSource.createTask(task)
+    override suspend fun createTask(task: Task): Task {
+        return remoteTaskDataSource.createTask(task)
     }
 
-    override fun updateTask(updatedTask: Task): Task {
-        return localTaskDataSource.updateTask(updatedTask)
+    override suspend fun updateTask(updatedTask: Task): Task {
+        return remoteTaskDataSource.updateTask(updatedTask)
     }
 
-    override fun deleteTask(taskId: String) {
-        return localTaskDataSource.deleteTask(taskId)
+    override suspend fun deleteTask(taskId: String) {
+        return remoteTaskDataSource.deleteTask(taskId)
     }
 
-    override fun getAllTasks(): List<Task> {
-        return localTaskDataSource.getAllTasks()
+    override suspend fun getAllTasks(): List<Task> {
+        return remoteTaskDataSource.getAllTasks()
     }
 
-    override fun getTaskById(taskId: String): Task? {
-        return localTaskDataSource.getTaskById(taskId)
+    override suspend fun getTaskById(taskId: String): Task? {
+        return remoteTaskDataSource.getTaskById(taskId)
     }
 
-    override fun deleteTasksByStateId(stateId: String, projectId: String) {
-        return localTaskDataSource.deleteTasksByStateId(stateId,projectId)
+    override suspend fun deleteTasksByStateId(stateId: String, projectId: String) {
+        return remoteTaskDataSource.deleteTasksByStateId(stateId,projectId)
     }
 }
