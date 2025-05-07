@@ -4,8 +4,8 @@ import com.mongodb.client.model.Filters
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
-import org.example.data.mapper.toProject
-import org.example.data.mapper.toProjectDTO
+import org.example.data.source.remote.mongo.utils.mapper.toProject
+import org.example.data.source.remote.mongo.utils.mapper.toProjectDTO
 import org.example.data.source.remote.models.ProjectDTO
 import org.example.data.source.remote.contract.RemoteProjectDataSource
 import org.example.data.utils.Constants.ID

@@ -5,7 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.data.mapper.toUserDTO
+import org.example.data.source.remote.mongo.utils.mapper.toUserDTO
 import org.example.data.source.remote.models.UserDTO
 import org.example.data.source.remote.mongo.MongoAuthenticationDataSource
 import org.example.logic.models.User

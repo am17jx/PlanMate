@@ -7,7 +7,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.data.mapper.toProjectDTO
+import org.example.data.source.remote.mongo.utils.mapper.toProjectDTO
 import org.example.data.source.remote.models.ProjectDTO
 import org.example.data.source.remote.contract.RemoteProjectDataSource
 import org.example.data.source.remote.mongo.MongoProjectDataSource

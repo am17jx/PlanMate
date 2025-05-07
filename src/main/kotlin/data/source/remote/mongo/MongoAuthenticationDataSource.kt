@@ -2,8 +2,8 @@ package org.example.data.source.remote.mongo
 
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import kotlinx.coroutines.flow.toList
-import org.example.data.mapper.toUser
-import org.example.data.mapper.toUserDTO
+import org.example.data.source.remote.mongo.utils.mapper.toUser
+import org.example.data.source.remote.mongo.utils.mapper.toUserDTO
 import org.example.data.source.remote.models.UserDTO
 import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
 import org.example.logic.models.User

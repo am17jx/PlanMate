@@ -1,4 +1,4 @@
-package org.example.data.mapper
+package org.example.data.source.remote.mongo.utils.mapper
 
 import org.example.data.source.remote.models.ProjectDTO
 import org.example.logic.models.Project
