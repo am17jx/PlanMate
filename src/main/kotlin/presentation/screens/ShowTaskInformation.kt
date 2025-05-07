@@ -1,5 +1,6 @@
 package org.example.presentation.screens
 
+import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
@@ -20,7 +21,7 @@ class ShowTaskInformation(
     private val viewer: Viewer,
     private val reader: Reader,
 ) {
-    fun showTaskInformation(taskId: String){
+    fun showTaskInformation(taskId: String) = runBlocking{
         var isRunning = true
         while (isRunning){
             try {
@@ -69,7 +70,7 @@ class ShowTaskInformation(
         viewer.display("Enter your choice: ")
     }
 
-    private fun updateTask(task: Task){
+    private fun updateTask(task: Task) = runBlocking{
         try {
             viewer.display("Enter new task name:")
             val newName = reader.readString().takeIf { it.isNotBlank() } ?: task.name
@@ -82,30 +83,30 @@ class ShowTaskInformation(
             viewer.display("Error updating task: ${e.message}")
         }
     }
-    private fun deleteTask(taskId: String): Boolean {
+    private fun deleteTask(taskId: String): Boolean = runBlocking{
         try {
             viewer.display("Do you want to delete this task? (y/n)")
             val confirmation = reader.readString().trim().lowercase()
             if (confirmation == "y") {
                 deleteTaskUseCase(taskId)
                 viewer.display("Task deleted successfully.")
-                return true
+                return@runBlocking true
             } else {
                 viewer.display("Deletion cancelled.")
-                return false
+                return@runBlocking   false
             }
         } catch (e: Exception) {
             viewer.display("Error deleting task: ${e.message}")
-            return false
+            return@runBlocking  false
         }
     }
 
-    private fun showTaskLogs(taskId: String) {
+    private fun showTaskLogs(taskId: String) = runBlocking {
         try {
             val taskLogs = getEntityAuditLogsUseCase(taskId, AuditLogEntityType.TASK)
             if (taskLogs.isEmpty()) {
                 viewer.display("No logs found for this task.")
-                return
+                return@runBlocking
             }
             val actions = taskLogs.map { it.action }
             val tablePrinter = TablePrinter(viewer, reader)
