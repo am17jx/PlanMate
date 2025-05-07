@@ -9,7 +9,7 @@ import org.example.logic.utils.TaskNotFoundException
 class GetTaskByIdUseCase(
     private val taskRepository: TaskRepository,
 ) {
-    operator fun invoke(taskId: String): Task {
+    suspend operator fun invoke(taskId: String): Task {
         validateTaskId(taskId)
         return taskRepository.getTaskById(taskId).takeIf { it?.id == taskId }
             ?: throw TaskNotFoundException("No task found with id: $taskId")

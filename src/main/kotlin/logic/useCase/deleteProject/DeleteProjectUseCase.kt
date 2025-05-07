@@ -24,7 +24,7 @@ class DeleteProjectUseCase(
     private val getProjectTasksUseCase: GetProjectTasksUseCase,
     private val taskRepository: TaskRepository,
 ) {
-    operator fun invoke(projectId: String) {
+    suspend operator fun invoke(projectId: String) {
         val command: MutableList<Command> = mutableListOf()
 
         val auditCommand = CreateAuditLogCommand(auditLogRepository, saveAuditLog(projectId))

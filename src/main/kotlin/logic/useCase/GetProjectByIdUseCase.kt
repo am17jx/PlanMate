@@ -10,7 +10,7 @@ import org.example.logic.utils.isValidId
 class GetProjectByIdUseCase(
     private val projectRepository: ProjectRepository
 ) {
-    operator fun invoke(projectId: String): Project {
+    suspend operator fun invoke(projectId: String): Project {
         return projectId
             .takeIf {validateProjectId(it) }
             .let { projectRepository.getProjectById(projectId) ?: throw ProjectNotFoundException("project not found") }

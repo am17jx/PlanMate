@@ -9,7 +9,7 @@ class GetStateNameUseCase(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase
 ) {
-    operator fun invoke(taskId: String): String {
+    suspend operator fun invoke(taskId: String): String {
         val task: Task = getTaskByIdUseCase(taskId)
         val project: Project = getProjectByIdUseCase(task.projectId)
         return getState(project,task.stateId).title

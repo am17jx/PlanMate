@@ -22,7 +22,7 @@ class UpdateProjectUseCase(
     private val taskRepository: TaskRepository
 
 ) {
-    operator fun invoke(updatedProject: Project): Project {
+    operator suspend fun invoke(updatedProject: Project): Project {
         if (updatedProject.name.isEmpty()) throw BlankInputException(BLANK_PROJECT_NAME_EXCEPTION_MESSAGE)
         val originalProject = currentOriginalProject(updatedProject)
         val currentUser = currentUser()
@@ -110,7 +110,7 @@ class UpdateProjectUseCase(
         return Pair(action + "at ${timestampNow.formattedString()}",deletedStateId)
     }
 
-    private fun currentUser(): User {
+    private suspend fun currentUser(): User {
         return authenticationRepository.getCurrentUser()
             ?: throw NoLoggedInUserException("No logged-in user found")
     }
@@ -120,7 +120,7 @@ class UpdateProjectUseCase(
             throw ProjectNotChangedException("No changes detected ^_^")
     }
 
-    private fun currentOriginalProject(
+    private suspend fun currentOriginalProject(
         updatedProject: Project
     ): Project {
         return projectRepository.getProjectById(updatedProject.id)

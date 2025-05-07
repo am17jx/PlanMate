@@ -23,7 +23,7 @@ class DeleteTaskUseCase(
     private val userUseCase: GetCurrentUserUseCase,
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
 ) {
-    operator fun invoke(taskId: String) {
+    suspend operator fun invoke(taskId: String) {
         val auditLog = saveAuditLog(taskId)
         val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
         val deleteTasksCommand = DeleteTaskCommand(taskRepository, getTaskByIdUseCase(taskId))
