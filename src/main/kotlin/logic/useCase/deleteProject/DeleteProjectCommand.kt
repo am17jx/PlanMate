@@ -7,11 +7,11 @@ class DeleteProjectCommand (
     private val projectRepository: ProjectRepository,
     private val projectId: String,
 ) : Command {
-    override fun execute() {
+    override suspend fun execute() {
         projectRepository.deleteProject(projectId)
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         projectRepository.createProject(projectRepository.getProjectById(projectId)!!)
     }
 }

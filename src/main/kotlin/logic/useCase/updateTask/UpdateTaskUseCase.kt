@@ -19,14 +19,14 @@ class UpdateTaskUseCase(
     private val auditLogRepository: AuditLogRepository
 ) {
 
-    operator suspend fun invoke(taskId: String, updatedTask: Task): Task {
+    suspend operator fun invoke(taskId: String, updatedTask: Task): Task {
         val existingTask = getExistingTaskOrThrow(taskId)
         ensureTaskIsChanged(existingTask, updatedTask)
         val currentUser = getCurrentUserOrThrow()
         return updateAndLogTask(existingTask, updatedTask, currentUser)
     }
 
-    private fun updateAndLogTask(oldTask: Task, updatedTask: Task, currentUser: User): Task {
+    private suspend fun updateAndLogTask(oldTask: Task, updatedTask: Task, currentUser: User): Task {
 
         val taskAuditLog = logAudit(currentUser, updatedTask, oldTask)
 

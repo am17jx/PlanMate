@@ -31,7 +31,7 @@ class CreateTaskUseCase(
         return createAndLogTask(name, projectId, stateId, loggedInUser)
     }
 
-    private fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
+    private suspend fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
         val taskId = Uuid.random().getCroppedId()
         val taskAuditLog = createAuditLog(taskId, taskName, loggedInUser)
         val newTask = Task(

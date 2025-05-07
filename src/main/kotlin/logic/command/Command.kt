@@ -1,6 +1,6 @@
 package org.example.logic.command
 
 interface Command {
-    fun execute()
-    fun undo()
+    suspend fun execute()
+    suspend fun undo()
 }

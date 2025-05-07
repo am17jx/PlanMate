@@ -10,11 +10,11 @@ class CreateAuditLogCommand(
 
     private var createdLog: AuditLog? = null
 
-    override fun execute() {
+    override suspend fun execute() {
         createdLog = auditLogRepository.createAuditLog(auditLog)
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         createdLog?.let { auditLogRepository.deleteAuditLog(it.id) }
     }
 

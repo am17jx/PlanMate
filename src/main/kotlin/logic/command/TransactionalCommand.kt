@@ -6,7 +6,7 @@ class TransactionalCommand(private val commands: List<Command>,private val excep
 
     private val executedCommands = mutableListOf<Command>()
 
-    override fun execute() {
+    override suspend fun execute() {
         for (command in commands) {
             try {
                 command.execute()
@@ -19,7 +19,7 @@ class TransactionalCommand(private val commands: List<Command>,private val excep
         }
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         for (command in executedCommands.asReversed()) {
             command.undo()
         }
