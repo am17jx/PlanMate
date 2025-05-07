@@ -43,12 +43,13 @@ class DeleteProjectUseCase(
         ).execute()
     }
 
-    private fun saveAuditLog(projectId: String): AuditLog {
+    private suspend fun saveAuditLog(projectId: String): AuditLog {
+        val user = userUseCase()
         val timestampNow = Clock.System.now()
         val auditLog = AuditLog(
             id = UUID.randomUUID().toString(),
-            userId = userUseCase().id,
-            action = "${userUseCase().username} deleted project with id $projectId at ${timestampNow.formattedString()}",
+            userId = user.id,
+            action = "${user.username} deleted project with id $projectId at ${timestampNow.formattedString()}",
             timestamp = System.currentTimeMillis(),
             entityType = AuditLogEntityType.PROJECT,
             entityId = projectId,

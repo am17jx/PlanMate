@@ -33,7 +33,7 @@ class UpdateProjectUseCase(
 
     }
 
-    private fun saveUpdatedProject(originalProject: Project, newProject: Project, currentUser: User): Project {
+    private suspend fun saveUpdatedProject(originalProject: Project, newProject: Project, currentUser: User): Project {
         val actionBuilder = actionBuilder(originalProject, newProject, currentUser)
         val auditLog = createAuditLogInstance(originalProject, newProject, currentUser, actionBuilder.first)
 
