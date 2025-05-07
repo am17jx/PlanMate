@@ -1,6 +1,6 @@
 package di
 
-import org.example.logic.useCase.CreateTaskUseCase
+import logic.useCase.CreateTaskUseCase
 import org.example.logic.useCase.*
 import org.example.logic.useCase.DeleteProjectUseCase
 import org.example.logic.useCase.DeleteTaskUseCase
