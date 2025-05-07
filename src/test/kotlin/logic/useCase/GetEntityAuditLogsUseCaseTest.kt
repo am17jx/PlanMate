@@ -1,8 +1,9 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import mockdata.createAuditLog
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.repositries.AuditLogRepository
@@ -36,8 +37,13 @@ class GetEntityAuditLogsUseCaseTest {
     @MethodSource("provideExistingEntitiesScenarios")
     fun `should return list of audit logs when entity exists`(
         entityId: String, entityType: AuditLogEntityType
-    ) {
-        every { auditLogRepository.getEntityLogs(any(), any()) } returns listOf(createAuditLog(entityId = entityId, entityType = entityType))
+    ) = runTest {
+        coEvery { auditLogRepository.getEntityLogs(any(), any()) } returns listOf(
+            createAuditLog(
+                entityId = entityId,
+                entityType = entityType
+            )
+        )
 
         val result = getEntityAuditLogsUseCase(entityId, entityType)
 
@@ -45,9 +51,9 @@ class GetEntityAuditLogsUseCaseTest {
     }
 
     @Test
-    fun `should throw TaskNotFoundException when entity type is Task and there is no logs for it`(){
+    fun `should throw TaskNotFoundException when entity type is Task and there is no logs for it`() = runTest {
         val taskId = Uuid.random().getCroppedId()
-        every { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
+        coEvery { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
 
         assertThrows<TaskNotFoundException> {
             getEntityAuditLogsUseCase(taskId, AuditLogEntityType.TASK)
@@ -55,9 +61,9 @@ class GetEntityAuditLogsUseCaseTest {
     }
 
     @Test
-    fun `should throw ProjectNotFoundException when entity type is Project and there is no logs for it`(){
+    fun `should throw ProjectNotFoundException when entity type is Project and there is no logs for it`() = runTest {
         val projectId = Uuid.random().getCroppedId()
-        every { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
+        coEvery { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
 
         assertThrows<ProjectNotFoundException> {
             getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
@@ -65,7 +71,7 @@ class GetEntityAuditLogsUseCaseTest {
     }
 
     @Test
-    fun `should throw BlankInputException when entity id is blank`(){
+    fun `should throw BlankInputException when entity id is blank`() = runTest {
         val blankId = ""
 
         assertThrows<BlankInputException> {

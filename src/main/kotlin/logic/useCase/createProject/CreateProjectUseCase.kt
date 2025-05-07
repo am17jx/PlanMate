@@ -18,14 +18,14 @@ class CreateProjectUseCase(
     private val auditLogRepository: AuditLogRepository,
     private val authenticationRepository: AuthenticationRepository,
 ) {
-    operator fun invoke(projectName: String): Project {
+    suspend operator fun invoke(projectName: String): Project {
         checkUserRole()
         checkInputValidation(projectName)
 
         return createAndLogProject(projectName)
     }
 
-    private fun createAndLogProject(projectName: String): Project {
+    private suspend fun createAndLogProject(projectName: String): Project {
         val projectId = Uuid.random().getCroppedId()
         val audit = createLog(projectId, projectName)
         val newProject =
@@ -58,17 +58,17 @@ class CreateProjectUseCase(
         }
     }
 
-    private fun checkUserRole() {
+    private suspend fun checkUserRole() {
         if (getCurrentUser().role != UserRole.ADMIN) {
             throw UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE)
         }
     }
 
-    private fun getCurrentUser(): User =
+    private suspend fun getCurrentUser(): User =
         authenticationRepository.getCurrentUser()
             ?: throw NoLoggedInUserException(NO_LOGGED_IN_USER_EXCEPTION_MESSAGE)
 
-    private fun createLog(projectId: String, projectName: String): AuditLog {
+    private suspend fun createLog(projectId: String, projectName: String): AuditLog {
         val currentTime = Clock.System.now()
         return AuditLog(
             id = Uuid.random().getCroppedId(),

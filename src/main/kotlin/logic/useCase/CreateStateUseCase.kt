@@ -14,7 +14,7 @@ class CreateStateUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val updateProjectUseCase: UpdateProjectUseCase,
 ) {
-    operator fun invoke(
+    operator suspend fun invoke(
         projectId: String,
         stateName: String,
     ): Project {
@@ -35,13 +35,13 @@ class CreateStateUseCase(
         return updatedProject
     }
 
-    private fun getProject(projectId: String): Project =
+    private suspend fun getProject(projectId: String): Project =
         (
             projectRepository.getProjectById(projectId)
                 ?: throw ProjectNotFoundException("Project not found")
         )
 
-    private fun checkUserRole() {
+    private suspend fun checkUserRole() {
         if (getCurrentUser().role != UserRole.ADMIN) throw UnauthorizedException("User is not an admin")
     }
 
@@ -55,7 +55,7 @@ class CreateStateUseCase(
         }
     }
 
-    private fun getCurrentUser() =
+    private suspend fun getCurrentUser() =
         authenticationRepository.getCurrentUser()
             ?: throw NoLoggedInUserException("No logged in user")
 }

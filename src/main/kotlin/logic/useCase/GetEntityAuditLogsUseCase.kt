@@ -10,7 +10,7 @@ import org.example.logic.utils.TaskNotFoundException
 class GetEntityAuditLogsUseCase(
     private val auditLogRepository: AuditLogRepository
 ) {
-    operator fun invoke(entityId: String, entityType: AuditLogEntityType): List<AuditLog> {
+    suspend operator fun invoke(entityId: String, entityType: AuditLogEntityType): List<AuditLog> {
         verifyEntityIdNotBlank(entityId)
         return auditLogRepository
             .getEntityLogs(entityId, entityType)

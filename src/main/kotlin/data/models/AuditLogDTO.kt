@@ -8,7 +8,7 @@ data class AuditLogDTO(
     val userId: String,
     val action: String,
     val timestamp: Long,
-    val entityType: AuditLogEntityType,
+    val entityType: String,
     val entityId: String,
-    val actionType: AuditLogActionType
+    val actionType: String
 )

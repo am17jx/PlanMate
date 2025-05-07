@@ -1,21 +1,20 @@
 package presentation.screens
 
-import io.mockk.mockk
+import com.google.common.truth.Truth.assertThat
+import io.mockk.*
+import logic.useCase.CreateTaskUseCase
 import mockdata.createProject
 import mockdata.createTask
 import org.example.logic.models.State
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
+import org.example.logic.utils.ProjectNotFoundException
 import org.example.presentation.screens.ShowProjectTasksUI
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
-import com.google.common.truth.Truth.assertThat
-import io.mockk.*
-import logic.useCase.CreateTaskUseCase
-import org.example.logic.utils.ProjectNotFoundException
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 class ShowProjectTasksUITest {
     private lateinit var getProjectTasksUseCase: GetProjectTasksUseCase
@@ -28,7 +27,8 @@ class ShowProjectTasksUITest {
     private var isNavigateBackCalled: Boolean = false
     private var navigatedTaskId: String? = null
 
-    private val project = createProject(id = "1", name = "Test Project", states = listOf(State(id = "1", title = "State 1")))
+    private val project =
+        createProject(id = "1", name = "Test Project", states = listOf(State(id = "1", title = "State 1")))
     private val projectTasks = listOf(
         createTask(id = "1", name = "Task 1", projectId = "1", stateId = "1"),
         createTask(id = "2", name = "Task 2", projectId = "1", stateId = "1")
@@ -45,8 +45,8 @@ class ShowProjectTasksUITest {
         isNavigateBackCalled = false
         navigatedTaskId = null
 
-        every { getProjectByIdUseCase.invoke(any()) } returns project
-        every { getProjectTasksUseCase.invoke(any()) } returns projectTasks
+        coEvery { getProjectByIdUseCase.invoke(any()) } returns project
+        coEvery { getProjectTasksUseCase.invoke(any()) } returns projectTasks
     }
 
     @Test
@@ -67,8 +67,8 @@ class ShowProjectTasksUITest {
             projectId = "1"
         )
 
-        verify { getProjectByIdUseCase.invoke("1") }
-        verify { getProjectTasksUseCase.invoke("1") }
+        coVerify { getProjectByIdUseCase.invoke("1") }
+        coVerify { getProjectTasksUseCase.invoke("1") }
         verify { viewer.display("Loading...") }
         verify { tablePrinter.printTable(any(), any()) }
     }
@@ -150,9 +150,9 @@ class ShowProjectTasksUITest {
 
     @Test
     fun `should create new task when option 2 is selected with valid inputs`() {
-        every { reader.readInt() } returnsMany  listOf(2, 0)
+        every { reader.readInt() } returnsMany listOf(2, 0)
         every { reader.readString() } returnsMany listOf("New Task", "1")
-        every { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
+        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -170,7 +170,7 @@ class ShowProjectTasksUITest {
             projectId = "1"
         )
 
-        verify { createTaskUseCase.invoke("New Task", "1", "1") }
+        coVerify { createTaskUseCase.invoke("New Task", "1", "1") }
         verify { viewer.display("Enter Task Name: ") }
         verify { viewer.display("Select a state from the following states:") }
         verify { viewer.display("Enter state ID: ") }
@@ -179,9 +179,9 @@ class ShowProjectTasksUITest {
 
     @Test
     fun `should not start create new task flow when project has no states`() {
-        every { getProjectByIdUseCase(any()) } returns createProject(id = "1", name = "Test Project")
-        every { reader.readInt() } returnsMany  listOf(2, 0)
-        every { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
+        coEvery { getProjectByIdUseCase(any()) } returns createProject(id = "1", name = "Test Project")
+        every { reader.readInt() } returnsMany listOf(2, 0)
+        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -207,7 +207,7 @@ class ShowProjectTasksUITest {
     fun `should handle invalid inputs when creating task`() {
         every { reader.readInt() } returnsMany listOf(2, 0)
         every { reader.readString() } returnsMany listOf("", "Invalid,Name", "Valid Name", "999", "1")
-        every { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "Valid Name", stateId = "1")
+        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "Valid Name", stateId = "1")
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -228,7 +228,7 @@ class ShowProjectTasksUITest {
         verify { viewer.display("Name cannot be blank!") }
         verify { viewer.display("Name cannot contain comma!") }
         verify { viewer.display("Invalid state ID! Please, try again") }
-        verify { createTaskUseCase.invoke("Valid Name", "1", "1") }
+        coVerify { createTaskUseCase.invoke("Valid Name", "1", "1") }
         assertThat(isNavigateBackCalled).isTrue()
     }
 
@@ -258,7 +258,7 @@ class ShowProjectTasksUITest {
 
     @Test
     fun `should handle project not found exception`() {
-        every { getProjectByIdUseCase.invoke(any()) } throws ProjectNotFoundException("Project not found")
+        coEvery { getProjectByIdUseCase.invoke(any()) } throws ProjectNotFoundException("Project not found")
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -282,7 +282,7 @@ class ShowProjectTasksUITest {
 
     @Test
     fun `should handle generic exception when loading tasks`() {
-        every { getProjectTasksUseCase.invoke(any()) } throws RuntimeException("Generic error")
+        coEvery { getProjectTasksUseCase.invoke(any()) } throws RuntimeException("Generic error")
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -307,7 +307,7 @@ class ShowProjectTasksUITest {
     fun `should handle exception when creating task`() {
         every { reader.readInt() } returnsMany listOf(2, 0)
         every { reader.readString() } returnsMany listOf("New Task", "1")
-        every { createTaskUseCase.invoke(any(), any(), any()) } throws RuntimeException("Error creating task")
+        coEvery { createTaskUseCase.invoke(any(), any(), any()) } throws RuntimeException("Error creating task")
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -332,7 +332,7 @@ class ShowProjectTasksUITest {
     @Test
     fun `should display empty states message when project has no states`() {
         val projectWithNoStates = createProject(id = "1", name = "Test Project", states = emptyList())
-        every { getProjectByIdUseCase.invoke(any()) } returns projectWithNoStates
+        coEvery { getProjectByIdUseCase.invoke(any()) } returns projectWithNoStates
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,

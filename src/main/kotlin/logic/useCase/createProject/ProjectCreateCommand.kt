@@ -11,11 +11,11 @@ class ProjectCreateCommand(
 
     private var createdProject: Project? = null
 
-    override fun execute() {
+    override suspend fun execute() {
         createdProject = projectRepository.createProject(newProject)
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         createdProject?.let { projectRepository.deleteProject(newProject.id) }
     }
 

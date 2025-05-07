@@ -1,5 +1,6 @@
 package org.example.presentation.screens
 
+import kotlinx.coroutines.runBlocking
 import org.example.logic.useCase.CreateStateUseCase
 import org.example.logic.useCase.DeleteStateUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
@@ -53,7 +54,7 @@ class ProjectStatusUI(
         viewer.display("Select an option:")
     }
 
-    private fun showProjectStates() {
+    private fun showProjectStates() = runBlocking {
         try {
             val project = getProjectByIdUseCase(projectId)
             if (project.states.isEmpty()) {
@@ -68,7 +69,7 @@ class ProjectStatusUI(
         }
     }
 
-    private fun createProjectState() {
+    private fun createProjectState() = runBlocking{
         try {
             viewer.display("Enter the new state name:")
             val stateName = reader.readString()
@@ -79,7 +80,7 @@ class ProjectStatusUI(
         }
     }
 
-    private fun updateProjectState() {
+    private fun updateProjectState() = runBlocking{
         try {
             viewer.display("Enter the state ID to update:")
             val stateId = reader.readString()
@@ -92,7 +93,7 @@ class ProjectStatusUI(
         }
     }
 
-    private fun deleteProjectState() {
+    private fun deleteProjectState() = runBlocking{
         try {
             viewer.display("Enter the state ID to delete:")
             val stateId = reader.readString()

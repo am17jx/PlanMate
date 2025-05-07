@@ -2,21 +2,22 @@ package org.example.data.mapper
 
 import org.example.data.models.UserDTO
 import org.example.logic.models.User
+import org.example.logic.models.UserRole
 
 fun UserDTO.toUser(): User {
     return User(
-        id = id,
+        id = _id,
         username = username,
         password = password,
-        role = role
+        role = UserRole.valueOf(role)
     )
 }
 
 fun User.toUserDTO(): UserDTO {
     return UserDTO(
-        id = id,
+        _id = id,
         username = username,
         password = password,
-        role = role
+        role = role.name
     )
 }

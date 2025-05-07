@@ -2,6 +2,8 @@ package org.example.data.mapper
 
 import org.example.data.models.AuditLogDTO
 import org.example.logic.models.AuditLog
+import org.example.logic.models.AuditLogActionType
+import org.example.logic.models.AuditLogEntityType
 
 fun AuditLogDTO.toAuditLog(): AuditLog {
     return AuditLog(
@@ -9,9 +11,9 @@ fun AuditLogDTO.toAuditLog(): AuditLog {
         userId = userId,
         action = action,
         timestamp = timestamp,
-        entityType = entityType,
+        entityType = AuditLogEntityType.valueOf(entityType),
         entityId = entityId,
-        actionType = actionType
+        actionType = AuditLogActionType.valueOf(actionType)
     )
 }
 
@@ -21,8 +23,8 @@ fun AuditLog.toAuditLogDTO(): AuditLogDTO {
         userId = userId,
         action = action,
         timestamp = timestamp,
-        entityType = entityType,
+        entityType = entityType.name,
         entityId = entityId,
-        actionType = actionType
+        actionType = actionType.name
     )
 }

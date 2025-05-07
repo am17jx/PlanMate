@@ -1,8 +1,6 @@
 package presentation.screens
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import org.example.logic.models.*
 import org.example.logic.useCase.GetAllProjectsUseCase
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
@@ -64,16 +62,18 @@ class ProjectsOverviewUITest {
         reader = mockk()
         viewer = mockk(relaxed = true)
         projectScreensOptions = mockk()
-        deleteProjectUseCase=mockk()
-        tablePrinter=mockk(relaxed = true)
+        deleteProjectUseCase = mockk()
+        tablePrinter = mockk(relaxed = true)
 
-        every { projectScreensOptions.showAllProjectsOptions() } returns
-            mapOf("1" to "1 - Show Project Details","5" to "5 - Back")
+        every { projectScreensOptions.showAllProjectsOptions() } returns mapOf(
+            "1" to "1 - Show Project Details",
+            "5" to "5 - Back"
+        )
     }
 
     @Test
     fun `should return all projects when list is not empty`() {
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returns "5"
 
         launchUI()
@@ -84,7 +84,7 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return message when no projects exist`() {
-        every { getAllProjectsUseCase() } returns emptyList()
+        coEvery { getAllProjectsUseCase() } returns emptyList()
         every { reader.readString() } returns "5"
 
         launchUI()
@@ -94,7 +94,7 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return error message when exception is thrown while loading projects`() {
-        every { getAllProjectsUseCase() } throws RuntimeException("DB Failure")
+        coEvery { getAllProjectsUseCase() } throws RuntimeException("DB Failure")
         every { reader.readString() } returns "5"
 
         launchUI()
@@ -104,7 +104,7 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return navigation to tasks screen when user chooses to show project details`() {
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("1", "123", "5")
 
         launchUI()
@@ -118,18 +118,18 @@ class ProjectsOverviewUITest {
         val newName = "New Project"
         val existingProject = sampleProjects.first()
 
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("2", "1", projectId, newName, "5")
-        every { getProjectByIdUseCase(projectId) } returns existingProject
+        coEvery { getProjectByIdUseCase(projectId) } returns existingProject
 
         launchUI()
 
-        verify { updateProjectUseCase(existingProject.copy(name = newName)) }
+        coVerify { updateProjectUseCase(existingProject.copy(name = newName)) }
     }
 
     @Test
     fun `should return navigation to project status screen when user chooses to manage status`() {
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("2", "2", "42", "5")
 
         launchUI()
@@ -139,7 +139,7 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return invalid input message when user selects unknown update option`() {
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("2", "999", "5")
 
         launchUI()
@@ -149,7 +149,7 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return deletion confirmation when user deletes project`() {
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("3", "1", "5")
 
         launchUI()
@@ -171,9 +171,9 @@ class ProjectsOverviewUITest {
             )
         )
 
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("4", "1", "5")
-        every { getEntityAuditLogsUseCase("1", AuditLogEntityType.PROJECT) } returns logs
+        coEvery { getEntityAuditLogsUseCase("1", AuditLogEntityType.PROJECT) } returns logs
 
         launchUI()
 
@@ -182,8 +182,8 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return invalid input message when user enters non-numeric main option`() {
-        every { getAllProjectsUseCase() } returns sampleProjects
-        every { reader.readString() } returnsMany listOf("invalid", "5")
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { reader.readString() } returnsMany listOf("invalid", "5")
 
         launchUI()
 
@@ -192,7 +192,7 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return to previous screen when back is selected`() {
-        every { getAllProjectsUseCase() } returns sampleProjects
+        coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("5", "0")
 
         launchUI()

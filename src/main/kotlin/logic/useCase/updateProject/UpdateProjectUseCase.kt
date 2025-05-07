@@ -22,7 +22,7 @@ class UpdateProjectUseCase(
     private val taskRepository: TaskRepository
 
 ) {
-    operator fun invoke(updatedProject: Project): Project {
+    suspend operator fun invoke(updatedProject: Project): Project {
         if (updatedProject.name.isEmpty()) throw BlankInputException(BLANK_PROJECT_NAME_EXCEPTION_MESSAGE)
         val originalProject = currentOriginalProject(updatedProject)
         val currentUser = currentUser()
@@ -33,7 +33,7 @@ class UpdateProjectUseCase(
 
     }
 
-    private fun saveUpdatedProject(originalProject: Project, newProject: Project, currentUser: User): Project {
+    private suspend fun saveUpdatedProject(originalProject: Project, newProject: Project, currentUser: User): Project {
         val actionBuilder = actionBuilder(originalProject, newProject, currentUser)
         val auditLog = createAuditLogInstance(originalProject, newProject, currentUser, actionBuilder.first)
 
@@ -41,16 +41,15 @@ class UpdateProjectUseCase(
         val projectUpdateCommand = ProjectUpdateCommand(projectRepository, newProject, originalProject)
 
         val tasksCommand: MutableList<Command> = mutableListOf()
-        if(actionBuilder.second.isNotEmpty())
-        getProjectTasksUseCase(newProject.id).filter { it.stateId == actionBuilder.second}.forEach {
-            tasksCommand.add(DeleteTaskCommand(taskRepository, it))
-        }
+        if (actionBuilder.second.isNotEmpty()) getProjectTasksUseCase(newProject.id).filter { it.stateId == actionBuilder.second }
+            .forEach {
+                tasksCommand.add(DeleteTaskCommand(taskRepository, it))
+            }
 
         tasksCommand.add(projectUpdateCommand)
         tasksCommand.add(auditCommand)
         val updateProjectCommandTransaction = TransactionalCommand(
-           tasksCommand,
-            ProjectNotChangedException(PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE)
+            tasksCommand, ProjectNotChangedException(PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE)
         )
 
         try {
@@ -64,10 +63,7 @@ class UpdateProjectUseCase(
     }
 
     private fun createAuditLogInstance(
-        project: Project,
-        updatedProject: Project,
-        currentUser: User,
-        action: String
+        project: Project, updatedProject: Project, currentUser: User, action: String
     ): AuditLog {
 
         val auditLog = AuditLog(
@@ -86,8 +82,7 @@ class UpdateProjectUseCase(
         var deletedStateId = ""
         val timestampNow = Clock.System.now()
         val action = when {
-            project.name != updatedProject.name ->
-                "${currentUser.username} changed Project name from ${project.name} to ${updatedProject.name}"
+            project.name != updatedProject.name -> "${currentUser.username} changed Project name from ${project.name} to ${updatedProject.name}"
 
             project.states.size > updatedProject.states.size -> {
                 deletedStateId = project.states.subtract(updatedProject.states.toSet()).first().id
@@ -96,35 +91,36 @@ class UpdateProjectUseCase(
                 } from ${project.name}"
             }
 
-            project.states.size < updatedProject.states.size ->
-                "${currentUser.username} add  state: ${
-                    updatedProject.states.subtract(project.states.toSet()).first().title
-                } to ${project.name}"
+            project.states.size < updatedProject.states.size -> "${currentUser.username} add  state: ${
+                updatedProject.states.subtract(project.states.toSet()).first().title
+            } to ${project.name}"
 
             else -> {
-                val statesDifference = (updatedProject.states.subtract(project.states.toSet()) + project.states.subtract(updatedProject.states.toSet())).toList()
+                val statesDifference =
+                    (updatedProject.states.subtract(project.states.toSet()) + project.states.subtract(updatedProject.states.toSet())).toList()
                 "${currentUser.username} updated state : ${statesDifference[1].title} to state:${statesDifference[0].title} in ${project.name}"
             }
 
         }
-        return Pair(action + "at ${timestampNow.formattedString()}",deletedStateId)
+        return Pair(action + "at ${timestampNow.formattedString()}", deletedStateId)
     }
 
-    private fun currentUser(): User {
-        return authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No logged-in user found")
+    private suspend fun currentUser(): User {
+        return authenticationRepository.getCurrentUser() ?: throw NoLoggedInUserException("No logged-in user found")
     }
 
     private fun detectChanges(originalProject: Project, newProject: Project) {
-        if ((originalProject.name == newProject.name) && (originalProject.states.toSet()==newProject.states.toSet()))
-            throw ProjectNotChangedException("No changes detected ^_^")
+        if ((originalProject.name == newProject.name) && (originalProject.states.toSet() == newProject.states.toSet())) throw ProjectNotChangedException(
+            "No changes detected ^_^"
+        )
     }
 
-    private fun currentOriginalProject(
+    private suspend fun currentOriginalProject(
         updatedProject: Project
     ): Project {
-        return projectRepository.getProjectById(updatedProject.id)
-            ?: throw ProjectNotFoundException(PROJECT_NOT_FOUND_EXCEPTION_MESSAGE)
+        return projectRepository.getProjectById(updatedProject.id) ?: throw ProjectNotFoundException(
+            PROJECT_NOT_FOUND_EXCEPTION_MESSAGE
+        )
     }
 
     companion object {

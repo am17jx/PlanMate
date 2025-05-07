@@ -1,5 +1,6 @@
 package org.example.presentation.screens
 
+import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Project
 import org.example.logic.useCase.*
@@ -31,13 +32,13 @@ class ProjectsOverviewUI(
         showMainMenu()
     }
 
-    private fun showAllProjects() {
+    private fun showAllProjects() = runBlocking {
         try {
             val projects = getAllProjectsUseCase()
 
             if (projects.isEmpty()) {
                 displayNoProjectsMessage()
-                return
+                return@runBlocking
             }
 
             showProjectsInTable(projects)
@@ -96,7 +97,7 @@ class ProjectsOverviewUI(
         }
     }
 
-    private fun showProjectLogsInTable() {
+    private fun showProjectLogsInTable() = runBlocking{
         try {
             viewer.display("Please enter the project ID:")
             val projectId = reader.readString()
@@ -115,7 +116,7 @@ class ProjectsOverviewUI(
             onNavigateBack()
     }
 
-    private fun deleteProject() {
+    private fun deleteProject() = runBlocking{
         try {
             viewer.display("Please enter the project ID:")
             val projectId = reader.readString()
@@ -147,7 +148,7 @@ class ProjectsOverviewUI(
         }
     }
 
-    private fun updateProjectName() {
+    private fun updateProjectName() = runBlocking{
         try {
             viewer.display("Please enter the project ID:")
             val projectId = reader.readString()

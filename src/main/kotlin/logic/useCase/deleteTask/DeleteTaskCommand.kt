@@ -9,11 +9,11 @@ class DeleteTaskCommand(
     private val taskRepository: TaskRepository,
     private val task: Task,
 ) : Command {
-    override fun execute() {
+    override suspend fun execute() {
         taskRepository.deleteTask(task.id)
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         taskRepository.createTask(task)
     }
 }

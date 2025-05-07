@@ -12,11 +12,11 @@ class TaskCreateCommand(
 
     private var createdTask: Task? = null
 
-    override fun execute() {
+    override suspend fun execute() {
         createdTask = taskRepository.createTask(newTask)
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         createdTask?.let { taskRepository.deleteTask(taskId = newTask.id) }
     }
 

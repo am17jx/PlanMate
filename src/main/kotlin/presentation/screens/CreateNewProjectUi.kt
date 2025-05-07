@@ -1,6 +1,7 @@
 package org.example.presentation.screens
 
 
+import kotlinx.coroutines.runBlocking
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.*
 import presentation.utils.io.Reader
@@ -16,7 +17,7 @@ class CreateNewProjectUi(
         run()
     }
 
-    private fun run() {
+    private fun run() = runBlocking {
         viewer.display("\n===== Create New Project =====")
         viewer.display("Enter project name: ")
 

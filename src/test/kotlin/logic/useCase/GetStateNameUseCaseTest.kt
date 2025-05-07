@@ -1,8 +1,9 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.models.Task
@@ -28,42 +29,41 @@ class GetStateNameUseCaseTest {
     )
 
     private val dummyProject = Project(
-        id = "project-1",
-        name = "My Project",
-        states = listOf(
-            State(id = "state-001", title = "to do"),
-            State(id = "state-002", title = "in progress")
-        ),
-        auditLogsIds = emptyList()
+        id = "project-1", name = "My Project", states = listOf(
+            State(id = "state-001", title = "to do"), State(id = "state-002", title = "in progress")
+        ), auditLogsIds = emptyList()
     )
+
     @BeforeEach
     fun setUp() {
         getTaskByIdUseCase = mockk()
         getProjectByIdUseCase = mockk()
         getStateNameUseCase = GetStateNameUseCase(getTaskByIdUseCase, getProjectByIdUseCase)
     }
+
     @Test
-    fun `should return sate name when take and project are available`() {
+    fun `should return sate name when take and project are available`() = runTest {
         val taskId = "task-123"
         val projectId = "project-1"
         val expectedStateName = "to do"
-        every { getProjectByIdUseCase(projectId) } returns dummyProject
-        every { getTaskByIdUseCase(taskId) } returns dummyTask
+        coEvery { getProjectByIdUseCase(projectId) } returns dummyProject
+        coEvery { getTaskByIdUseCase(taskId) } returns dummyTask
 
 
         val result = getStateNameUseCase(taskId)
 
         assertThat(result).isEqualTo(expectedStateName)
     }
+
     @Test
-    fun `should return null when there is no state`() {
+    fun `should return null when there is no state`() = runTest {
         val taskId = "task-123"
         val projectId = "project-1"
         val missingStateTask = dummyTask.copy(stateId = "state-999")
-        every { getProjectByIdUseCase(projectId) } returns dummyProject
-        every { getTaskByIdUseCase(taskId) } returns missingStateTask
+        coEvery { getProjectByIdUseCase(projectId) } returns dummyProject
+        coEvery { getTaskByIdUseCase(taskId) } returns missingStateTask
 
-        assertThrows<StateNotFoundException>{
+        assertThrows<StateNotFoundException> {
             getStateNameUseCase(taskId)
         }
     }

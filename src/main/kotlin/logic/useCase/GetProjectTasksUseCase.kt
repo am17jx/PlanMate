@@ -8,7 +8,7 @@ import org.example.logic.utils.TaskNotFoundException
 class GetProjectTasksUseCase(
     private val taskRepository: TaskRepository,
 ) {
-    operator fun invoke(projectId: String): List<Task> {
+    suspend operator fun invoke(projectId: String): List<Task> {
         checkInputValidation(projectId)
         return taskRepository
             .getAllTasks()

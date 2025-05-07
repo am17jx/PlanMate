@@ -13,11 +13,11 @@ class ProjectUpdateCommand(
 
     private var updatedProject: Project? = null
 
-    override fun execute() {
+    override suspend fun execute() {
         updatedProject = projectRepository.updateProject(newProject)
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         updatedProject?.let { projectRepository.updateProject(originalProject) }
     }
 

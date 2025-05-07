@@ -18,7 +18,7 @@ class DeleteStateUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val updateProjectUseCase: UpdateProjectUseCase,
 ) {
-    operator fun invoke(
+    suspend operator fun invoke(
         stateId: String,
         projectId: String,
     ): Project {
@@ -40,11 +40,11 @@ class DeleteStateUseCase(
         stateId: String,
     ): List<State> = project.states.filter { it.id != stateId }
 
-    private fun getProject(projectId: String): Project =
+    private suspend fun getProject(projectId: String): Project =
         projectRepository.getProjectById(projectId)
             ?: throw ProjectNotFoundException("Project not found")
 
-    private fun checkUserRole() {
+    private suspend fun checkUserRole() {
         if (getCurrentUser().role != UserRole.ADMIN) throw UnauthorizedException("User is not an admin")
     }
 
@@ -58,7 +58,7 @@ class DeleteStateUseCase(
         }
     }
 
-    private fun getCurrentUser() =
+    private suspend fun getCurrentUser() =
         authenticationRepository.getCurrentUser()
             ?: throw NoLoggedInUserException("No logged in user")
 }

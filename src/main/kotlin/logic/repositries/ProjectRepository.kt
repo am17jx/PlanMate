@@ -3,13 +3,13 @@ package org.example.logic.repositries
 import org.example.logic.models.Project
 
 interface ProjectRepository {
-    fun createProject(project: Project): Project
+    suspend fun createProject(project: Project): Project
 
-    fun updateProject(updatedProject: Project): Project?
+    suspend fun updateProject(updatedProject: Project): Project?
 
-    fun deleteProject(projectId: String)
+    suspend fun deleteProject(projectId: String)
 
-    fun getAllProjects(): List<Project>
+    suspend fun getAllProjects(): List<Project>
 
-    fun getProjectById(projectId: String): Project?
+    suspend fun getProjectById(projectId: String): Project?
 }

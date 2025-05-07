@@ -8,7 +8,7 @@ import org.example.logic.utils.hashWithMD5
 
 class LoginUserUseCase(private val authenticationRepository: AuthenticationRepository) {
 
-    operator fun invoke(username: String, password: String): User {
+    suspend operator fun invoke(username: String, password: String): User {
         when {
             username.isBlank() -> throw BlankInputException("Username is blank")
             password.isBlank() -> throw BlankInputException("Password is blank")
@@ -21,7 +21,7 @@ class LoginUserUseCase(private val authenticationRepository: AuthenticationRepos
         }
     }
 
-    private fun isUserNotFound(username: String, password: String) =
+    private suspend fun isUserNotFound(username: String, password: String) =
         authenticationRepository.getAllUsers().none { it.username == username && it.password == password }
 
 

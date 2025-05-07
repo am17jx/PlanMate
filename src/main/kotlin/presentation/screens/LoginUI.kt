@@ -1,5 +1,6 @@
 package org.example.presentation.screens
 
+import kotlinx.coroutines.runBlocking
 import org.example.logic.models.UserRole
 import org.example.logic.useCase.LoginUserUseCase
 import org.example.logic.utils.BlankInputException
@@ -19,7 +20,7 @@ class LoginUI(
         run()
     }
 
-    private fun run() {
+    private fun run() = runBlocking{
         viewer.display("====================================")
         viewer.display(" Welcome to the Task Management System ")
         viewer.display("====================================")

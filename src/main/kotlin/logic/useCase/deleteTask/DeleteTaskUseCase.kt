@@ -23,21 +23,21 @@ class DeleteTaskUseCase(
     private val userUseCase: GetCurrentUserUseCase,
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
 ) {
-    operator fun invoke(taskId: String) {
+    suspend operator fun invoke(taskId: String) {
         val auditLog = saveAuditLog(taskId)
         val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
         val deleteTasksCommand = DeleteTaskCommand(taskRepository, getTaskByIdUseCase(taskId))
         TransactionalCommand(listOf(auditCommand, deleteTasksCommand), UnableToDeleteTaskException("Cannot delete task"))
-
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    private fun saveAuditLog(taskId: String): AuditLog {
+    private suspend fun saveAuditLog(taskId: String): AuditLog {
+        val user = userUseCase()
         val timestampNow = Clock.System.now()
         val auditLog = AuditLog(
             id = Uuid.random().getCroppedId(),
-            userId = userUseCase().id,
-            action = "${userUseCase().username} deleted task with id $taskId at ${timestampNow.formattedString()}",
+            userId = user.id,
+            action = "${user.username} deleted task with id $taskId at ${timestampNow.formattedString()}",
             timestamp = System.currentTimeMillis(),
             entityType = AuditLogEntityType.TASK,
             entityId = taskId,

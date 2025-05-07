@@ -1,5 +1,6 @@
 package org.example.presentation.screens
 
+import kotlinx.coroutines.runBlocking
 import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
 import org.example.logic.models.Task
@@ -29,7 +30,7 @@ class ShowProjectTasksUI(
         loadProject()
     }
 
-    private fun loadProject() {
+    private fun loadProject() = runBlocking{
         viewer.display("Loading...")
         try {
             project = getProjectByIdUseCase(projectId)
@@ -39,7 +40,7 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun loadTasks() {
+    private fun loadTasks() = runBlocking{
         try {
             projectTasks = getProjectTasksUseCase(projectId)
             getUserSelectedOption()
@@ -118,7 +119,7 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun startCreateTaskFlow() {
+    private fun startCreateTaskFlow() = runBlocking{
         val taskName = readTaskName()
         val stateId = readSelectedState()
         try {

@@ -20,7 +20,7 @@ class CreateTaskUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val auditLogRepository: AuditLogRepository
 ) {
-    operator fun invoke(
+    suspend operator fun invoke(
         name: String,
         projectId: String,
         stateId: String,
@@ -31,7 +31,7 @@ class CreateTaskUseCase(
         return createAndLogTask(name, projectId, stateId, loggedInUser)
     }
 
-    private fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
+    private suspend fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
         val taskId = Uuid.random().getCroppedId()
         val taskAuditLog = createAuditLog(taskId, taskName, loggedInUser)
         val newTask = Task(
@@ -72,11 +72,11 @@ class CreateTaskUseCase(
         )
     }
 
-    private fun getLoggedInUserOrThrow() = authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
+    private suspend fun getLoggedInUserOrThrow() = authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
         NO_LOGGED_IN_USER_ERROR_MESSAGE
     )
 
-    private fun verifyProjectAndStateExist(projectId: String, stateId: String) {
+    private suspend fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->
             if (project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
         } ?: throw ProjectNotFoundException(NO_PROJECT_FOUND_ERROR_MESSAGE)

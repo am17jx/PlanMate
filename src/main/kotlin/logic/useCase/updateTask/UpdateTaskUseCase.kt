@@ -19,14 +19,14 @@ class UpdateTaskUseCase(
     private val auditLogRepository: AuditLogRepository
 ) {
 
-    operator fun invoke(taskId: String, updatedTask: Task): Task {
+    suspend operator fun invoke(taskId: String, updatedTask: Task): Task {
         val existingTask = getExistingTaskOrThrow(taskId)
         ensureTaskIsChanged(existingTask, updatedTask)
         val currentUser = getCurrentUserOrThrow()
         return updateAndLogTask(existingTask, updatedTask, currentUser)
     }
 
-    private fun updateAndLogTask(oldTask: Task, updatedTask: Task, currentUser: User): Task {
+    private suspend fun updateAndLogTask(oldTask: Task, updatedTask: Task, currentUser: User): Task {
 
         val taskAuditLog = logAudit(currentUser, updatedTask, oldTask)
 
@@ -58,7 +58,7 @@ class UpdateTaskUseCase(
         )
     }
 
-    private fun getExistingTaskOrThrow(taskId: String): Task {
+    private suspend fun getExistingTaskOrThrow(taskId: String): Task {
         return taskRepository.getTaskById(taskId) ?: throw TaskNotFoundException("Task with id $taskId not found")
     }
 
@@ -68,7 +68,7 @@ class UpdateTaskUseCase(
         }
     }
 
-    private fun getCurrentUserOrThrow(): User {
+    private suspend fun getCurrentUserOrThrow(): User {
         return authenticationRepository.getCurrentUser() ?: throw NoLoggedInUserException("No logged-in user found")
     }
 

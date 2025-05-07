@@ -1,6 +1,6 @@
 package org.example.data.repository
 
-import org.example.data.source.local.contract.LocalAuthenticationDataSource
+import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
@@ -9,34 +9,32 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class AuthenticationRepositoryImpl(
-    private val localAuthenticationDataSource: LocalAuthenticationDataSource
+    private val remoteAuthenticationDataSource: RemoteAuthenticationDataSource
 ): AuthenticationRepository {
-
     private var currentUser: User? = null
 
-
-    override fun getCurrentUser(): User? = currentUser
+    override suspend fun getCurrentUser(): User? = currentUser
 
     @OptIn(ExperimentalUuidApi::class)
-    override fun createMate(username: String, hashedPassword: String): User {
+    override suspend fun createMate(username: String, hashedPassword: String): User {
         val user = User(Uuid.random().getCroppedId(),username,hashedPassword, UserRole.USER)
-        localAuthenticationDataSource.saveUser(user)
+        remoteAuthenticationDataSource.saveUser(user)
         return user
     }
 
-    override fun login(username: String, hashedPassword: String): User {
+    override suspend fun login(username: String, hashedPassword: String): User {
         val userId = getUserId(username, hashedPassword)
         val userRole = getUserRole(username, hashedPassword)
         currentUser = User(userId, username, hashedPassword, userRole)
         return currentUser!!
     }
 
-    override fun getAllUsers(): List<User> {
-        return localAuthenticationDataSource.getAllUsers()
+    override suspend fun getAllUsers(): List<User> {
+        return remoteAuthenticationDataSource.getAllUsers()
     }
 
 
-    private fun getUserId(username: String, hashedPassword: String): String {
+    private suspend fun getUserId(username: String, hashedPassword: String): String {
         try {
             return getAllUsers().first { it.username == username && it.password == hashedPassword }.id
         } catch(e: NoSuchElementException) {
@@ -45,7 +43,7 @@ class AuthenticationRepositoryImpl(
 
     }
 
-    private fun getUserRole(username: String, hashedPassword: String): UserRole {
+    private suspend fun getUserRole(username: String, hashedPassword: String): UserRole {
         try {
             return getAllUsers().first { it.username == username && it.password == hashedPassword }.role
         } catch(e: NoSuchElementException) {

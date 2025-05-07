@@ -13,11 +13,11 @@ class TaskUpdateCommand(
 
     private var updatedTask: Task? = null
 
-    override fun execute() {
+    override suspend fun execute() {
         updatedTask = taskRepository.updateTask(newTask)
     }
 
-    override fun undo() {
+    override suspend fun undo() {
         updatedTask?.let { taskRepository.updateTask(originalTask) }
     }
 
