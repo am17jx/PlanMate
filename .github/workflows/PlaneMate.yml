@@ -21,6 +21,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Authenticate with GitHub CLI
+        run: gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch MongoDB URI from GitHub Secrets and create .env file
+        run: |
+          chmod +x ./fetch-secrets.sh
+          ./fetch-secrets.sh
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
