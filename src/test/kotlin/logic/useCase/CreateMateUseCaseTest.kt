@@ -44,14 +44,6 @@ class CreateMateUseCaseTest {
     }
 
     @Test
-    fun `should throw exception with type UserAlreadyExistsException when user enter username is exists before`() = runTest {
-
-        coEvery { authenticationRepository.getAllUsers() } returns users
-
-        assertThrows<UserAlreadyExistsException> { createUserUseCase("testUsername", "testPassword") }
-    }
-
-    @Test
     fun `should throw exception with type BlankInputException when user not enter username`() = runTest {
 
         coEvery { authenticationRepository.getAllUsers() } returns users

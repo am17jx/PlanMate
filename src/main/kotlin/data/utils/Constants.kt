@@ -29,5 +29,8 @@ object Constants {
 
     const val STATE_ID_FIELD = "stateId"
 
+    const val USERNAME = "username"
+    const val PASSWORD = "password"
+
 
 }
