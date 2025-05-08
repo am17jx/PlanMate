@@ -11,7 +11,6 @@ import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class AuthenticationRepositoryImplTest {
     private lateinit var remoteAuthenticationDataSource: RemoteAuthenticationDataSource
@@ -39,23 +38,13 @@ class AuthenticationRepositoryImplTest {
         assertThat(result).isEqualTo(users.first())
     }
 
-//    @Test
-//    fun `getCurrentUser should return null when user is not logged in`() = runTest {
-//        coEvery { authenticationRepository.getAllUsers() } returns users
-//
-//        val result = authenticationRepository.getCurrentUser()
-//
-//        assertThat(result).isNull()
-//    }
 
     @Test
     fun `login should set and return the current user when user is logged in`() = runTest {
         coEvery { remoteAuthenticationDataSource.login(any(), any()) } returns users.first()
 
         val loggedInUser = authenticationRepository.login(testUsername, testPassword)
-        //val currentUser = authenticationRepository.getCurrentUser()
 
-        //assertThat(loggedInUser).isEqualTo(currentUser)
         assertThat(loggedInUser.username).isEqualTo(testUsername)
         assertThat(loggedInUser.password).isEqualTo(testPassword)
         assertThat(loggedInUser.role).isEqualTo(UserRole.USER)
@@ -85,21 +74,4 @@ class AuthenticationRepositoryImplTest {
             assertThat(result).isEqualTo(users)
         }
 
-//    @Test
-//    fun `getUserId should throw exception when user is not found`() = runTest {
-//        coEvery { remoteAuthenticationDataSource.getAllUsers() } returns users
-//
-//        assertThrows<NoSuchElementException> {
-//            authenticationRepository.login("wrongUser", "wrongPassword")
-//        }
-//    }
-//
-//    @Test
-//    fun `getUserRole should throw exception when user is not found`() = runTest {
-//        coEvery { remoteAuthenticationDataSource.getAllUsers() } returns users
-//
-//        assertThrows<NoSuchElementException> {
-//            authenticationRepository.login("nonExistentUser", "wrongPassword")
-//        }
-//    }
 }
