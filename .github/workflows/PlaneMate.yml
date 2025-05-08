@@ -33,9 +33,6 @@ jobs:
       - name: Clean Project
         run: ./gradlew clean
 
-      - name: Write .env file from secret
-        run: echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
-
       - name: Compile Project
         run: ./gradlew assemble
 
