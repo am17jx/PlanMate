@@ -43,20 +43,11 @@ class CsvAuthenticationDataSource(
 
 
     private fun getUserId(username: String, hashedPassword: String): String {
-        try {
             return getAllUsers().first { it.username == username && it.password == hashedPassword }.id
-        } catch (e: Exception) {
-            throw UserNotFoundException("User not found")
-        }
-
     }
 
     private fun getUserRole(username: String, hashedPassword: String): UserRole {
-        try {
             return getAllUsers().first { it.username == username && it.password == hashedPassword }.role
-        } catch (e: Exception) {
-            throw UserNotFoundException("User not found")
-        }
     }
 
     private fun isUserNotFound(username: String, password: String) =
