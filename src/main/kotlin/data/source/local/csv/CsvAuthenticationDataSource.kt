@@ -30,28 +30,16 @@ class CsvAuthenticationDataSource(
     }
 
     override fun login(username: String, hashedPassword: String): User {
-        if (isUserNotFound(username, hashedPassword)) {
-            throw UserNotFoundException("User not found")
+        try {
+            return getAllUsers().first { it.username == username && it.password == hashedPassword }
+                .also { currentUser = it }
+                .let { User(it.id, it.username, it.password, it.role) }
+        } catch (e: NoSuchElementException) {
+            throw NoSuchElementException("User not found")
         }
-        val userId = getUserId(username, hashedPassword)
-        val userRole = getUserRole(username, hashedPassword)
-        currentUser = User(userId, username, hashedPassword, userRole)
-        return currentUser!!
     }
 
     override fun getCurrentUser(): User? = currentUser
-
-
-    private fun getUserId(username: String, hashedPassword: String): String {
-            return getAllUsers().first { it.username == username && it.password == hashedPassword }.id
-    }
-
-    private fun getUserRole(username: String, hashedPassword: String): UserRole {
-            return getAllUsers().first { it.username == username && it.password == hashedPassword }.role
-    }
-
-    private fun isUserNotFound(username: String, password: String) =
-        getAllUsers().none { it.username == username && it.password == password }
 
     private fun isUserExists(username: String) = getAllUsers().any { it.username == username }
 }
