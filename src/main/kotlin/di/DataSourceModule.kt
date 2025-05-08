@@ -1,5 +1,7 @@
 package org.example.di
 
+import com.mongodb.kotlin.client.coroutine.MongoClient
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import org.example.data.source.local.contract.LocalAuditLogDataSource
 import org.example.data.source.local.contract.LocalAuthenticationDataSource
 import org.example.data.source.local.contract.LocalProjectDataSource
@@ -72,10 +74,10 @@ val dataSourceModule = module {
         val file = File("users.csv")
         CsvAuthenticationDataSource(CSVWriter(file), CSVReader(file))
     }
-
-    single<RemoteProjectDataSource>{ MongoProjectDataSource(PlanMateDataBase.projectDoc) }
+    single<RemoteProjectDataSource> { MongoProjectDataSource(PlanMateDataBase.projectDoc) }
     single<RemoteAuthenticationDataSource> { MongoAuthenticationDataSource(PlanMateDataBase.userDoc) }
     single<RemoteAuditLogDataSource> { MongoAuditLogDataSource(PlanMateDataBase.auditLogDoc) }
     single<RemoteTaskDataSource> { MongoTaskDataSource(PlanMateDataBase.taskDoc) }
+
 
 }

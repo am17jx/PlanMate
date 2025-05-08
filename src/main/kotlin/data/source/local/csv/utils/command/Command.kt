@@ -1,4 +1,4 @@
-package org.example.logic.command
+package org.example.data.source.local.csv.utils.command
 
 interface Command {
     suspend fun execute()

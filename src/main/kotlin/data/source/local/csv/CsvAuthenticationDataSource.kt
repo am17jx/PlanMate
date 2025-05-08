@@ -6,13 +6,21 @@ import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvRow
 import org.example.data.source.local.csv.utils.mapper.toUsers
 import org.example.logic.models.User
+import org.example.logic.models.UserRole
+import org.example.logic.utils.UserAlreadyExistsException
+import org.example.logic.utils.UserNotFoundException
 
 class CsvAuthenticationDataSource(
     private val csvWriter: CSVWriter,
     private val csvReader: CSVReader
-): LocalAuthenticationDataSource {
+) : LocalAuthenticationDataSource {
+
+    private var currentUser: User? = null
 
     override fun saveUser(user: User) {
+        if (isUserExists(user.username)) {
+            throw UserAlreadyExistsException("User already exists")
+        }
         val allUsersRows = csvReader.readLines() + user.toCsvRow()
         csvWriter.writeLines(allUsersRows)
     }
@@ -20,4 +28,18 @@ class CsvAuthenticationDataSource(
     override fun getAllUsers(): List<User> {
         return csvReader.readLines().toUsers()
     }
+
+    override fun login(username: String, hashedPassword: String): User {
+        try {
+            return getAllUsers().first { it.username == username && it.password == hashedPassword }
+                .also { currentUser = it }
+                .let { User(it.id, it.username, it.password, it.role) }
+        } catch (e: NoSuchElementException) {
+            throw NoSuchElementException("User not found")
+        }
+    }
+
+    override fun getCurrentUser(): User? = currentUser
+
+    private fun isUserExists(username: String) = getAllUsers().any { it.username == username }
 }

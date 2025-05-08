@@ -11,10 +11,7 @@ import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateProjectUseCase
-import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.NoLoggedInUserException
-import org.example.logic.utils.ProjectCreationFailedException
-import org.example.logic.utils.UnauthorizedException
+import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -129,9 +126,9 @@ class CreateProjectUseCaseTest {
     fun `should throws ProjectCreationFailedException when audit log return exception`() = runTest {
         val projectName = "Test Project"
         coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
-        coEvery { auditLogRepository.createAuditLog(any()) } throws Exception()
+        coEvery { auditLogRepository.createAuditLog(any()) } throws CreationItemFailedException("")
 
-        assertThrows<ProjectCreationFailedException> {
+        assertThrows<CreationItemFailedException> {
             createProjectUseCase(projectName)
         }
     }
