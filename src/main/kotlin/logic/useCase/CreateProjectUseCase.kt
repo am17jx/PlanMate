@@ -33,14 +33,9 @@ class CreateProjectUseCase(
                 auditLogsIds = listOf(audit.id),
             )
 
-        try {
-            auditLogRepository.createAuditLog(audit)
-
-            projectRepository.createProject(newProject)
-            return newProject
-        } catch (e: Exception) {
-            throw ProjectCreationFailedException(PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE)
-        }
+        auditLogRepository.createAuditLog(audit)
+        projectRepository.createProject(newProject)
+        return newProject
 
 
     }

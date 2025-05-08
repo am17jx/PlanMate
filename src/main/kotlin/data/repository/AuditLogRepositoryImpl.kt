@@ -1,6 +1,5 @@
 package org.example.data.repository
 
-import org.example.data.source.local.contract.LocalAuditLogDataSource
 import org.example.data.source.remote.contract.RemoteAuditLogDataSource
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogEntityType

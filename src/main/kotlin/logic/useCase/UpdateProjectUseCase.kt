@@ -29,15 +29,10 @@ class UpdateProjectUseCase(
         val actionBuilder = actionBuilder(originalProject, newProject, currentUser)
         val auditLog = createAuditLogInstance(originalProject, newProject, currentUser, actionBuilder.first)
 
-        try {
-            auditLogRepository.createAuditLog(auditLog)
+        auditLogRepository.createAuditLog(auditLog)
 
-            projectRepository.updateProject(newProject)
-            return newProject
-
-        } catch (e: Exception) {
-            throw ProjectNotChangedException(PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE)
-        }
+        projectRepository.updateProject(newProject)
+        return newProject
 
     }
 

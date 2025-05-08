@@ -28,17 +28,11 @@ class UpdateTaskUseCase(
 
         val taskAuditLog = logAudit(currentUser, updatedTask, oldTask)
 
-        try {
-            val taskLog = auditLogRepository.createAuditLog(taskAuditLog)
+        val taskLog = auditLogRepository.createAuditLog(taskAuditLog)
 
-            taskRepository.updateTask(updatedTask)
-            return updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(taskLog.id ?: ""))
+        taskRepository.updateTask(updatedTask)
+        return updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(taskLog.id ?: ""))
 
-        } catch (e: Exception) {
-
-            throw TaskNotChangedException("Task Not changed")
-
-        }
     }
 
     private fun logAudit(user: User, oldTask: Task, newTask: Task): AuditLog {

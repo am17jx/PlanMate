@@ -79,9 +79,9 @@ class UpdateProjectUseCaseTest {
         val updatedProject = createProject(name = "Plan")
         coEvery { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.ADMIN)
         coEvery { projectRepository.getProjectById(updatedProject.id) } returns createProject()
-        coEvery { auditLogRepository.createAuditLog(any()) } throws Exception()
+        coEvery { auditLogRepository.createAuditLog(any()) } throws UpdateItemFailedException("")
 
-        assertThrows<ProjectNotChangedException> {
+        assertThrows<UpdateItemFailedException> {
             updateProjectUseCase(updatedProject)
         }
     }

@@ -45,14 +45,9 @@ class CreateTaskUseCase(
             auditLogsIds = listOf(taskAuditLog.id)
         )
 
-        try {
-            auditLogRepository.createAuditLog(taskAuditLog)
-
-            taskRepository.createTask(newTask)
-            return newTask
-        } catch (e: Exception) {
-            throw TaskNotCreatedException("Project Not changed")
-        }
+        auditLogRepository.createAuditLog(taskAuditLog)
+        taskRepository.createTask(newTask)
+        return newTask
 
 
     }

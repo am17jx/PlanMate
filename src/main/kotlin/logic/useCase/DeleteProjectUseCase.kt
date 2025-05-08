@@ -17,13 +17,10 @@ class DeleteProjectUseCase(
     private val userUseCase: GetCurrentUserUseCase,
 ) {
     suspend operator fun invoke(projectId: String) {
-        try {
-            auditLogRepository.createAuditLog(saveAuditLog(projectId))
 
-            projectRepository.deleteProject(projectId)
-        } catch (e: Exception) {
-            throw UnableToDeleteProjectException("Cannot delete project with existing tasks.")
-        }
+        auditLogRepository.createAuditLog(saveAuditLog(projectId))
+
+        projectRepository.deleteProject(projectId)
     }
 
     private suspend fun saveAuditLog(projectId: String): AuditLog {
