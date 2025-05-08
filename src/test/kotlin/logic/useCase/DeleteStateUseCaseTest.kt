@@ -12,7 +12,7 @@ import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.DeleteStateUseCase
-import org.example.logic.useCase.updateProject.UpdateProjectUseCase
+import org.example.logic.useCase.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.NoLoggedInUserException
 import org.example.logic.utils.ProjectNotFoundException

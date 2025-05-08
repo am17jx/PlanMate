@@ -1,13 +1,10 @@
 package org.example.logic.useCase
 
 import kotlinx.datetime.Clock
-import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.useCase.createProject.ProjectCreateCommand
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -35,19 +32,11 @@ class CreateProjectUseCase(
                 states = emptyList(),
                 auditLogsIds = listOf(audit.id),
             )
-        val auditCommand = CreateAuditLogCommand(auditLogRepository, audit)
-        val projectCreateCommand = ProjectCreateCommand(projectRepository, newProject)
-        val createProjectCommandTransaction = TransactionalCommand(
-            listOf(projectCreateCommand, auditCommand),
-            ProjectCreationFailedException(PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE)
-        )
-        try {
-            createProjectCommandTransaction.execute()
-        } catch (e: ProjectCreationFailedException) {
-            throw e
-        }
 
+        auditLogRepository.createAuditLog(audit)
+        projectRepository.createProject(newProject)
         return newProject
+
 
     }
 

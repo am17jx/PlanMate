@@ -1,5 +1,6 @@
 package org.example.logic.repositries
 
+import org.example.logic.models.AuditLog
 import org.example.logic.models.Project
 
 interface ProjectRepository {
