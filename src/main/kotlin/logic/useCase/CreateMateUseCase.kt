@@ -10,7 +10,7 @@ import org.example.logic.utils.hashWithMD5
 class CreateMateUseCase(
     private val authenticationRepository: AuthenticationRepository,
 ) {
-    operator suspend fun invoke(
+    suspend operator fun invoke(
         username: String,
         password: String,
     ): User {
@@ -18,7 +18,6 @@ class CreateMateUseCase(
             username.isBlank() -> throw BlankInputException("Username is blank")
             password.isBlank() -> throw BlankInputException("Password is blank")
             hasSpace(username) -> throw InvalidUserNameInputException("Username cannot contain spaces")
-            isUserExists(username) -> throw UserAlreadyExistsException("User already exists")
             else -> {
                 val hashedPassword = hashWithMD5(password)
                 return authenticationRepository.createMate(username, hashedPassword)
@@ -28,5 +27,4 @@ class CreateMateUseCase(
 
     private fun hasSpace(username: String) = username.any { it.isWhitespace() }
 
-    private suspend fun isUserExists(username: String) = authenticationRepository.getAllUsers().any { it.username == username }
 }

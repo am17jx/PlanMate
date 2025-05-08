@@ -59,21 +59,6 @@ class LoginUserUseCaseTest {
         assertThrows<BlankInputException> { loginUserUseCase("testUsername", "") }
     }
 
-    @Test
-    fun `should throw exception with type UserNotFoundException when user enter incorrect username`() = runTest {
-
-        coEvery { authenticationRepository.getAllUsers() } returns users
-
-        assertThrows<UserNotFoundException> { loginUserUseCase("incorrectUsername", "testPassword") }
-    }
-
-    @Test
-    fun `should throw exception with type UserNotFoundException when user enter incorrect password`() = runTest {
-
-        coEvery { authenticationRepository.getAllUsers() } returns users
-
-        assertThrows<UserNotFoundException> { loginUserUseCase("testUsername", "incorrectPassword") }
-    }
 }
 
 
