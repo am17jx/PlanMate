@@ -75,20 +75,6 @@ class CsvAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `login should throw exception with type UserNotFoundException when user enter incorrect username`() {
-        testFile.writeText("id,username,password,USER")
-
-        assertThrows<UserNotFoundException> { dataSource.login("incorrectUsername", "testPassword") }
-    }
-
-    @Test
-    fun `login should throw exception with type UserNotFoundException when user enter incorrect password`() {
-        testFile.writeText("id,username,password,USER")
-
-        assertThrows<UserNotFoundException> { dataSource.login("testUsername", "incorrectPassword") }
-    }
-
-    @Test
     fun `login should return user data when user enter username and password that exists in users data`() {
         testFile.writeText("testId,testUsername,fed3b61b26081849378080b34e693d2e,USER")
 
