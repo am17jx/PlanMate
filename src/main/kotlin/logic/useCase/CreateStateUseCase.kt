@@ -1,25 +1,25 @@
 package org.example.logic.useCase
 
-import org.example.logic.models.*
-import org.example.logic.repositries.AuthenticationRepository
+import org.example.logic.models.Project
+import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
-import org.example.logic.utils.*
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.getCroppedId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class CreateStateUseCase(
     private val projectRepository: ProjectRepository,
-    private val authenticationRepository: AuthenticationRepository,
     private val updateProjectUseCase: UpdateProjectUseCase,
 ) {
-    operator suspend fun invoke(
+    suspend operator fun invoke(
         projectId: String,
         stateName: String,
     ): Project {
         checkInputValidation(stateName, projectId)
-        checkUserRole()
         val project = getProject(projectId)
         val newState =
             State(
@@ -41,9 +41,6 @@ class CreateStateUseCase(
                 ?: throw ProjectNotFoundException("Project not found")
         )
 
-    private suspend fun checkUserRole() {
-        if (getCurrentUser().role != UserRole.ADMIN) throw UnauthorizedException("User is not an admin")
-    }
 
     private fun checkInputValidation(
         stateName: String,
@@ -55,7 +52,4 @@ class CreateStateUseCase(
         }
     }
 
-    private suspend fun getCurrentUser() =
-        authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No logged in user")
 }

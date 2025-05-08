@@ -2,19 +2,14 @@ package org.example.logic.useCase
 
 import org.example.logic.models.Project
 import org.example.logic.models.State
-import org.example.logic.models.UserRole
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.NoLoggedInUserException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.StateNotFoundException
-import org.example.logic.utils.UnauthorizedException
 
 class UpdateStateUseCase(
     private val projectRepository: ProjectRepository,
-    private val authenticationRepository: AuthenticationRepository,
     private val updateProjectUseCase: UpdateProjectUseCase,
 ) {
     suspend operator fun invoke(
@@ -23,7 +18,6 @@ class UpdateStateUseCase(
         projectId: String,
     ): Project {
         checkInputValidation(newStateName, stateId, projectId)
-        checkUserRole()
         val project = getProject(projectId)
         val updatedStates = updateState(project, stateId, newStateName)
         val updatedProject =
@@ -60,9 +54,7 @@ class UpdateStateUseCase(
         projectRepository.getProjectById(projectId)
             ?: throw ProjectNotFoundException("Project not found")
 
-    private suspend fun checkUserRole() {
-        if (getCurrentUser().role != UserRole.ADMIN) throw UnauthorizedException("User is not an admin")
-    }
+
 
     private fun checkInputValidation(
         newStateName: String,
@@ -76,7 +68,4 @@ class UpdateStateUseCase(
         }
     }
 
-    private suspend fun getCurrentUser() =
-        authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No logged in user")
 }

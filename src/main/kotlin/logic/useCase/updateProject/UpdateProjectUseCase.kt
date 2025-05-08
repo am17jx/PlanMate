@@ -6,36 +6,37 @@ import org.example.logic.command.CreateAuditLogCommand
 import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
+import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.useCase.deleteTask.DeleteTaskCommand
-import org.example.logic.utils.*
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.ProjectNotChangedException
+import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.formattedString
 import java.util.*
 
 class UpdateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val auditLogRepository: AuditLogRepository,
-    private val authenticationRepository: AuthenticationRepository,
     private val getProjectTasksUseCase: GetProjectTasksUseCase,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val currentUserUseCase: GetCurrentUserUseCase,
 
-) {
+    ) {
     suspend operator fun invoke(updatedProject: Project): Project {
         if (updatedProject.name.isEmpty()) throw BlankInputException(BLANK_PROJECT_NAME_EXCEPTION_MESSAGE)
         val originalProject = currentOriginalProject(updatedProject)
-        val currentUser = currentUser()
-        if (currentUser.role != UserRole.ADMIN) throw UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE)
         detectChanges(updatedProject, originalProject)
 
-        return saveUpdatedProject(originalProject, updatedProject, currentUser)
+        return saveUpdatedProject(originalProject, updatedProject, currentUserUseCase())
 
     }
 
     private suspend fun saveUpdatedProject(originalProject: Project, newProject: Project, currentUser: User): Project {
         val actionBuilder = actionBuilder(originalProject, newProject, currentUser)
-        val auditLog = createAuditLogInstance(originalProject, newProject, currentUser, actionBuilder.first)
+        val auditLog = createAuditLogInstance(originalProject, currentUser, actionBuilder.first)
 
         val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
         val projectUpdateCommand = ProjectUpdateCommand(projectRepository, newProject, originalProject)
@@ -63,7 +64,7 @@ class UpdateProjectUseCase(
     }
 
     private fun createAuditLogInstance(
-        project: Project, updatedProject: Project, currentUser: User, action: String
+        project: Project,currentUser: User, action: String
     ): AuditLog {
 
         val auditLog = AuditLog(
@@ -105,10 +106,6 @@ class UpdateProjectUseCase(
         return Pair(action + "at ${timestampNow.formattedString()}", deletedStateId)
     }
 
-    private suspend fun currentUser(): User {
-        return authenticationRepository.getCurrentUser() ?: throw NoLoggedInUserException("No logged-in user found")
-    }
-
     private fun detectChanges(originalProject: Project, newProject: Project) {
         if ((originalProject.name == newProject.name) && (originalProject.states.toSet() == newProject.states.toSet())) throw ProjectNotChangedException(
             "No changes detected ^_^"
@@ -126,8 +123,6 @@ class UpdateProjectUseCase(
     companion object {
         const val PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE = "Project Not changed"
         const val BLANK_PROJECT_NAME_EXCEPTION_MESSAGE = "project name shouldn't be empty"
-        const val UNAUTHORIZED_EXCEPTION_MESSAGE = "Only admins can update projects."
         const val PROJECT_NOT_FOUND_EXCEPTION_MESSAGE = "Project not found"
-        const val NOT_LOGGED_IN_USER_EXCEPTION_MESSAGE = "No logged-in user found"
     }
 }

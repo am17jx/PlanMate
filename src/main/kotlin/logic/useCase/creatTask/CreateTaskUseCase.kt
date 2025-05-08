@@ -4,10 +4,10 @@ import kotlinx.datetime.*
 import org.example.logic.command.CreateAuditLogCommand
 import org.example.logic.command.TransactionalCommand
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.models.*
+import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.creatTask.TaskCreateCommand
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -17,8 +17,8 @@ import kotlin.uuid.Uuid
 class CreateTaskUseCase(
     private val taskRepository: TaskRepository,
     private val projectRepository: ProjectRepository,
-    private val authenticationRepository: AuthenticationRepository,
-    private val auditLogRepository: AuditLogRepository
+    private val auditLogRepository: AuditLogRepository,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase
 ) {
     suspend operator fun invoke(
         name: String,
@@ -27,8 +27,7 @@ class CreateTaskUseCase(
     ): Task {
         verifyNoBlankInputs(name, projectId, stateId)
         verifyProjectAndStateExist(projectId, stateId)
-        val loggedInUser = getLoggedInUserOrThrow()
-        return createAndLogTask(name, projectId, stateId, loggedInUser)
+        return createAndLogTask(name, projectId, stateId, getCurrentUserUseCase())
     }
 
     private suspend fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
@@ -72,10 +71,6 @@ class CreateTaskUseCase(
         )
     }
 
-    private suspend fun getLoggedInUserOrThrow() = authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
-        NO_LOGGED_IN_USER_ERROR_MESSAGE
-    )
-
     private suspend fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->
             if (project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
@@ -100,7 +95,5 @@ class CreateTaskUseCase(
         const val BLANK_TASK_NAME_ERROR_MESSAGE = "Task name cannot be blank"
         const val BLANK_PROJECT_ID_ERROR_MESSAGE = "Project id cannot be blank"
         const val BLANK_STATE_ID_ERROR_MESSAGE = "State id cannot be blank"
-        const val NO_LOGGED_IN_USER_ERROR_MESSAGE = "User is not logged in"
-        const val AUDIT_LOG_CREATION_FAILED_ERROR_MESSAGE = "Failed to create audit log"
     }
 }

@@ -5,9 +5,8 @@ import org.example.logic.command.CreateAuditLogCommand
 import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.utils.NoLoggedInUserException
+import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.utils.TaskNotChangedException
 import org.example.logic.utils.TaskNotFoundException
 import org.example.logic.utils.formattedString
@@ -15,15 +14,14 @@ import java.util.*
 
 class UpdateTaskUseCase(
     private val taskRepository: TaskRepository,
-    private val authenticationRepository: AuthenticationRepository,
-    private val auditLogRepository: AuditLogRepository
+    private val auditLogRepository: AuditLogRepository,
+    private val currentUserUseCase: GetCurrentUserUseCase,
 ) {
 
     suspend operator fun invoke(taskId: String, updatedTask: Task): Task {
         val existingTask = getExistingTaskOrThrow(taskId)
         ensureTaskIsChanged(existingTask, updatedTask)
-        val currentUser = getCurrentUserOrThrow()
-        return updateAndLogTask(existingTask, updatedTask, currentUser)
+        return updateAndLogTask(existingTask, updatedTask, currentUserUseCase())
     }
 
     private suspend fun updateAndLogTask(oldTask: Task, updatedTask: Task, currentUser: User): Task {
@@ -66,10 +64,6 @@ class UpdateTaskUseCase(
         if (oldTask == newTask) {
             throw TaskNotChangedException("No changes detected for task with id ${newTask.id}")
         }
-    }
-
-    private suspend fun getCurrentUserOrThrow(): User {
-        return authenticationRepository.getCurrentUser() ?: throw NoLoggedInUserException("No logged-in user found")
     }
 
 }
