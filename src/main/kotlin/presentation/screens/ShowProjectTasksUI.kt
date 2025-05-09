@@ -1,7 +1,7 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
-import org.example.logic.useCase.CreateTaskUseCase
+import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase

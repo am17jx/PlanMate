@@ -1,7 +1,5 @@
 package org.example.data.source.remote.contract
 
-import com.mongodb.kotlin.client.coroutine.MongoClient
-import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import org.example.logic.models.Project
 
 interface RemoteProjectDataSource {

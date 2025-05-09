@@ -2,19 +2,14 @@ package org.example.logic.useCase
 
 import org.example.logic.models.Project
 import org.example.logic.models.State
-import org.example.logic.models.UserRole
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
+import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.NoLoggedInUserException
 import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.UnauthorizedException
-import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalUuidApi::class)
+
 class DeleteStateUseCase(
     private val projectRepository: ProjectRepository,
-    private val authenticationRepository: AuthenticationRepository,
     private val updateProjectUseCase: UpdateProjectUseCase,
 ) {
     suspend operator fun invoke(
@@ -22,7 +17,6 @@ class DeleteStateUseCase(
         projectId: String,
     ): Project {
         checkInputValidation(stateId, projectId)
-        checkUserRole()
         val project = getProject(projectId)
         val updatedStates = removeState(project, stateId)
         val updatedProject =
@@ -43,9 +37,7 @@ class DeleteStateUseCase(
         projectRepository.getProjectById(projectId)
             ?: throw ProjectNotFoundException("Project not found")
 
-    private suspend fun checkUserRole() {
-        if (getCurrentUser().role != UserRole.ADMIN) throw UnauthorizedException("User is not an admin")
-    }
+
 
     private fun checkInputValidation(
         stateId: String,
@@ -57,7 +49,4 @@ class DeleteStateUseCase(
         }
     }
 
-    private suspend fun getCurrentUser() =
-        authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No logged in user")
 }

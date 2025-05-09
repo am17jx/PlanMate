@@ -11,6 +11,7 @@ import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateProjectUseCase
+import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,6 +21,7 @@ class CreateProjectUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var auditLogRepository: AuditLogRepository
     private lateinit var authenticationRepository: AuthenticationRepository
+    private lateinit var getCurrentUserUseCase: GetCurrentUserUseCase
     private lateinit var createProjectUseCase: CreateProjectUseCase
 
     @BeforeEach
@@ -27,11 +29,12 @@ class CreateProjectUseCaseTest {
         projectRepository = mockk(relaxed = true)
         auditLogRepository = mockk(relaxed = true)
         authenticationRepository = mockk(relaxed = true)
+        getCurrentUserUseCase = mockk(relaxed = true)
         createProjectUseCase =
             CreateProjectUseCase(
                 projectRepository,
                 auditLogRepository,
-                authenticationRepository,
+                getCurrentUserUseCase,
             )
     }
 
@@ -44,7 +47,6 @@ class CreateProjectUseCaseTest {
         val createdProject = createProjectUseCase(projectName)
 
         coVerify { projectRepository.createProject(any()) }
-        coVerify { authenticationRepository.getCurrentUser() }
         coVerify { auditLogRepository.createAuditLog(any()) }
         assertThat(createdProject.name).isEqualTo(projectName)
     }
@@ -58,7 +60,6 @@ class CreateProjectUseCaseTest {
         val createdProject = createProjectUseCase(projectName)
 
         coVerify { projectRepository.createProject(any()) }
-        coVerify { authenticationRepository.getCurrentUser() }
         coVerify { auditLogRepository.createAuditLog(any()) }
         assertThat(createdProject.states).isEmpty()
     }
@@ -76,7 +77,6 @@ class CreateProjectUseCaseTest {
         val createdProject = createProjectUseCase(projectName)
 
         coVerify { projectRepository.createProject(any()) }
-        coVerify { authenticationRepository.getCurrentUser() }
         coVerify { auditLogRepository.createAuditLog(any()) }
         assertThat(createdProject.auditLogsIds).isNotEmpty()
         assertThat(createdProject.auditLogsIds).hasSize(1)
@@ -102,25 +102,7 @@ class CreateProjectUseCaseTest {
         }
     }
 
-    @Test
-    fun `should throw UnauthorizedException when user is not an admin`() = runTest {
-        val projectName = "Test Project"
-        coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.USER)
 
-        assertThrows<UnauthorizedException> {
-            createProjectUseCase(projectName)
-        }
-    }
-
-    @Test
-    fun `should throw NoLoggedInUserException when current user is null`() = runTest {
-        val projectName = "Test Project"
-        coEvery { authenticationRepository.getCurrentUser() } returns null
-
-        assertThrows<NoLoggedInUserException> {
-            createProjectUseCase(projectName)
-        }
-    }
 
     @Test
     fun `should throws ProjectCreationFailedException when audit log return exception`() = runTest {

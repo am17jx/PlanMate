@@ -3,7 +3,6 @@ package org.example.logic.useCase
 import kotlinx.datetime.Clock
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -13,10 +12,9 @@ import kotlin.uuid.Uuid
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val auditLogRepository: AuditLogRepository,
-    private val authenticationRepository: AuthenticationRepository,
+    private val currentUserUseCase: GetCurrentUserUseCase,
 ) {
     suspend operator fun invoke(projectName: String): Project {
-        checkUserRole()
         checkInputValidation(projectName)
 
         return createAndLogProject(projectName)
@@ -24,7 +22,7 @@ class CreateProjectUseCase(
 
     private suspend fun createAndLogProject(projectName: String): Project {
         val projectId = Uuid.random().getCroppedId()
-        val audit = createLog(projectId, projectName)
+        val audit = createLog(projectId, projectName,currentUserUseCase())
         val newProject =
             Project(
                 id = projectId,
@@ -47,22 +45,14 @@ class CreateProjectUseCase(
         }
     }
 
-    private suspend fun checkUserRole() {
-        if (getCurrentUser().role != UserRole.ADMIN) {
-            throw UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE)
-        }
-    }
 
-    private suspend fun getCurrentUser(): User =
-        authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException(NO_LOGGED_IN_USER_EXCEPTION_MESSAGE)
 
-    private suspend fun createLog(projectId: String, projectName: String): AuditLog {
+    private fun createLog(projectId: String, projectName: String, user: User): AuditLog {
         val currentTime = Clock.System.now()
         return AuditLog(
             id = Uuid.random().getCroppedId(),
-            userId = getCurrentUser().id,
-            action = "User ${getCurrentUser().username} created project $projectName at $currentTime",
+            userId = user.id,
+            action = "User ${user.username} created project $projectName at $currentTime",
             timestamp = currentTime.epochSeconds,
             entityType = AuditLogEntityType.PROJECT,
             entityId = projectId,
@@ -73,8 +63,6 @@ class CreateProjectUseCase(
     companion object {
         const val BLANK_INPUT_EXCEPTION_MESSAGE = "Project name cannot be blank"
         const val PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE = "Failed to create project"
-        const val NO_LOGGED_IN_USER_EXCEPTION_MESSAGE = "No logged-in user found"
-        const val UNAUTHORIZED_EXCEPTION_MESSAGE = "Only admins can create projects"
         const val PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE = "Project name should not exceed 16 characters"
     }
 }

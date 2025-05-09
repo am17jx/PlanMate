@@ -12,7 +12,8 @@ import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.DeleteStateUseCase
-import org.example.logic.useCase.UpdateProjectUseCase
+import org.example.logic.useCase.GetCurrentUserUseCase
+import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.NoLoggedInUserException
 import org.example.logic.utils.ProjectNotFoundException
@@ -23,9 +24,9 @@ import org.junit.jupiter.api.assertThrows
 
 class DeleteStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
-    private lateinit var authenticationRepository: AuthenticationRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var deleteStateUseCase: DeleteStateUseCase
+    private lateinit var currentUserUseCase: GetCurrentUserUseCase
     private val dummyProject = createProject(
         id = "1",
         states = listOf(
@@ -40,14 +41,13 @@ class DeleteStateUseCaseTest {
     @BeforeEach
     fun setUp() {
         projectRepository = mockk()
-        authenticationRepository = mockk()
+        currentUserUseCase = mockk()
         updateProjectUseCase = mockk()
-        deleteStateUseCase = DeleteStateUseCase(projectRepository, authenticationRepository, updateProjectUseCase)
+        deleteStateUseCase = DeleteStateUseCase(projectRepository, updateProjectUseCase)
     }
 
     @Test
     fun `should return updated project with deleted state when state id is valid and user is admin`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns dummyProject
         coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(
             states = dummyProject.states - State(
@@ -59,14 +59,13 @@ class DeleteStateUseCaseTest {
         val updatedProject = deleteStateUseCase(stateId, dummyProject.id)
 
         coVerify { projectRepository.getProjectById(any()) }
-        coVerify { authenticationRepository.getCurrentUser() }
         assertThat(updatedProject.states).hasSize(2)
     }
 
     @Test
     fun `should throw BlankInputException when state id is blank`() = runTest {
         val blankStateName = ""
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery { currentUserUseCase() } returns createUser()
 
         assertThrows<BlankInputException> {
             deleteStateUseCase(blankStateName, dummyProject.id)
@@ -76,34 +75,17 @@ class DeleteStateUseCaseTest {
     @Test
     fun `should throw BlankInputException when project id is blank`() = runTest {
         val blankProjectId = ""
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery { currentUserUseCase() } returns createUser()
 
         assertThrows<BlankInputException> {
             deleteStateUseCase(stateId, blankProjectId)
         }
     }
 
-    @Test
-    fun `should throw UnauthorizedException when user is not an admin`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.USER)
-
-        assertThrows<UnauthorizedException> {
-            deleteStateUseCase(stateId, dummyProject.id)
-        }
-    }
-
-    @Test
-    fun `should throw NoLoggedInUserException when current user is null`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns null
-
-        assertThrows<NoLoggedInUserException> {
-            deleteStateUseCase(stateId, dummyProject.id)
-        }
-    }
 
     @Test
     fun `should throw ProjectNotFoundException when no project found with the given id`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery { currentUserUseCase() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
