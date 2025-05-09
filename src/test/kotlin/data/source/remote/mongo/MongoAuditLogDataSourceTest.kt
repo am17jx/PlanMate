@@ -6,8 +6,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.data.mapper.toAuditLogDTO
-import org.example.data.models.AuditLogDTO
+import org.example.data.source.remote.mongo.utils.mapper.toAuditLogDTO
+import org.example.data.source.remote.models.AuditLogDTO
 import org.example.data.source.remote.contract.RemoteAuditLogDataSource
 import org.example.data.source.remote.mongo.MongoAuditLogDataSource
 import org.example.logic.models.AuditLog
@@ -17,7 +17,6 @@ import org.example.logic.utils.CreationItemFailedException
 import org.example.logic.utils.DeleteItemFailedException
 import org.example.logic.utils.GetItemByIdFailedException
 import org.example.logic.utils.GetItemsFailedException
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
