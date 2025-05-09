@@ -16,7 +16,7 @@ import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetProjectTasksUseCase
-import org.example.logic.useCase.updateProject.UpdateProjectUseCase
+import org.example.logic.useCase.UpdateProjectUseCase
 import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -40,7 +40,7 @@ class UpdateProjectUseCaseTest {
         getProjectTasksUseCase = mockk(relaxed = true)
         taskRepository = mockk(relaxed = true)
         updateProjectUseCase = UpdateProjectUseCase(
-            projectRepository, auditLogRepository, authenticationRepository, getProjectTasksUseCase, taskRepository
+            projectRepository, auditLogRepository, authenticationRepository,
         )
     }
 
@@ -79,9 +79,9 @@ class UpdateProjectUseCaseTest {
         val updatedProject = createProject(name = "Plan")
         coEvery { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.ADMIN)
         coEvery { projectRepository.getProjectById(updatedProject.id) } returns createProject()
-        coEvery { auditLogRepository.createAuditLog(any()) } throws Exception()
+        coEvery { auditLogRepository.createAuditLog(any()) } throws UpdateItemFailedException("")
 
-        assertThrows<ProjectNotChangedException> {
+        assertThrows<UpdateItemFailedException> {
             updateProjectUseCase(updatedProject)
         }
     }

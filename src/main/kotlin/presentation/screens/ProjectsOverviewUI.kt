@@ -3,8 +3,10 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Project
-import org.example.logic.useCase.*
-import org.example.logic.useCase.deleteProject.DeleteProjectUseCase
+import org.example.logic.useCase.DeleteProjectUseCase
+import org.example.logic.useCase.GetAllProjectsUseCase
+import org.example.logic.useCase.GetEntityAuditLogsUseCase
+import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.presentation.role.ProjectScreensOptions
 import org.koin.java.KoinJavaComponent.getKoin

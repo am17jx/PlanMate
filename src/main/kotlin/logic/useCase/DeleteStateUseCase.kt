@@ -2,12 +2,10 @@ package org.example.logic.useCase
 
 import org.example.logic.models.Project
 import org.example.logic.models.State
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
-import kotlin.uuid.ExperimentalUuidApi
 
 
 class DeleteStateUseCase(

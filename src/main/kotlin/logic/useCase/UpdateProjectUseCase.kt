@@ -1,16 +1,12 @@
 package org.example.logic.useCase.updateProject
 
 import kotlinx.datetime.Clock
-import org.example.logic.command.Command
-import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalCommand
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
-import org.example.logic.useCase.deleteTask.DeleteTaskCommand
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotChangedException
 import org.example.logic.utils.ProjectNotFoundException
@@ -38,28 +34,10 @@ class UpdateProjectUseCase(
         val actionBuilder = actionBuilder(originalProject, newProject, currentUser)
         val auditLog = createAuditLogInstance(originalProject, currentUser, actionBuilder.first)
 
-        val auditCommand = CreateAuditLogCommand(auditLogRepository, auditLog)
-        val projectUpdateCommand = ProjectUpdateCommand(projectRepository, newProject, originalProject)
+        auditLogRepository.createAuditLog(auditLog)
 
-        val tasksCommand: MutableList<Command> = mutableListOf()
-        if (actionBuilder.second.isNotEmpty()) getProjectTasksUseCase(newProject.id).filter { it.stateId == actionBuilder.second }
-            .forEach {
-                tasksCommand.add(DeleteTaskCommand(taskRepository, it))
-            }
-
-        tasksCommand.add(projectUpdateCommand)
-        tasksCommand.add(auditCommand)
-        val updateProjectCommandTransaction = TransactionalCommand(
-            tasksCommand, ProjectNotChangedException(PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE)
-        )
-
-        try {
-            updateProjectCommandTransaction.execute()
-        } catch (e: ProjectNotChangedException) {
-            throw e
-        }
-
-        return newProject.copy(auditLogsIds = newProject.auditLogsIds.plus(auditCommand.getCreatedLog()?.id ?: ""))
+        projectRepository.updateProject(newProject)
+        return newProject
 
     }
 

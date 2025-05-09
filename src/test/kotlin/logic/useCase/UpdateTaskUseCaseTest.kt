@@ -5,7 +5,7 @@ import io.mockk.*
 import kotlinx.coroutines.test.runTest
 import org.example.logic.models.*
 import org.example.logic.repositries.*
-import org.example.logic.useCase.updateTask.UpdateTaskUseCase
+import org.example.logic.useCase.UpdateTaskUseCase
 import org.example.logic.utils.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.CoreMatchers.*

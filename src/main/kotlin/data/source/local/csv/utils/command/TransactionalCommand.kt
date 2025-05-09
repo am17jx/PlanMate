@@ -1,7 +1,7 @@
-package org.example.logic.command
+package org.example.data.source.local.csv.utils.command
 
 
-class TransactionalCommand(private val commands: List<Command>,private val exception:Exception=Exception()) : Command {
+class TransactionalCommand(private val commands: List<Command>, private val exception:Exception=Exception()) : Command {
 
 
     private val executedCommands = mutableListOf<Command>()

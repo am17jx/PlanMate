@@ -1,14 +1,13 @@
 package logic.useCase
 
 import kotlinx.datetime.*
-import org.example.logic.command.CreateAuditLogCommand
-import org.example.logic.command.TransactionalCommand
+import org.example.data.repository.AuthenticationRepositoryImpl
+import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
+import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.models.*
 import org.example.logic.useCase.GetCurrentUserUseCase
-import org.example.logic.useCase.creatTask.TaskCreateCommand
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -18,7 +17,8 @@ class CreateTaskUseCase(
     private val taskRepository: TaskRepository,
     private val projectRepository: ProjectRepository,
     private val auditLogRepository: AuditLogRepository,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val authenticationRepository: AuthenticationRepository
 ) {
     suspend operator fun invoke(
         name: String,
@@ -30,7 +30,12 @@ class CreateTaskUseCase(
         return createAndLogTask(name, projectId, stateId, getCurrentUserUseCase())
     }
 
-    private suspend fun createAndLogTask(taskName: String, projectId: String, stateId: String, loggedInUser: User): Task {
+    private suspend fun createAndLogTask(
+        taskName: String,
+        projectId: String,
+        stateId: String,
+        loggedInUser: User
+    ): Task {
         val taskId = Uuid.random().getCroppedId()
         val taskAuditLog = createAuditLog(taskId, taskName, loggedInUser)
         val newTask = Task(
@@ -42,19 +47,10 @@ class CreateTaskUseCase(
             auditLogsIds = listOf(taskAuditLog.id)
         )
 
-        val auditCommand = CreateAuditLogCommand(auditLogRepository, taskAuditLog)
-        val taskCreateCommand = TaskCreateCommand(taskRepository, newTask)
-        val createTaskCommandTransaction = TransactionalCommand(
-            listOf(taskCreateCommand, auditCommand),
-            TaskNotCreatedException("Project Not changed")
-        )
-        try {
-            createTaskCommandTransaction.execute()
-        }catch (e :TaskNotCreatedException){
-            throw e
-        }
-
+        auditLogRepository.createAuditLog(taskAuditLog)
+        taskRepository.createTask(newTask)
         return newTask
+
 
     }
 
@@ -70,6 +66,11 @@ class CreateTaskUseCase(
             actionType = AuditLogActionType.CREATE
         )
     }
+
+    private suspend fun getLoggedInUserOrThrow() =
+        authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
+            NO_LOGGED_IN_USER_ERROR_MESSAGE
+        )
 
     private suspend fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->
@@ -95,5 +96,6 @@ class CreateTaskUseCase(
         const val BLANK_TASK_NAME_ERROR_MESSAGE = "Task name cannot be blank"
         const val BLANK_PROJECT_ID_ERROR_MESSAGE = "Project id cannot be blank"
         const val BLANK_STATE_ID_ERROR_MESSAGE = "State id cannot be blank"
+        const val NO_LOGGED_IN_USER_ERROR_MESSAGE = "No logged in user found"
     }
 }
