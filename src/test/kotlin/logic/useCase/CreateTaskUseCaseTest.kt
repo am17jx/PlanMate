@@ -6,11 +6,12 @@ import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createState
 import mockdata.createTask
+import mockdata.createUser
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.useCase.CreateTaskUseCase
+import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.StateNotFoundException
@@ -30,18 +31,18 @@ import kotlin.uuid.Uuid
 class CreateTaskUseCaseTest {
     private lateinit var taskRepository: TaskRepository
     private lateinit var projectRepository: ProjectRepository
-    private lateinit var authenticationRepository: AuthenticationRepository
     private lateinit var auditLogRepository: AuditLogRepository
     private lateinit var createTaskUseCase: CreateTaskUseCase
+    private lateinit var getCurrentUserUseCase: GetCurrentUserUseCase
 
     @BeforeEach
     fun setUp() {
         taskRepository = mockk(relaxed = true)
         projectRepository = mockk(relaxed = true)
-        authenticationRepository = mockk(relaxed = true)
         auditLogRepository = mockk(relaxed = true)
+        getCurrentUserUseCase = mockk(relaxed = true)
         createTaskUseCase =
-            CreateTaskUseCase(taskRepository, projectRepository, authenticationRepository, auditLogRepository)
+            CreateTaskUseCase(taskRepository, projectRepository, auditLogRepository , getCurrentUserUseCase)
     }
 
     @Test
@@ -49,6 +50,7 @@ class CreateTaskUseCaseTest {
         val taskName = "Write CreateTaskUseCase test cases"
         val projectId = Uuid.random().getCroppedId()
         val stateId = Uuid.random().getCroppedId()
+        coEvery { getCurrentUserUseCase() } returns createUser()
         coEvery { taskRepository.createTask(any()) } returns
             createTask(
                 name = taskName,
@@ -68,7 +70,7 @@ class CreateTaskUseCaseTest {
         val result = createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
 
         coVerify { projectRepository.getProjectById(projectId) }
-        coVerify{ authenticationRepository.getCurrentUser() }
+        coVerify{ getCurrentUserUseCase() }
         coVerify { taskRepository.createTask(any()) }
         coVerify{ auditLogRepository.createAuditLog(any()) }
         assertThat(result.name).isEqualTo(taskName)
@@ -114,18 +116,6 @@ class CreateTaskUseCaseTest {
         }
     }
 
-    @Test
-    fun `should throw UserNotFoundException when no user is logged in`() = runTest {
-        val taskName = "Test"
-        val projectId = Uuid.random().getCroppedId()
-        val stateId = Uuid.random().getCroppedId()
-        coEvery { projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = stateId)))
-        coEvery { authenticationRepository.getCurrentUser() } returns null
-
-        assertThrows<UserNotFoundException> {
-            createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
-        }
-    }
 
     companion object {
         @JvmStatic

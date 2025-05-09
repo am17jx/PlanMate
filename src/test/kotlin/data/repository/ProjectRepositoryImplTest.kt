@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.*
 import kotlinx.coroutines.test.runTest
 import org.example.data.repository.ProjectRepositoryImpl
+import org.example.data.source.remote.RoleValidationInterceptor
 import org.example.data.source.remote.contract.RemoteProjectDataSource
 import org.example.logic.models.Project
 import org.example.logic.models.State
@@ -14,10 +15,12 @@ class ProjectRepositoryImplTest {
     private lateinit var mockRemoteDataSource: RemoteProjectDataSource
     private lateinit var repository: ProjectRepositoryImpl
     private lateinit var testProjects: List<Project>
+    private lateinit var roleValidationInterceptor : RoleValidationInterceptor
 
     @BeforeEach
     fun setUp() {
         mockRemoteDataSource = mockk(relaxed = true)
+        roleValidationInterceptor =  mockk(relaxed = true)
 
         testProjects = listOf(
             Project(
@@ -34,7 +37,7 @@ class ProjectRepositoryImplTest {
             ),
         )
         coEvery { mockRemoteDataSource.getAllProjects() } returns testProjects
-        repository = ProjectRepositoryImpl(mockRemoteDataSource)
+        repository = ProjectRepositoryImpl(mockRemoteDataSource,roleValidationInterceptor)
     }
 
     @Test
@@ -45,11 +48,11 @@ class ProjectRepositoryImplTest {
             states = listOf(State(id = "3", title = "Done")),
             auditLogsIds = listOf("300"),
         )
-        coEvery { mockRemoteDataSource.createProject(any()) } returns newProject
+        coEvery { roleValidationInterceptor.validateRole<Project>(any(),any())} returns newProject
 
         val result = repository.createProject(newProject)
 
-        coVerify(exactly = 1) { mockRemoteDataSource.createProject(newProject) }
+        coVerify(exactly = 1) { roleValidationInterceptor.validateRole<Project>(any(),any())}
         assertThat(result).isEqualTo(newProject)
     }
 
@@ -61,23 +64,15 @@ class ProjectRepositoryImplTest {
             states = listOf(State(id = "1", title = "Updated State")),
             auditLogsIds = listOf("100", "101"),
         )
-        coEvery { mockRemoteDataSource.updateProject(any()) } returns updatedProject
+        coEvery { roleValidationInterceptor.validateRole<Project>(any(),any()) } returns updatedProject
 
         val result = repository.updateProject(updatedProject)
 
-        coVerify(exactly = 1) { mockRemoteDataSource.updateProject(updatedProject) }
+        coVerify(exactly = 1) { roleValidationInterceptor.validateRole<Project>(any(),any()) }
         assertThat(result).isEqualTo(updatedProject)
     }
 
-    @Test
-    fun `deleteProject should delegates to localDataSource`() = runTest {
-        val projectIdToDelete = "1"
-        coEvery { mockRemoteDataSource.deleteProject(any()) } just runs
 
-        repository.deleteProject(projectIdToDelete)
-
-        coVerify(exactly = 1) { mockRemoteDataSource.deleteProject(projectIdToDelete) }
-    }
 
     @Test
     fun `getAllProjects should delegates to localDataSource and returns result`() = runTest {

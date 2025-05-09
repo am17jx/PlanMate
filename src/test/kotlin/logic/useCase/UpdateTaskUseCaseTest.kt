@@ -5,6 +5,7 @@ import io.mockk.*
 import kotlinx.coroutines.test.runTest
 import org.example.logic.models.*
 import org.example.logic.repositries.*
+import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.UpdateTaskUseCase
 import org.example.logic.utils.*
 import org.hamcrest.MatcherAssert.assertThat
@@ -16,18 +17,18 @@ import org.junit.jupiter.api.assertThrows
 class UpdateTaskUseCaseTest {
 
     private lateinit var taskRepository: TaskRepository
-    private lateinit var authRepository: AuthenticationRepository
     private lateinit var auditRepository: AuditLogRepository
     private lateinit var useCase: UpdateTaskUseCase
+    private lateinit var currentUserUseCase: GetCurrentUserUseCase
 
     private val user = User("u1", "Sarah", "hashed", UserRole.USER)
 
     @BeforeEach
     fun setup() {
         taskRepository = mockk()
-        authRepository = mockk()
         auditRepository = mockk()
-        useCase = UpdateTaskUseCase(taskRepository, authRepository, auditRepository)
+        currentUserUseCase = mockk(relaxed = true)
+        useCase = UpdateTaskUseCase(taskRepository, auditRepository,currentUserUseCase)
     }
 
     @Test
@@ -36,7 +37,7 @@ class UpdateTaskUseCaseTest {
         val newTask = oldTask.copy(name = "Updated")
         coEvery { taskRepository.getTaskById("t1") } returns oldTask
         coEvery { taskRepository.updateTask(newTask) } returns newTask
-        coEvery { authRepository.getCurrentUser() } returns user
+        coEvery {currentUserUseCase() } returns user
         coEvery { auditRepository.createAuditLog(any()) } returnsArgument 0
 
         val result = useCase("t1", newTask)
@@ -74,7 +75,7 @@ class UpdateTaskUseCaseTest {
         val newTask = oldTask.copy(stateId = "s2")
         coEvery { taskRepository.getTaskById("t4") } returns oldTask
         coEvery { taskRepository.updateTask(newTask) } returns newTask
-        coEvery { authRepository.getCurrentUser() } returns user
+        coEvery {currentUserUseCase() } returns user
         coEvery { auditRepository.createAuditLog(any()) } returnsArgument 0
 
         val result = useCase("t4", newTask)
@@ -90,7 +91,7 @@ class UpdateTaskUseCaseTest {
 
         coEvery { taskRepository.getTaskById("t5") } returns oldTask
         coEvery { taskRepository.updateTask(newTask) } returns newTask
-        coEvery { authRepository.getCurrentUser() } returns user
+        coEvery { currentUserUseCase() } returns user
         val auditSlot = slot<AuditLog>()
         coEvery { auditRepository.createAuditLog(capture(auditSlot)) } returnsArgument 0
 
@@ -123,7 +124,7 @@ class UpdateTaskUseCaseTest {
 
         coEvery { taskRepository.getTaskById("t5") } returns oldTask
         coEvery { taskRepository.updateTask(newTask) } returns newTask
-        coEvery { authRepository.getCurrentUser() } returns user
+        coEvery {currentUserUseCase() } returns user
         coEvery { auditRepository.createAuditLog(any()) } returnsArgument 0
 
         val result = useCase("t5", newTask)
@@ -142,7 +143,7 @@ class UpdateTaskUseCaseTest {
 
         coEvery { taskRepository.getTaskById("t8") } returns oldTask
         coEvery { taskRepository.updateTask(updatedTask) } returns updatedTask
-        coEvery { authRepository.getCurrentUser() } returns null
+        coEvery {currentUserUseCase() } throws  NoLoggedInUserException("No user is currently logged in.")
 
         assertThrows<NoLoggedInUserException> {
             useCase("t8", updatedTask)

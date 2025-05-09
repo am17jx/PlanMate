@@ -4,9 +4,7 @@ import kotlinx.datetime.Clock
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
-import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotChangedException
 import org.example.logic.utils.ProjectNotFoundException
@@ -16,8 +14,6 @@ import java.util.*
 class UpdateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val auditLogRepository: AuditLogRepository,
-    private val getProjectTasksUseCase: GetProjectTasksUseCase,
-    private val taskRepository: TaskRepository,
     private val currentUserUseCase: GetCurrentUserUseCase,
 
     ) {

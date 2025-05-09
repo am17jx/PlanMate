@@ -18,7 +18,6 @@ class CreateTaskUseCase(
     private val projectRepository: ProjectRepository,
     private val auditLogRepository: AuditLogRepository,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val authenticationRepository: AuthenticationRepository
 ) {
     suspend operator fun invoke(
         name: String,
@@ -67,10 +66,6 @@ class CreateTaskUseCase(
         )
     }
 
-    private suspend fun getLoggedInUserOrThrow() =
-        authenticationRepository.getCurrentUser() ?: throw UserNotFoundException(
-            NO_LOGGED_IN_USER_ERROR_MESSAGE
-        )
 
     private suspend fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->

@@ -1,20 +1,19 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createUser
 import org.example.logic.models.State
-import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateStateUseCase
-import org.example.logic.useCase.UpdateProjectUseCase
+import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.NoLoggedInUserException
 import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.UnauthorizedException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -43,11 +42,7 @@ class CreateStateUseCaseTest {
         updateProjectUseCase = mockk(relaxed = true)
         authenticationRepository = mockk(relaxed = true)
         createStateUseCase =
-            CreateStateUseCase(
-                projectRepository,
-                authenticationRepository,
-                updateProjectUseCase,
-            )
+            CreateStateUseCase(projectRepository, updateProjectUseCase)
     }
 
     @Test
@@ -60,7 +55,6 @@ class CreateStateUseCaseTest {
         val updatedProject = createStateUseCase(stateName, dummyProject.id)
 
         coVerify { projectRepository.getProjectById(any()) }
-        coVerify { authenticationRepository.getCurrentUser() }
         assertThat(updatedProject.states).hasSize(4)
         assertThat(updatedProject.states.map { it.title }).contains(stateName)
     }
@@ -85,23 +79,6 @@ class CreateStateUseCaseTest {
         }
     }
 
-    @Test
-    fun `should throw UnauthorizedException when user is not an admin`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.USER)
-
-        assertThrows<UnauthorizedException> {
-            createStateUseCase(stateName, dummyProject.id)
-        }
-    }
-
-    @Test
-    fun `should throw NoLoggedInUserException when current user is null`() = runTest {
-        coEvery{ authenticationRepository.getCurrentUser() } returns null
-
-        assertThrows<NoLoggedInUserException> {
-            createStateUseCase(stateName, dummyProject.id)
-        }
-    }
 
     @Test
     fun `should throw ProjectNotFoundException when no project found with the given id`() = runTest {

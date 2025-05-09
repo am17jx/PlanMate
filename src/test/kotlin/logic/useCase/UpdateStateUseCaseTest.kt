@@ -8,21 +8,22 @@ import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createUser
 import org.example.logic.models.State
-import org.example.logic.models.UserRole
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
+import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.UpdateStateUseCase
-import org.example.logic.useCase.UpdateProjectUseCase
-import org.example.logic.utils.*
+import org.example.logic.useCase.updateProject.UpdateProjectUseCase
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.StateNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class UpdateStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
-    private lateinit var authenticationRepository: AuthenticationRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var updateStateUseCase: UpdateStateUseCase
+    private lateinit var currentUserUseCase: GetCurrentUserUseCase
     private val dummyProject = createProject(
         id = "1",
         states = listOf(
@@ -38,9 +39,9 @@ class UpdateStateUseCaseTest {
     @BeforeEach
     fun setUp() {
         projectRepository = mockk()
-        authenticationRepository = mockk()
+        currentUserUseCase = mockk(relaxed = true)
         updateProjectUseCase = mockk()
-        updateStateUseCase = UpdateStateUseCase(projectRepository, authenticationRepository, updateProjectUseCase)
+        updateStateUseCase = UpdateStateUseCase(projectRepository,updateProjectUseCase)
     }
 
     @Test
@@ -50,14 +51,13 @@ class UpdateStateUseCaseTest {
             State(id = "3", title = "StateTest2"),
             State(id = "4", title = "StateTest3"),
         )
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery {currentUserUseCase() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns dummyProject
         coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(states = updatedStates)
 
         val updatedProject = updateStateUseCase(newTitle, stateId, dummyProject.id)
 
         coVerify { projectRepository.getProjectById(any()) }
-        coVerify { authenticationRepository.getCurrentUser() }
         assertThat(updatedProject.states).hasSize(3)
         assertThat(updatedProject.states.find { it.id == stateId }?.title).isEqualTo(newTitle)
     }
@@ -65,7 +65,7 @@ class UpdateStateUseCaseTest {
     @Test
     fun `should throw BlankInputException when new state name is blank`() = runTest {
         val blankStateName = ""
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery {currentUserUseCase() } returns createUser()
 
         assertThrows<BlankInputException> {
             updateStateUseCase(blankStateName, stateId, dummyProject.id)
@@ -75,7 +75,7 @@ class UpdateStateUseCaseTest {
     @Test
     fun `should throw BlankInputException when state id is blank`() = runTest {
         val blankStateId = ""
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery {currentUserUseCase() } returns createUser()
 
         assertThrows<BlankInputException> {
             updateStateUseCase(newTitle, blankStateId, dummyProject.id)
@@ -85,34 +85,17 @@ class UpdateStateUseCaseTest {
     @Test
     fun `should throw BlankInputException when project id is blank`() = runTest {
         val blankProjectId = ""
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery {currentUserUseCase() } returns createUser()
 
         assertThrows<BlankInputException> {
             updateStateUseCase(newTitle, stateId, blankProjectId)
         }
     }
 
-    @Test
-    fun `should throw UnauthorizedException when user is not an admin`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser(role = UserRole.USER)
-
-        assertThrows<UnauthorizedException> {
-            updateStateUseCase(newTitle, stateId, dummyProject.id)
-        }
-    }
-
-    @Test
-    fun `should throw NoLoggedInUserException when current user is null`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns null
-
-        assertThrows<NoLoggedInUserException> {
-            updateStateUseCase(newTitle, stateId, dummyProject.id)
-        }
-    }
 
     @Test
     fun `should throw ProjectNotFoundException when no project found with the given id`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery {currentUserUseCase() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
@@ -122,7 +105,7 @@ class UpdateStateUseCaseTest {
 
     @Test
     fun `should throw StateNotFoundException when no state found with the given id`() = runTest {
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+        coEvery {currentUserUseCase() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns createProject()
 
         assertThrows<StateNotFoundException> {
