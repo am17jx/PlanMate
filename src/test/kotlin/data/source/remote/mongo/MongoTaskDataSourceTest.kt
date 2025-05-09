@@ -12,8 +12,8 @@ import io.mockk.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.example.data.mapper.toTaskDTO
-import org.example.data.models.TaskDTO
+import org.example.data.source.remote.mongo.utils.mapper.toTaskDTO
+import org.example.data.source.remote.models.TaskDTO
 import org.example.data.source.remote.mongo.MongoTaskDataSource
 import org.example.data.utils.Constants.ID
 import org.example.data.utils.Constants.STATE_ID_FIELD

@@ -4,9 +4,9 @@ import com.mongodb.client.model.Filters
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
-import org.example.data.mapper.toTask
-import org.example.data.mapper.toTaskDTO
-import org.example.data.models.TaskDTO
+import org.example.data.source.remote.mongo.utils.mapper.toTask
+import org.example.data.source.remote.mongo.utils.mapper.toTaskDTO
+import org.example.data.source.remote.models.TaskDTO
 import org.example.data.source.remote.contract.RemoteTaskDataSource
 import org.example.data.utils.Constants.ID
 import org.example.data.utils.Constants.STATE_ID_FIELD
