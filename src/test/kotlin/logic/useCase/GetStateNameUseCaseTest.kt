@@ -29,7 +29,7 @@ class GetStateNameUseCaseTest {
     )
 
     private val dummyProject = Project(
-        id = "project-1", name = "My Project", states = listOf(
+        id = "project-1", name = "My Project", tasksStatesIds = listOf(
             State(id = "state-001", title = "to do"), State(id = "state-002", title = "in progress")
         ), auditLogsIds = emptyList()
     )
