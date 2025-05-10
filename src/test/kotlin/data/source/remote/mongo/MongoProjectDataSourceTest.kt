@@ -33,13 +33,13 @@ class MongoProjectDataSourceTest {
             Project(
                 id = "1",
                 name = "Project 1",
-                tasksStatesIds = listOf(State(id = "1", title = "To Do")),
+                tasksStatesIds =listOf("6","4"),
                 auditLogsIds = listOf("100"),
             ),
             Project(
                 id = "2",
                 name = "Project 2",
-                tasksStatesIds = listOf(State(id = "2", title = "In Progress")),
+                tasksStatesIds = listOf("8","9"),
                 auditLogsIds = listOf("200"),
             ),
         )
@@ -68,13 +68,13 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf(State(id = "3", title = "Done")),
+            tasksStatesIds = listOf("6","4"),
             auditLogsIds = listOf("300")
         )
         val projectDTO = ProjectDTO(
             id = "3",
             name = "Project 3",
-            statesIds = listOf(State(id = "3", title = "Done")),
+            statesIds = listOf("63","42"),
             auditLogsIds = listOf("300")
         )
 
@@ -90,13 +90,13 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf(State(id = "3", title = "Done")),
+            tasksStatesIds = listOf("6","4"),
             auditLogsIds = listOf("300")
         )
         val projectDTO = ProjectDTO(
             id = "3",
             name = "Project 3",
-            statesIds = listOf(State(id = "3", title = "Done")),
+            statesIds = listOf("90","8"),
             auditLogsIds = listOf("300")
         )
 
@@ -112,13 +112,13 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf(State(id = "3", title = "Done")),
+            tasksStatesIds = listOf("46","44"),
             auditLogsIds = listOf("300")
         )
         val projectDTO = ProjectDTO(
             id = "3",
             name = "Project 3",
-            statesIds = listOf(State(id = "3", title = "Done")),
+            statesIds =listOf("6","4"),
             auditLogsIds = listOf("300")
         )
 
@@ -135,14 +135,14 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf(State(id = "3", title = "Done")),
+            tasksStatesIds = listOf("6","4"),
             auditLogsIds = listOf("300")
         )
 
         val projectDTO = ProjectDTO(
             id = "3",
             name = "Project 3",
-            statesIds = listOf(State(id = "3", title = "Done")),
+            statesIds =listOf("65","66"),
             auditLogsIds = listOf("300")
         )
 

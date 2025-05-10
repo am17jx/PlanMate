@@ -31,8 +31,8 @@ class ProjectsOverviewUITest {
     private val mockOnNavigateBack = mockk<() -> Unit>(relaxed = true)
 
     private val sampleProjects = listOf(
-        Project("1", "Project Alpha", tasksStatesIds = listOf(State("1", "State Alpha")), auditLogsIds = listOf()),
-        Project("2", "Project Beta", tasksStatesIds = listOf(State("1", "State Alpha")), auditLogsIds = listOf())
+        Project("1", "Project Alpha", tasksStatesIds = listOf("1","2"), auditLogsIds = listOf()),
+        Project("2", "Project Beta", tasksStatesIds = listOf("3","4"), auditLogsIds = listOf())
     )
 
     private fun launchUI() {

@@ -32,13 +32,13 @@ class CsvProjectDataSourceTest {
                 Project(
                     id = "1",
                     name = "Project 1",
-                    tasksStatesIds = listOf(State(id = "1", title = "To Do")),
+                    tasksStatesIds =listOf("6","4"),
                     auditLogsIds = listOf("100"),
                 ),
                 Project(
                     id = "2",
                     name = "Project 2",
-                    tasksStatesIds = listOf(State(id = "2", title = "In Progress")),
+                    tasksStatesIds = listOf("6","4"),
                     auditLogsIds = listOf("200"),
                 ),
             )
@@ -66,7 +66,7 @@ class CsvProjectDataSourceTest {
             Project(
                 id = "3",
                 name = "Project 3",
-                tasksStatesIds = listOf(State(id = "3", title = "Done")),
+                tasksStatesIds =listOf("6","4"),
                 auditLogsIds = listOf("300"),
             )
 
@@ -101,7 +101,7 @@ class CsvProjectDataSourceTest {
             Project(
                 id = "1",
                 name = "Updated Project 1",
-                tasksStatesIds = listOf(State(id = "1", title = "Updated State")),
+                tasksStatesIds = listOf("6","4"),
                 auditLogsIds = listOf("100", "101"),
             )
 
