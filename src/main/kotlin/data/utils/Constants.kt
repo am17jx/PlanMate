@@ -19,6 +19,7 @@ object Constants {
         const val PROJECTS_DOCUMENTATION="Project"
         const val USERS_DOCUMENTATION="User"
         const val AUDIT_LOGS_DOCUMENTATION="AuditLog"
+        const val STATE_DOCUMENTATION="State"
 
     }
     const val DATABASE_NAME: String = "PlanMateDatabase"
