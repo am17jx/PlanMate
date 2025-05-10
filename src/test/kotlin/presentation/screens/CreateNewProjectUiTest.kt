@@ -25,7 +25,7 @@ class CreateNewProjectUiTest {
         )
         coEvery { createProjectUseCase(projectName) } returns project
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("✅ Project '${project.name}' created successfully with ID: ${project.id}") }
         verify { onBackMock.invoke() }
@@ -37,7 +37,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns ""
         coEvery { createProjectUseCase(any()) } throws BlankInputException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -49,7 +49,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws ProjectCreationFailedException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -61,7 +61,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws NoLoggedInUserException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -73,7 +73,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws UnauthorizedAccessException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -85,7 +85,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws InvalidAuditInputException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -97,7 +97,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws Exception(exceptionMessage)
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Unexpected error: $exceptionMessage") }
         verify { onBackMock.invoke() }

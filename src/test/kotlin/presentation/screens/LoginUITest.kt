@@ -23,7 +23,7 @@ class LoginUITest {
     @BeforeEach
     fun setUp() {
         loginUserUseCase = mockk(relaxed = true)
-        readerMock = mockk(relaxed = true)
+        readerMock = mockk()
         viewerMock = mockk(relaxed = true)
         onNavigateToAdminHomeMock = mockk(relaxed = true)
         onNavigateToShowAllProjectsMock = mockk(relaxed = true)
@@ -31,8 +31,8 @@ class LoginUITest {
 
     @Test
     fun `should navigate to Admin Home when login is successful and role is ADMIN`() {
-        val username = "adminUser"
-        val password = "adminPassword"
+        val username = "admin"
+        val password = "admin"
 
         val user = User(id = "1", username = username, password = password, role = UserRole.ADMIN)
 
@@ -48,7 +48,7 @@ class LoginUITest {
         )
 
         verify { onNavigateToAdminHomeMock() }
-        verify { viewerMock.display(any()) }
+        verify (exactly = 5){ viewerMock.display(any()) }
     }
 
     @Test
@@ -71,13 +71,13 @@ class LoginUITest {
         )
 
         verify { onNavigateToShowAllProjectsMock(UserRole.USER) }
-        verify { viewerMock.display(any()) }
+        verify (exactly = 6){ viewerMock.display(any()) }
     }
 
     @Test
     fun `should display error message when username or password is blank`() {
         val exceptionMessage = "Input cannot be blank"
-        every { readerMock.readString() } returns "" andThen "password123" andThen "sdadsa" andThen "adasdsddas"
+        every { readerMock.readString() } returns "" andThen "password123"
         coEvery { loginUserUseCase("", "password123") } throws BlankInputException()
 
         LoginUI(
