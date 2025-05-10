@@ -15,7 +15,6 @@ class DeleteProjectUseCase(
     private val userUseCase: GetCurrentUserUseCase,
 ) {
     suspend operator fun invoke(projectId: String) {
-
         auditLogRepository.createAuditLog(saveAuditLog(projectId))
 
         projectRepository.deleteProject(projectId)
@@ -23,17 +22,17 @@ class DeleteProjectUseCase(
 
     private suspend fun saveAuditLog(projectId: String): AuditLog {
         val user = userUseCase()
-        val timestampNow = Clock.System.now()
-        val auditLog = AuditLog(
-            id = UUID.randomUUID().toString(),
-            userId = user.id,
-            action = "${user.username} deleted project with id $projectId at ${timestampNow.formattedString()}",
-            timestamp = System.currentTimeMillis(),
-            entityType = AuditLogEntityType.PROJECT,
-            entityId = projectId,
-            actionType = AuditLogActionType.DELETE
-        )
+        val currentTime = Clock.System.now()
+        val auditLog =
+            AuditLog(
+                id = UUID.randomUUID().toString(),
+                userId = user.id,
+                action = "${user.username} deleted project with id $projectId at ${currentTime.formattedString()}",
+                createdAt = currentTime,
+                entityType = AuditLogEntityType.PROJECT,
+                entityId = projectId,
+                actionType = AuditLogActionType.DELETE,
+            )
         return auditLog
     }
-
 }

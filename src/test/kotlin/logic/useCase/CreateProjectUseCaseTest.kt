@@ -42,70 +42,73 @@ class CreateProjectUseCaseTest {
     }
 
     @Test
-    fun `should return created project when the input is not blank and user is an admin`() = runTest {
-        val projectName = "Test Project"
-        coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
-        coEvery { projectRepository.createProject(any()) } returns createProject(name = projectName)
+    fun `should return created project when the input is not blank and user is an admin`() =
+        runTest {
+            val projectName = "Test Project"
+            coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+            coEvery { projectRepository.createProject(any()) } returns createProject(name = projectName)
 
-        val createdProject = createProjectUseCase(projectName)
+            val createdProject = createProjectUseCase(projectName)
 
-        coVerify { projectRepository.createProject(any()) }
-        coVerify { auditLogRepository.createAuditLog(any()) }
-        assertThat(createdProject.name).isEqualTo(projectName)
-    }
-
-    @Test
-    fun `should return created project with empty list of states when the input is not blank and user is an admin`() = runTest {
-        val projectName = "Test Project"
-        coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
-        coEvery { projectRepository.createProject(any()) } returns createProject(name = projectName)
-
-        val createdProject = createProjectUseCase(projectName)
-
-        coVerify { projectRepository.createProject(any()) }
-        coVerify { auditLogRepository.createAuditLog(any()) }
-        assertThat(createdProject.states).isEmpty()
-    }
-
-    @Test
-    fun `should return created project with one item in auditLogsIds when the input is not blank and user is an admin`() = runTest {
-        val projectName = "Test Project"
-        coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
-        coEvery { projectRepository.createProject(any()) } returns
-            createProject(
-                name = projectName,
-                auditLogsIds = listOf("1"),
-            )
-
-        val createdProject = createProjectUseCase(projectName)
-
-        coVerify { projectRepository.createProject(any()) }
-        coVerify { auditLogRepository.createAuditLog(any()) }
-        assertThat(createdProject.auditLogsIds).isNotEmpty()
-        assertThat(createdProject.auditLogsIds).hasSize(1)
-    }
-
-    @Test
-    fun `should throw BlankInputException when projectName is blank`() = runTest {
-        val projectName = ""
-        coEvery { authenticationRepository.getCurrentUser() } returns createUser()
-
-        assertThrows<BlankInputException> {
-            createProjectUseCase(projectName)
+            coVerify { projectRepository.createProject(any()) }
+            coVerify { auditLogRepository.createAuditLog(any()) }
+            assertThat(createdProject.name).isEqualTo(projectName)
         }
-    }
 
     @Test
-    fun `should throw ProjectCreationFailedException when projectName is larger than 16`() = runTest {
-        val projectName = "plan mate plan mate plan mate plan mate plan mate"
-        coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+    fun `should return created project with default list of 3 states when the input is not blank and user is an admin`() =
+        runTest {
+            val projectName = "Test Project"
+            coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+            coEvery { projectRepository.createProject(any()) } returns createProject(name = projectName)
 
-        assertThrows<ProjectCreationFailedException> {
-            createProjectUseCase(projectName)
+            val createdProject = createProjectUseCase(projectName)
+
+            coVerify { projectRepository.createProject(any()) }
+            coVerify { auditLogRepository.createAuditLog(any()) }
+            assertThat(createdProject.states).hasSize(3)
         }
-    }
 
+    @Test
+    fun `should return created project with one item in auditLogsIds when the input is not blank and user is an admin`() =
+        runTest {
+            val projectName = "Test Project"
+            coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+            coEvery { projectRepository.createProject(any()) } returns
+                createProject(
+                    name = projectName,
+                    auditLogsIds = listOf("1"),
+                )
 
+            val createdProject = createProjectUseCase(projectName)
+
+            coVerify { projectRepository.createProject(any()) }
+            coVerify { auditLogRepository.createAuditLog(any()) }
+            assertThat(createdProject.auditLogsIds).isNotEmpty()
+            assertThat(createdProject.auditLogsIds).hasSize(1)
+        }
+
+    @Test
+    fun `should throw BlankInputException when projectName is blank`() =
+        runTest {
+            val projectName = ""
+            coEvery { authenticationRepository.getCurrentUser() } returns createUser()
+
+            assertThrows<BlankInputException> {
+                createProjectUseCase(projectName)
+            }
+        }
+
+    @Test
+    fun `should throw ProjectCreationFailedException when projectName is larger than 16`() =
+        runTest {
+            val projectName = "plan mate plan mate plan mate plan mate plan mate"
+            coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+
+            assertThrows<ProjectCreationFailedException> {
+                createProjectUseCase(projectName)
+            }
+        }
 
     @Test
     fun `should throws ProjectCreationFailedException when audit log return exception`() = runTest {

@@ -30,16 +30,17 @@ class DeleteTaskUseCase(
     @OptIn(ExperimentalUuidApi::class)
     private suspend fun saveAuditLog(taskId: String): AuditLog {
         val user = userUseCase()
-        val timestampNow = Clock.System.now()
-        val auditLog = AuditLog(
-            id = Uuid.random().getCroppedId(),
-            userId = user.id,
-            action = "${user.username} deleted task with id $taskId at ${timestampNow.formattedString()}",
-            timestamp = System.currentTimeMillis(),
-            entityType = AuditLogEntityType.TASK,
-            entityId = taskId,
-            actionType = AuditLogActionType.DELETE
-        )
+        val currentTime = Clock.System.now()
+        val auditLog =
+            AuditLog(
+                id = Uuid.random().getCroppedId(),
+                userId = user.id,
+                action = "${user.username} deleted task with id $taskId at ${currentTime.formattedString()}",
+                createdAt = currentTime,
+                entityType = AuditLogEntityType.TASK,
+                entityId = taskId,
+                actionType = AuditLogActionType.DELETE,
+            )
         return auditLog
     }
 }
