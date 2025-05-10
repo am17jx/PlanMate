@@ -47,12 +47,12 @@ class UpdateTaskUseCase(
     }
 
     private suspend fun getExistingTaskOrThrow(taskId: String): Task {
-        return taskRepository.getTaskById(taskId) ?: throw TaskNotFoundException("Task with id $taskId not found")
+        return taskRepository.getTaskById(taskId) ?: throw TaskNotFoundException()
     }
 
     private fun ensureTaskIsChanged(oldTask: Task, newTask: Task) {
         if (oldTask == newTask) {
-            throw TaskNotChangedException("No changes detected for task with id ${newTask.id}")
+            throw TaskNotChangedException()
         }
     }
 

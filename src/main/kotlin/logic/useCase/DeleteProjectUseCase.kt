@@ -6,8 +6,6 @@ import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskRepository
-import org.example.logic.utils.UnableToDeleteProjectException
 import org.example.logic.utils.formattedString
 import java.util.*
 

@@ -1,28 +1,44 @@
 package org.example.logic.utils
 
-class BlankInputException(message: String) : Exception(message)
-class UserNotFoundException(message: String) : Exception(message)
-class NoLoggedInUserException(message: String) : Exception(message)
-class UserAlreadyExistsException(message: String) : Exception(message)
-class ProjectNotChangedException(message: String) : Exception(message)
-class ProjectNotFoundException(message: String) : Exception(message)
-class ProjectCreationFailedException(message: String) : Exception(message)
-class UpdateItemFailedException(message: String) : Exception(message)
-class CreationItemFailedException(message: String) : Exception(message)
-class DeleteItemFailedException(message: String) : Exception(message)
-class GetItemsFailedException(message: String) : Exception(message)
-class GetItemByIdFailedException(message: String) : Exception(message)
-class TaskNotChangedException(message: String) : Exception(message)
-class TaskNotFoundException(message: String) : Exception(message)
-class StateNotFoundException(message: String) : Exception(message)
-class InvalidInputException(message: String) : Exception(message)
-class UnauthorizedException(message: String) : Exception(message)
-class AuditInputException(message: String) : Exception(message)
-class NoProjectsFoundException(message: String) : Exception(message)
-class InvalidUserNameInputException(message: String) : Exception(message)
-class AuditLogNotFoundException(message: String) : Exception(message)
-class AuditLogCreationFailedException(message: String) : Exception(message)
-class TaskNotCreatedException(message: String) : Exception(message)
-class UnableToDeleteProjectException(message: String) : Exception(message)
-class UnableToDeleteTaskException(message: String) : Exception(message)
-class DataBaseUriNoFoundException(message: String) : Exception(message)
+open class GeneralException(message: String) : Exception(message)
+
+class BlankInputException : GeneralException("Input cannot be blank")
+class InvalidInputException : GeneralException("Invalid input provided")
+class DataBaseException : GeneralException("Database URI not found")
+
+open class AuthenticationException(message: String) : Exception(message)
+
+class InvalidUsernameException : AuthenticationException("Invalid username")
+class UserAlreadyExistsException : AuthenticationException("User already exists")
+class UserNotFoundException : AuthenticationException("User not found")
+class NoLoggedInUserException : AuthenticationException("No user is logged in")
+class UnauthorizedAccessException : AuthenticationException("Unauthorized access")
+class UserCreationFailedException : AuthenticationException("Failed to create user")
+
+open class ProjectException(message: String) : Exception(message)
+
+class ProjectNotChangedException : ProjectException("Project was not modified")
+class ProjectNotFoundException : ProjectException("Project not found")
+class ProjectCreationFailedException : ProjectException("Failed to create project")
+class NoProjectsFoundException : ProjectException("No projects found")
+class ProjectDeletionFailedException : ProjectException("Failed to delete project")
+
+open class TaskException(message: String) : Exception(message)
+
+class TaskNotChangedException : TaskException("Task was not modified")
+class TaskNotFoundException : TaskException("Task not found")
+class TaskCreationFailedException : TaskException("Failed to create task")
+class TaskDeletionFailedException : TaskException("Unable to delete task")
+class NoTaskFoundException : TaskException("No task found")
+class NoTasksFoundException : TaskException("No tasks found")
+class TaskStateNotFoundException : TaskException("Task state not found")
+
+open class AuditLogException(message: String) : Exception(message)
+
+class InvalidAuditInputException : AuditLogException("Invalid audit input")
+class AuditLogNotFoundException : AuditLogException("Audit log not found")
+class AuditLogCreationFailedException : AuditLogException("Failed to create audit log")
+class AuditLogDeletionFailedException : AuditLogException("Failed to delete audit log")
+
+
+

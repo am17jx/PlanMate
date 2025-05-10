@@ -40,8 +40,8 @@ class CreateProjectUseCase(
 
     private fun checkInputValidation(projectName: String) {
         when {
-            projectName.isBlank() -> throw BlankInputException(BLANK_INPUT_EXCEPTION_MESSAGE)
-            projectName.length > 16 -> throw ProjectCreationFailedException(PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE)
+            projectName.isBlank() -> throw BlankInputException()
+            projectName.length > 16 -> throw ProjectCreationFailedException()
         }
     }
 
@@ -60,9 +60,5 @@ class CreateProjectUseCase(
         )
     }
 
-    companion object {
-        const val BLANK_INPUT_EXCEPTION_MESSAGE = "Project name cannot be blank"
-        const val PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE = "Failed to create project"
-        const val PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE = "Project name should not exceed 16 characters"
-    }
+
 }

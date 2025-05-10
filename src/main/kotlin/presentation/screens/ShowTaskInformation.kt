@@ -3,11 +3,8 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Task
-import org.example.logic.useCase.GetEntityAuditLogsUseCase
-import org.example.logic.useCase.GetStateNameUseCase
-import org.example.logic.useCase.GetTaskByIdUseCase
-import org.example.logic.useCase.DeleteTaskUseCase
-import org.example.logic.useCase.UpdateTaskUseCase
+import org.example.logic.useCase.*
+import org.example.logic.utils.*
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -21,9 +18,9 @@ class ShowTaskInformation(
     private val viewer: Viewer,
     private val reader: Reader,
 ) {
-    fun showTaskInformation(taskId: String) = runBlocking{
+    fun showTaskInformation(taskId: String) = runBlocking {
         var isRunning = true
-        while (isRunning){
+        while (isRunning) {
             try {
                 val task = getTaskByIdUseCase(taskId)
                 val stateName = getStateNameUseCase(taskId)
@@ -32,26 +29,41 @@ class ShowTaskInformation(
                 displayMenu()
 
                 val choice = reader.readString().trim()
-                when(choice){
+                when (choice) {
                     "1" -> updateTask(task)
                     "2" -> {
                         deleteTask(taskId)
                         isRunning = false
                     }
+
                     "3" -> showTaskLogs(taskId)
                     "4" -> {
                         viewer.display("Exiting...")
                         isRunning = false
                     }
+
                     else -> viewer.display("Invalid choice. Please try again.")
                 }
+            } catch (e: InvalidInputException) {
+                viewer.display("Error: Task ID should be alphanumeric")
+                isRunning = false
+            } catch (e: BlankInputException) {
+                viewer.display("Error: Task ID cannot be blank")
+                isRunning = false
+            } catch (e: TaskNotFoundException) {
+                viewer.display("Error: No task found with id: $taskId")
+                isRunning = false
+            } catch (e: TaskStateNotFoundException) {
+                viewer.display("Error: State not found")
+                isRunning = false
             } catch (e: Exception) {
                 viewer.display("Error: ${e.message}")
-                isRunning=false
+                isRunning = false
             }
         }
     }
-    private fun displayTaskDetails(task: Task , stateName: String) {
+
+    private fun displayTaskDetails(task: Task, stateName: String) {
         viewer.display("Task Information: ")
         viewer.display("stateId : ${task.stateId}")
         viewer.display("taskID: ${task.id}")
@@ -70,7 +82,7 @@ class ShowTaskInformation(
         viewer.display("Enter your choice: ")
     }
 
-    private fun updateTask(task: Task) = runBlocking{
+    private fun updateTask(task: Task) = runBlocking {
         try {
             viewer.display("Enter new task name:")
             val newName = reader.readString().takeIf { it.isNotBlank() } ?: task.name
@@ -79,11 +91,16 @@ class ShowTaskInformation(
             val updatedTask = task.copy(name = newName, stateId = newStateId)
             updateTaskUseCase(task.id, updatedTask)
             viewer.display("Task updated successfully.")
-        } catch (e: Exception) {
+        } catch (e: TaskNotFoundException) {
+            viewer.display("Error Task with id ${task.id} not found")
+        }catch (e: TaskNotChangedException) {
+            viewer.display("Error No changes detected for task with id ${task.id}")
+        }catch (e: Exception) {
             viewer.display("Error updating task: ${e.message}")
         }
     }
-    private fun deleteTask(taskId: String): Boolean = runBlocking{
+
+    private fun deleteTask(taskId: String): Boolean = runBlocking {
         try {
             viewer.display("Do you want to delete this task? (y/n)")
             val confirmation = reader.readString().trim().lowercase()
@@ -93,9 +110,12 @@ class ShowTaskInformation(
                 return@runBlocking true
             } else {
                 viewer.display("Deletion cancelled.")
-                return@runBlocking   false
+                return@runBlocking false
             }
-        } catch (e: Exception) {
+        } catch (e: TaskDeletionFailedException) {
+            viewer.display("Error: Cannot delete task")
+            return@runBlocking  false
+        }catch (e: Exception) {
             viewer.display("Error deleting task: ${e.message}")
             return@runBlocking  false
         }
@@ -114,6 +134,12 @@ class ShowTaskInformation(
                 headers = listOf("Actions"),
                 columnValues = listOf(actions)
             )
+        } catch (e: ProjectNotFoundException) {
+            viewer.display("Error: No project found with this id")
+        }catch (e: TaskNotFoundException) {
+            viewer.display("Error: No task found with this id")
+        }catch (e: BlankInputException) {
+            viewer.display("Error: Entity id cannot be blank")
         } catch (e: Exception) {
             viewer.display("Error fetching logs: ${e.message}")
         }

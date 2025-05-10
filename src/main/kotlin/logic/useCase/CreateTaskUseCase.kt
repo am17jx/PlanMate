@@ -69,8 +69,8 @@ class CreateTaskUseCase(
 
     private suspend fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->
-            if (project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
-        } ?: throw ProjectNotFoundException(NO_PROJECT_FOUND_ERROR_MESSAGE)
+            if (project.states.none { it.id == stateId }) throw TaskStateNotFoundException()
+        } ?: throw ProjectNotFoundException()
     }
 
     private fun verifyNoBlankInputs(
@@ -79,18 +79,11 @@ class CreateTaskUseCase(
         stateId: String,
     ) {
         when {
-            name.isBlank() -> throw BlankInputException(BLANK_TASK_NAME_ERROR_MESSAGE)
-            projectId.isBlank() -> throw BlankInputException(BLANK_PROJECT_ID_ERROR_MESSAGE)
-            stateId.isBlank() -> throw BlankInputException(BLANK_STATE_ID_ERROR_MESSAGE)
+            name.isBlank() -> throw BlankInputException()
+            projectId.isBlank() -> throw BlankInputException()
+            stateId.isBlank() -> throw BlankInputException()
         }
     }
 
-    companion object {
-        const val NO_STATE_FOUND_ERROR_MESSAGE = "No state found with this ID"
-        const val NO_PROJECT_FOUND_ERROR_MESSAGE = "No project found with this ID"
-        const val BLANK_TASK_NAME_ERROR_MESSAGE = "Task name cannot be blank"
-        const val BLANK_PROJECT_ID_ERROR_MESSAGE = "Project id cannot be blank"
-        const val BLANK_STATE_ID_ERROR_MESSAGE = "State id cannot be blank"
-        const val NO_LOGGED_IN_USER_ERROR_MESSAGE = "No logged in user found"
-    }
+
 }

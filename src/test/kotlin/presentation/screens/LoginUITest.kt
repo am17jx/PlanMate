@@ -76,9 +76,9 @@ class LoginUITest {
 
     @Test
     fun `should display error message when username or password is blank`() {
-        val exceptionMessage = "Username or password cannot be blank"
+        val exceptionMessage = "Input cannot be blank"
         every { readerMock.readString() } returns "" andThen "password123" andThen "sdadsa" andThen "adasdsddas"
-        coEvery { loginUserUseCase("", "password123") } throws BlankInputException(exceptionMessage)
+        coEvery { loginUserUseCase("", "password123") } throws BlankInputException()
 
         LoginUI(
             onNavigateToAdminHomeMock,
@@ -88,6 +88,6 @@ class LoginUITest {
             viewerMock,
         )
 
-        verify { viewerMock.display("Error: $exceptionMessage") }
+        verify (exactly = 1){ viewerMock.display("Error: $exceptionMessage") }
     }
 }

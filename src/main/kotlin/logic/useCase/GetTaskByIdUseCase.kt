@@ -12,13 +12,13 @@ class GetTaskByIdUseCase(
     suspend operator fun invoke(taskId: String): Task {
         validateTaskId(taskId)
         return taskRepository.getTaskById(taskId).takeIf { it?.id == taskId }
-            ?: throw TaskNotFoundException("No task found with id: $taskId")
+            ?: throw TaskNotFoundException()
     }
 
     private fun validateTaskId(taskId: String) {
-        if (taskId.isBlank()) throw BlankInputException("Task ID cannot be blank")
+        if (taskId.isBlank()) throw BlankInputException()
         if (taskId.any { !(it.isLetterOrDigit() || it == '-') })
-            throw InvalidInputException("Task ID should be alphanumeric")
+            throw InvalidInputException()
     }
 
 }
