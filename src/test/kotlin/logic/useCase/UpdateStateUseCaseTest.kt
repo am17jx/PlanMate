@@ -14,7 +14,7 @@ import org.example.logic.useCase.UpdateStateUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.StateNotFoundException
+import org.example.logic.utils.TaskStateNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -108,7 +108,7 @@ class UpdateStateUseCaseTest {
         coEvery {currentUserUseCase() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns createProject()
 
-        assertThrows<StateNotFoundException> {
+        assertThrows<TaskStateNotFoundException> {
             updateStateUseCase(newTitle, "5", dummyProject.id)
         }
     }

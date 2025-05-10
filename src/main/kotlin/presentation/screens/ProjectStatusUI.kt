@@ -5,6 +5,10 @@ import org.example.logic.useCase.CreateStateUseCase
 import org.example.logic.useCase.DeleteStateUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.UpdateStateUseCase
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.InvalidInputException
+import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.TaskStateNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -64,7 +68,11 @@ class ProjectStatusUI(
                     viewer.display("State ID: ${it.id}, State Name: ${it.title}")
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: ProjectNotFoundException) {
+            viewer.display("Failed to fetch project states: ${e.message}")
+        }catch (e: InvalidInputException) {
+            viewer.display("Failed to fetch project states: Project ID is invalid")
+        }catch (e: Exception) {
             viewer.display("Failed to fetch project states: ${e.message}")
         }
     }
@@ -75,7 +83,11 @@ class ProjectStatusUI(
             val stateName = reader.readString()
             createStateUseCase(projectId, stateName)
             viewer.display("State created successfully.")
-        } catch (e: Exception) {
+        } catch (e: ProjectNotFoundException) {
+            viewer.display("Failed to create state: Project not found")
+        }catch (e: BlankInputException) {
+            viewer.display("Input cannot be blank")
+        }catch (e: Exception) {
             viewer.display("Failed to create state: ${e.message}")
         }
     }
@@ -88,7 +100,13 @@ class ProjectStatusUI(
             val newStateName = reader.readString()
             updateStateUseCase(newStateName, stateId, projectId)
             viewer.display("State updated successfully.")
-        } catch (e: Exception) {
+        } catch (e: TaskStateNotFoundException) {
+            viewer.display("Failed to update state: State not found")
+        }catch (e: ProjectNotFoundException) {
+            viewer.display("Failed to update state: Project not found")
+        }catch (e: BlankInputException) {
+            viewer.display("Input cannot be blank")
+        }catch (e: Exception) {
             viewer.display("Failed to update state: ${e.message}")
         }
     }
@@ -99,7 +117,11 @@ class ProjectStatusUI(
             val stateId = reader.readString()
             deleteStateUseCase(stateId, projectId)
             viewer.display("State deleted successfully.")
-        } catch (e: Exception) {
+        } catch (e: ProjectNotFoundException) {
+            viewer.display("Failed to delete state: Project not found")
+        } catch (e: BlankInputException) {
+            viewer.display("Input cannot be blank")
+        }catch (e: Exception) {
             viewer.display("Failed to delete state: ${e.message}")
         }
     }

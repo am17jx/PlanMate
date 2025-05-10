@@ -22,11 +22,8 @@ class GetProjectTasksUseCase(
 
     private fun checkInputValidation(id: String) {
         when {
-            id.isBlank() -> throw BlankInputException(PROJECT_ID_BLANK_ERROR_MESSAGE)
+            id.isBlank() -> throw BlankInputException()
         }
     }
 
-    companion object {
-        const val PROJECT_ID_BLANK_ERROR_MESSAGE = "Project id cannot be blank"
-    }
 }
