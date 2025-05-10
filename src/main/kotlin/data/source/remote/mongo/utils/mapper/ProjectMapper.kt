@@ -7,7 +7,7 @@ fun ProjectDTO.toProject(): Project {
     return Project(
         id = id,
         name = name,
-        states = states,
+        tasksStatesIds = statesIds,
         auditLogsIds = auditLogsIds
     )
 }
@@ -16,7 +16,7 @@ fun Project.toProjectDTO(): ProjectDTO {
     return ProjectDTO(
         id = id,
         name = name,
-        states = states,
+        statesIds = tasksStatesIds,
         auditLogsIds = auditLogsIds
     )
 
