@@ -18,8 +18,8 @@ import org.example.logic.utils.DataBaseException
 object PlanMateDataBase {
 
     private val uri: String = dotenv()[MONGODB_URI]?:throw DataBaseException()
-    val client = MongoClient.create(connectionString =  uri)
-    val database = client.getDatabase(databaseName = Constants.DATABASE_NAME)
+    private val client = MongoClient.create(connectionString =  uri)
+    private val database = client.getDatabase(databaseName = Constants.DATABASE_NAME)
 
 
     val projectDoc = database.getCollection<ProjectDTO>(collectionName = PROJECTS_DOCUMENTATION)
