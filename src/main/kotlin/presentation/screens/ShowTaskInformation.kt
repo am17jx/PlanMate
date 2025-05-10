@@ -1,7 +1,7 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
-import org.example.logic.models.AuditLogEntityType
+import org.example.logic.models.AuditLog
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetStateNameUseCase
@@ -11,7 +11,10 @@ import org.example.logic.useCase.UpdateTaskUseCase
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import presentation.utils.toReadableMessage
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class ShowTaskInformation(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val getStateNameUseCase: GetStateNameUseCase,
@@ -103,12 +106,12 @@ class ShowTaskInformation(
 
     private fun showTaskLogs(taskId: String) = runBlocking {
         try {
-            val taskLogs = getEntityAuditLogsUseCase(taskId, AuditLogEntityType.TASK)
+            val taskLogs = getEntityAuditLogsUseCase(taskId, AuditLog.EntityType.TASK)
             if (taskLogs.isEmpty()) {
                 viewer.display("No logs found for this task.")
                 return@runBlocking
             }
-            val actions = taskLogs.map { it.action }
+            val actions = taskLogs.map { it.toReadableMessage() }
             val tablePrinter = TablePrinter(viewer, reader)
             tablePrinter.printTable(
                 headers = listOf("Actions"),

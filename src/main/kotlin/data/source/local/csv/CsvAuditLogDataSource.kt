@@ -6,8 +6,10 @@ import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toAuditLogs
 import org.example.data.source.local.csv.utils.mapper.toCsvRows
 import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLogEntityType
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CsvAuditLogDataSource(private val csvReader: CSVReader, private val csvWriter: CSVWriter) :
     LocalAuditLogDataSource {
     private var audits = mutableListOf<AuditLog>()
@@ -23,16 +25,16 @@ class CsvAuditLogDataSource(private val csvReader: CSVReader, private val csvWri
         return auditLog
     }
 
-    override fun deleteAuditLog(auditLogId: String) {
+    override fun deleteAuditLog(auditLogId: Uuid) {
         audits.removeIf { it.id == auditLogId }
         writeCsvAuditLogs()
     }
 
-    override fun getEntityLogs(entityId: String, entityType: AuditLogEntityType): List<AuditLog> {
-        return audits.filter { it.entityId == entityId && it.entityType == entityType }
+    override fun getEntityLogs(entityId: Uuid, entityType: AuditLog.EntityType): List<AuditLog> {
+        return audits.filter { it.entityId == entityId.toHexString() && it.entityType == entityType }
     }
 
-    override fun getEntityLogByLogId(auditLogId: String): AuditLog? {
+    override fun getEntityLogByLogId(auditLogId: Uuid): AuditLog? {
         return audits.firstOrNull { it.id == auditLogId }
     }
 

@@ -1,11 +1,13 @@
 package org.example.data.source.local.contract
 
 import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLogEntityType
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 interface LocalAuditLogDataSource {
-    fun saveAuditLog(auditLog: AuditLog):AuditLog
-    fun deleteAuditLog(auditLogId: String)
-    fun getEntityLogs(entityId: String, entityType: AuditLogEntityType): List<AuditLog>
-    fun getEntityLogByLogId(auditLogId:String): AuditLog?
+    fun saveAuditLog(auditLog: AuditLog): AuditLog
+    fun deleteAuditLog(auditLogId: Uuid)
+    fun getEntityLogs(entityId: Uuid, entityType: AuditLog.EntityType): List<AuditLog>
+    fun getEntityLogByLogId(auditLogId: Uuid): AuditLog?
 }

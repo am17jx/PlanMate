@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package org.example.data.source.local.csv.utils.mapper
 
 import org.example.data.utils.Constants.ProjectParsingKeys.AUDIT_LOGS_IDS_INDEX
@@ -6,6 +8,8 @@ import org.example.data.utils.Constants.ProjectParsingKeys.NAME_INDEX
 import org.example.data.utils.Constants.ProjectParsingKeys.STATES_INDEX
 import org.example.logic.models.Project
 import org.example.logic.models.State
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 fun Project.toCsvLine(): String =
     "$id," +
@@ -36,7 +40,7 @@ fun String.toProject(): Project {
                 .trim('[', ']')
                 .takeIf { it.isNotBlank() }
                 ?.split(",")
-                ?.map { it.trim() }
+                ?.map { Uuid.parse(it.trim()) }
                 ?: emptyList(),
     )
 }

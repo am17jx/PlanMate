@@ -1,7 +1,7 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
-import org.example.logic.models.AuditLogEntityType
+import org.example.logic.models.AuditLog
 import org.example.logic.models.Project
 import org.example.logic.useCase.DeleteProjectUseCase
 import org.example.logic.useCase.GetAllProjectsUseCase
@@ -13,7 +13,10 @@ import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import presentation.utils.toReadableMessage
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class ProjectsOverviewUI(
     private val onNavigateToShowProjectTasksUI: (id: String) -> Unit,
     private val onNavigateToProjectStatusUI: (id: String) -> Unit,
@@ -103,8 +106,8 @@ class ProjectsOverviewUI(
         try {
             viewer.display("Please enter the project ID:")
             val projectId = reader.readString()
-            val projectLogs = getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
-            val actions = projectLogs.map { it.action }
+            val projectLogs = getEntityAuditLogsUseCase(projectId, AuditLog.EntityType.PROJECT)
+            val actions = projectLogs.map { it.toReadableMessage() }
             tablePrinter.printTable(
                 headers = listOf("Actions"),
                 columnValues = listOf( actions)

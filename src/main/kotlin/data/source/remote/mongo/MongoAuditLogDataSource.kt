@@ -4,21 +4,23 @@ import com.mongodb.client.model.Filters
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
+import org.example.data.source.remote.contract.RemoteAuditLogDataSource
+import org.example.data.source.remote.models.AuditLogDTO
 import org.example.data.source.remote.mongo.utils.mapper.toAuditLog
 import org.example.data.source.remote.mongo.utils.mapper.toAuditLogDTO
-import org.example.data.source.remote.models.AuditLogDTO
-import org.example.data.source.remote.contract.RemoteAuditLogDataSource
 import org.example.data.utils.Constants.ENTITY_ID
 import org.example.data.utils.Constants.ENTITY_TYPE
 import org.example.data.utils.Constants.ID
 import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLogEntityType
 import org.example.logic.utils.CreationItemFailedException
 import org.example.logic.utils.DeleteItemFailedException
 import org.example.logic.utils.GetItemByIdFailedException
 import org.example.logic.utils.GetItemsFailedException
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-class MongoAuditLogDataSource(private val auditLogCollection: MongoCollection<AuditLogDTO>): RemoteAuditLogDataSource {
+@OptIn(ExperimentalUuidApi::class)
+class MongoAuditLogDataSource(private val auditLogCollection: MongoCollection<AuditLogDTO>) : RemoteAuditLogDataSource {
 
 
     override suspend fun saveAuditLog(auditLog: AuditLog): AuditLog {
@@ -32,37 +34,34 @@ class MongoAuditLogDataSource(private val auditLogCollection: MongoCollection<Au
 
     }
 
-    override suspend fun deleteAuditLog(auditLogId: String) {
+    override suspend fun deleteAuditLog(auditLogId: Uuid) {
 
         try {
-            auditLogCollection.deleteOne(Filters.eq(ID, auditLogId))
+            auditLogCollection.deleteOne(Filters.eq(ID, auditLogId.toHexString()))
         } catch (e: Exception) {
             throw DeleteItemFailedException("audit log delete failed ${e.message}")
         }
 
     }
 
-    override suspend fun getEntityLogs(entityId: String, entityType: AuditLogEntityType): List<AuditLog> {
-
+    override suspend fun getEntityLogs(entityId: String, entityType: AuditLog.EntityType): List<AuditLog> {
         try {
-            return auditLogCollection
-                .find(Filters.and(Filters.eq(ENTITY_ID, entityId), Filters.eq(ENTITY_TYPE, entityType)))
-                .toList().map { it.toAuditLog() }
+            return auditLogCollection.find(
+                    Filters.and(
+                        Filters.eq(ENTITY_ID, entityId),
+                        Filters.eq(ENTITY_TYPE, entityType.name)
+                    )
+                ).toList().map { it.toAuditLog() }
         } catch (e: Exception) {
             throw GetItemsFailedException("get audit logs failed ${e.message}")
         }
-
     }
 
-    override suspend fun getEntityLogByLogId(auditLogId: String): AuditLog? {
-
+    override suspend fun getEntityLogByLogId(auditLogId: Uuid): AuditLog? {
         try {
-            return auditLogCollection.find(Filters.eq(ID, auditLogId)).firstOrNull()?.toAuditLog()
+            return auditLogCollection.find(Filters.eq(ID, auditLogId.toHexString())).firstOrNull()?.toAuditLog()
         } catch (e: Exception) {
             throw GetItemByIdFailedException("get audit log by id failed ${e.message}")
         }
-
     }
-
-
 }

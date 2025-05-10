@@ -13,8 +13,7 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
-    private val auditLogRepository: AuditLogRepository,
-    private val currentUserUseCase: GetCurrentUserUseCase,
+    private val createAuditLogUseCase: CreateAuditLogUseCase
 ) {
     suspend operator fun invoke(projectName: String): Project {
         checkInputValidation(projectName)
@@ -24,7 +23,11 @@ class CreateProjectUseCase(
 
     private suspend fun createAndLogProject(projectName: String): Project {
         val projectId = Uuid.random().getCroppedId()
-        val audit = createLog(projectId, projectName, currentUserUseCase())
+        val audit = createAuditLogUseCase.logCreation(
+            entityId = projectId,
+            entityName = projectName,
+            entityType = AuditLog.EntityType.PROJECT
+        )
         val newProject =
             Project(
                 id = projectId,
@@ -33,7 +36,6 @@ class CreateProjectUseCase(
                 auditLogsIds = listOf(audit.id),
             )
 
-        auditLogRepository.createAuditLog(audit)
         projectRepository.createProject(newProject)
         return newProject
     }
@@ -50,23 +52,6 @@ class CreateProjectUseCase(
             projectName.isBlank() -> throw BlankInputException(BLANK_INPUT_EXCEPTION_MESSAGE)
             projectName.length > 16 -> throw ProjectCreationFailedException(PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE)
         }
-    }
-
-    private fun createLog(
-        projectId: String,
-        projectName: String,
-        user: User,
-    ): AuditLog {
-        val currentTime = Clock.System.now()
-        return AuditLog(
-            id = Uuid.random().getCroppedId(),
-            userId = user.id,
-            action = "User ${user.username} created project $projectName at ${currentTime.formattedString()}",
-            createdAt = currentTime,
-            entityType = AuditLogEntityType.PROJECT,
-            entityId = projectId,
-            actionType = AuditLogActionType.CREATE,
-        )
     }
 
     companion object {
