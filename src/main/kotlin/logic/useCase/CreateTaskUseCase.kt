@@ -1,10 +1,8 @@
 package logic.useCase
 
 import kotlinx.datetime.*
-import org.example.data.repository.AuthenticationRepositoryImpl
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
@@ -33,41 +31,46 @@ class CreateTaskUseCase(
         taskName: String,
         projectId: String,
         stateId: String,
-        loggedInUser: User
+        loggedInUser: User,
     ): Task {
         val taskId = Uuid.random().getCroppedId()
         val taskAuditLog = createAuditLog(taskId, taskName, loggedInUser)
-        val newTask = Task(
-            id = taskId,
-            name = taskName,
-            stateId = stateId,
-            projectId = projectId,
-            addedBy = loggedInUser.id,
-            auditLogsIds = listOf(taskAuditLog.id)
-        )
+        val newTask =
+            Task(
+                id = taskId,
+                name = taskName,
+                stateId = stateId,
+                projectId = projectId,
+                addedBy = loggedInUser.id,
+                auditLogsIds = listOf(taskAuditLog.id),
+            )
 
         auditLogRepository.createAuditLog(taskAuditLog)
         taskRepository.createTask(newTask)
         return newTask
-
-
     }
 
-    private fun createAuditLog(taskId: String, name: String, loggedInUser: User): AuditLog {
-        val timestampNow = Clock.System.now()
+    private fun createAuditLog(
+        taskId: String,
+        name: String,
+        loggedInUser: User,
+    ): AuditLog {
+        val currentTime = Clock.System.now()
         return AuditLog(
             id = Uuid.random().getCroppedId(),
             userId = loggedInUser.id,
-            action = "user ${loggedInUser.username} created task $name at ${timestampNow.formattedString()}",
-            timestamp = timestampNow.epochSeconds,
+            action = "user ${loggedInUser.username} created task $name at ${currentTime.formattedString()}",
+            createdAt = currentTime,
             entityType = AuditLogEntityType.TASK,
             entityId = taskId,
-            actionType = AuditLogActionType.CREATE
+            actionType = AuditLogActionType.CREATE,
         )
     }
 
-
-    private suspend fun verifyProjectAndStateExist(projectId: String, stateId: String) {
+    private suspend fun verifyProjectAndStateExist(
+        projectId: String,
+        stateId: String,
+    ) {
         projectRepository.getProjectById(projectId)?.let { project ->
             if (project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
         } ?: throw ProjectNotFoundException(NO_PROJECT_FOUND_ERROR_MESSAGE)

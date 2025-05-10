@@ -22,7 +22,7 @@ class CreateProjectUseCase(
 
     private suspend fun createAndLogProject(projectName: String): Project {
         val projectId = Uuid.random().getCroppedId()
-        val audit = createLog(projectId, projectName,currentUserUseCase())
+        val audit = createLog(projectId, projectName, currentUserUseCase())
         val newProject =
             Project(
                 id = projectId,
@@ -34,8 +34,6 @@ class CreateProjectUseCase(
         auditLogRepository.createAuditLog(audit)
         projectRepository.createProject(newProject)
         return newProject
-
-
     }
 
     private fun checkInputValidation(projectName: String) {
@@ -45,15 +43,17 @@ class CreateProjectUseCase(
         }
     }
 
-
-
-    private fun createLog(projectId: String, projectName: String, user: User): AuditLog {
+    private fun createLog(
+        projectId: String,
+        projectName: String,
+        user: User,
+    ): AuditLog {
         val currentTime = Clock.System.now()
         return AuditLog(
             id = Uuid.random().getCroppedId(),
             userId = user.id,
-            action = "User ${user.username} created project $projectName at $currentTime",
-            timestamp = currentTime.epochSeconds,
+            action = "User ${user.username} created project $projectName at ${currentTime.formattedString()}",
+            createdAt = currentTime,
             entityType = AuditLogEntityType.PROJECT,
             entityId = projectId,
             actionType = AuditLogActionType.CREATE,

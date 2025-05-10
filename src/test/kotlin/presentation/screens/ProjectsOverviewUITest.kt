@@ -1,11 +1,12 @@
 package presentation.screens
 
 import io.mockk.*
+import kotlinx.datetime.Clock
 import org.example.logic.models.*
+import org.example.logic.useCase.DeleteProjectUseCase
 import org.example.logic.useCase.GetAllProjectsUseCase
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
-import org.example.logic.useCase.DeleteProjectUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.presentation.role.ProjectScreensOptions
 import org.example.presentation.screens.ProjectsOverviewUI
@@ -30,10 +31,11 @@ class ProjectsOverviewUITest {
     private val mockOnNavigateToProjectStatusUI = mockk<(String) -> Unit>(relaxed = true)
     private val mockOnNavigateBack = mockk<() -> Unit>(relaxed = true)
 
-    private val sampleProjects = listOf(
-        Project("1", "Project Alpha", states = listOf(State("1", "State Alpha")), auditLogsIds = listOf()),
-        Project("2", "Project Beta", states = listOf(State("1", "State Alpha")), auditLogsIds = listOf())
-    )
+    private val sampleProjects =
+        listOf(
+            Project("1", "Project Alpha", states = listOf(State("1", "State Alpha")), auditLogsIds = listOf()),
+            Project("2", "Project Beta", states = listOf(State("1", "State Alpha")), auditLogsIds = listOf()),
+        )
 
     private fun launchUI() {
         ProjectsOverviewUI(
@@ -48,9 +50,8 @@ class ProjectsOverviewUITest {
             viewer = viewer,
             deleteProjectUseCase = deleteProjectUseCase,
             tablePrinter = tablePrinter,
-            projectScreensOptions = projectScreensOptions
+            projectScreensOptions = projectScreensOptions,
         )
-
     }
 
     @BeforeEach
@@ -65,10 +66,11 @@ class ProjectsOverviewUITest {
         deleteProjectUseCase = mockk()
         tablePrinter = mockk(relaxed = true)
 
-        every { projectScreensOptions.showAllProjectsOptions() } returns mapOf(
-            "1" to "1 - Show Project Details",
-            "5" to "5 - Back"
-        )
+        every { projectScreensOptions.showAllProjectsOptions() } returns
+            mapOf(
+                "1" to "1 - Show Project Details",
+                "5" to "5 - Back",
+            )
     }
 
     @Test
@@ -79,7 +81,6 @@ class ProjectsOverviewUITest {
         launchUI()
 
         verify { viewer.display(any()) }
-
     }
 
     @Test
@@ -159,17 +160,18 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return project logs when user chooses to view them`() {
-        val logs = listOf(
-            AuditLog(
-                id = "1",
-                userId = "user123",
-                action = "Created project",
-                timestamp = 1672531200000,
-                entityType = AuditLogEntityType.PROJECT,
-                entityId = "1",
-                actionType = AuditLogActionType.CREATE
+        val logs =
+            listOf(
+                AuditLog(
+                    id = "1",
+                    userId = "user123",
+                    action = "Created project",
+                    createdAt = Clock.System.now(),
+                    entityType = AuditLogEntityType.PROJECT,
+                    entityId = "1",
+                    actionType = AuditLogActionType.CREATE,
+                ),
             )
-        )
 
         coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("4", "1", "5")
@@ -199,5 +201,4 @@ class ProjectsOverviewUITest {
 
         verify { mockOnNavigateBack() }
     }
-
 }
