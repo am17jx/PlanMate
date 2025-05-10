@@ -1,5 +1,7 @@
 import com.google.common.truth.Truth.assertThat
+import io.mockk.mockk
 import org.example.logic.models.UserRole
+import org.example.logic.useCase.LogoutUseCase
 import org.example.presentation.screens.AdminHomeUI
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -11,7 +13,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 class AdminHomeUITest {
-
+    private lateinit var logoutUseCase: LogoutUseCase
     private val originalOut = System.out
     private val originalIn = System.`in`
     private lateinit var outContent: ByteArrayOutputStream
@@ -20,9 +22,11 @@ class AdminHomeUITest {
     private var navigateToCreateProjectCalled = false
     private var navigateToCreateUserCalled = false
     private var navigateToBackCalled = false
+    private var navigateToExitCalled = false
 
     @BeforeEach
     fun setUp() {
+        logoutUseCase = mockk(relaxed = true)
         outContent = ByteArrayOutputStream()
         System.setOut(PrintStream(outContent))
 
@@ -43,17 +47,21 @@ class AdminHomeUITest {
         System.setIn(inputStream)
 
         AdminHomeUI(
-            viewer = object : Viewer {
-            override fun display(message: String?) {
-                println(message)
-            }
-        },
+            viewer =
+                object : Viewer {
+                    override fun display(message: String?) {
+                        println(message)
+                    }
+                },
             reader = ConsoleReader(),
             userRole = UserRole.ADMIN,
+            logoutUseCase = logoutUseCase,
             onNavigateToShowAllProjectsUI = { navigateToShowAllProjectsCalled = true },
             onNavigateToCreateProject = { navigateToCreateProjectCalled = true },
             onNavigateToCreateUser = { navigateToCreateUserCalled = true },
-            onNavigateToOnBackStack = { navigateToBackCalled = true })
+            onLogout = { navigateToBackCalled = true },
+            onExit = { navigateToExitCalled = true },
+        )
     }
 
     @Test

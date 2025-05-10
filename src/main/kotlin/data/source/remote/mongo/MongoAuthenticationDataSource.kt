@@ -50,6 +50,9 @@ class MongoAuthenticationDataSource(private val mongoClient: MongoCollection<Use
         }
     }
 
-    override suspend fun getCurrentUser(): User? = currentUser
+    override suspend fun logout() {
+        currentUser = null
+    }
 
+    override suspend fun getCurrentUser(): User? = currentUser
 }

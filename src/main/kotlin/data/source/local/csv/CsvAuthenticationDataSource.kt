@@ -10,9 +10,8 @@ import org.example.logic.utils.UserAlreadyExistsException
 
 class CsvAuthenticationDataSource(
     private val csvWriter: CSVWriter,
-    private val csvReader: CSVReader
+    private val csvReader: CSVReader,
 ) : LocalAuthenticationDataSource {
-
     private var currentUser: User? = null
 
     override fun saveUser(user: User) {
@@ -23,18 +22,24 @@ class CsvAuthenticationDataSource(
         csvWriter.writeLines(allUsersRows)
     }
 
-    override fun getAllUsers(): List<User> {
-        return csvReader.readLines().toUsers()
-    }
+    override fun getAllUsers(): List<User> = csvReader.readLines().toUsers()
 
-    override fun login(username: String, hashedPassword: String): User {
+    override fun login(
+        username: String,
+        hashedPassword: String,
+    ): User {
         try {
-            return getAllUsers().first { it.username == username && it.password == hashedPassword }
+            return getAllUsers()
+                .first { it.username == username && it.password == hashedPassword }
                 .also { currentUser = it }
                 .let { User(it.id, it.username, it.password, it.role) }
         } catch (e: NoSuchElementException) {
             throw NoSuchElementException()
         }
+    }
+
+    override fun logout() {
+        currentUser = null
     }
 
     override fun getCurrentUser(): User? = currentUser
