@@ -8,6 +8,7 @@ import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.TaskDeletionFailedException
 import kotlin.uuid.ExperimentalUuidApi
 
 

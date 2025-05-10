@@ -15,7 +15,7 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
-    private val createAuditLogUseCase: CreateAuditLogUseCase
+    private val createAuditLogUseCase: CreateAuditLogUseCase,
     private val taskStateRepository: TaskStateRepository,
 ){
     suspend operator fun invoke(projectName: String): Project {
