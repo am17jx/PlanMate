@@ -1,5 +1,6 @@
 package org.example.data.repository
 
+import org.example.data.repository.utils.hashWithMD5
 import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
@@ -15,13 +16,15 @@ class AuthenticationRepositoryImpl(
     override suspend fun getCurrentUser(): User? = remoteAuthenticationDataSource.getCurrentUser()
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun createMate(username: String, hashedPassword: String): User {
+    override suspend fun createMate(username: String, password: String): User {
+        val hashedPassword = hashWithMD5(password)
         val user = User(Uuid.random().getCroppedId(),username,hashedPassword, UserRole.USER)
         remoteAuthenticationDataSource.saveUser(user)
         return user
     }
 
-    override suspend fun login(username: String, hashedPassword: String): User {
+    override suspend fun login(username: String, password: String): User {
+        val hashedPassword = hashWithMD5(password)
         return remoteAuthenticationDataSource.login(username, hashedPassword)
     }
 

@@ -6,6 +6,7 @@ import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectCreationFailedException
+import org.example.logic.utils.formattedString
 import org.example.logic.utils.getCroppedId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
