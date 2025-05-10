@@ -2,9 +2,11 @@ package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
+import org.example.logic.models.Project
 import org.example.logic.models.Task
 import org.example.logic.useCase.*
 import org.example.logic.utils.*
+import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -15,8 +17,11 @@ class ShowTaskInformation(
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
+    private val getProjectByIdUseCase: GetProjectByIdUseCase,
     private val viewer: Viewer,
     private val reader: Reader,
+    private val tablePrinter: TablePrinter,
+    private val onNavigateBack: () -> Unit,
 ) {
     fun showTaskInformation(taskId: String) = runBlocking {
         var isRunning = true
@@ -24,13 +29,13 @@ class ShowTaskInformation(
             try {
                 val task = getTaskByIdUseCase(taskId)
                 val stateName = getStateNameUseCase(taskId)
+                val project = getProjectByIdUseCase(task.projectId)
 
                 displayTaskDetails(task, stateName)
                 displayMenu()
 
-                val choice = reader.readString().trim()
-                when (choice) {
-                    "1" -> updateTask(task)
+                when (reader.readString().trim()) {
+                    "1" -> updateTask(task, project)
                     "2" -> {
                         deleteTask(taskId)
                         isRunning = false
@@ -38,8 +43,7 @@ class ShowTaskInformation(
 
                     "3" -> showTaskLogs(taskId)
                     "4" -> {
-                        viewer.display("Exiting...")
-                        isRunning = false
+                        onNavigateBack
                     }
 
                     else -> viewer.display("Invalid choice. Please try again.")
@@ -64,30 +68,55 @@ class ShowTaskInformation(
     }
 
     private fun displayTaskDetails(task: Task, stateName: String) {
-        viewer.display("Task Information: ")
-        viewer.display("stateId : ${task.stateId}")
-        viewer.display("taskID: ${task.id}")
-        viewer.display("Name: ${task.name}")
-        viewer.display("Added By: ${task.addedBy}")
-        viewer.display("State: $stateName")
+        val headers = listOf("Field", "Value")
+        val rows = listOf(
+            listOf("Name", task.name),
+            listOf("Added By", task.addedBy),
+            listOf("State", stateName),
+        )
+
+        val columnValues = List(headers.size) { colIndex -> rows.map { it[colIndex] } }
+
+        viewer.display("Task Information:")
+        tablePrinter.printTable(headers, columnValues)
         viewer.display("")
     }
 
+
     private fun displayMenu() {
-        viewer.display("Choices:")
+        viewer.display("Select an option:")
         viewer.display("1. Update Task")
         viewer.display("2. Delete Task")
-        viewer.display("3. show task logs")
+        viewer.display("3. Show Task Logs")
         viewer.display("4. Exit")
-        viewer.display("Enter your choice: ")
+        viewer.display("Enter your choice:")
     }
 
-    private fun updateTask(task: Task) = runBlocking {
+    private fun updateTask(task: Task, project: Project) = runBlocking {
         try {
             viewer.display("Enter new task name:")
             val newName = reader.readString().takeIf { it.isNotBlank() } ?: task.name
-            viewer.display("Enter new state ID :")
-            val newStateId = reader.readString().takeIf { it.isNotBlank() } ?: task.stateId
+
+            viewer.display("Select a new state from the following list:")
+
+            val stateNames = project.states.map { it.title }
+            val stateIds = project.states.map { it.id }
+            val headers = listOf("Index", "State Name")
+            val columnValues = listOf(
+                stateNames.indices.map { (it + 1).toString() },
+                stateNames
+            )
+            tablePrinter.printTable(headers, columnValues)
+
+            viewer.display("Select a new state index:")
+            val index = reader.readInt()
+            val newStateId = if (index == null || index !in 1..stateIds.size) {
+                viewer.display("Invalid index, keeping old state.")
+                task.stateId
+            } else {
+                stateIds[index - 1]
+            }
+
             val updatedTask = task.copy(name = newName, stateId = newStateId)
             updateTaskUseCase(task.id, updatedTask)
             viewer.display("Task updated successfully.")
@@ -117,7 +146,7 @@ class ShowTaskInformation(
             return@runBlocking  false
         }catch (e: Exception) {
             viewer.display("Error deleting task: ${e.message}")
-            return@runBlocking  false
+            return@runBlocking false
         }
     }
 
@@ -129,7 +158,6 @@ class ShowTaskInformation(
                 return@runBlocking
             }
             val actions = taskLogs.map { it.action }
-            val tablePrinter = TablePrinter(viewer, reader)
             tablePrinter.printTable(
                 headers = listOf("Actions"),
                 columnValues = listOf(actions)
@@ -145,4 +173,22 @@ class ShowTaskInformation(
         }
     }
 
+    companion object {
+        fun create(
+            onNavigateBack: () -> Unit
+        ): ShowTaskInformation {
+            return ShowTaskInformation(
+                getTaskByIdUseCase = getKoin().get(),
+                onNavigateBack = onNavigateBack,
+                getStateNameUseCase = getKoin().get(),
+                updateTaskUseCase = getKoin().get(),
+                deleteTaskUseCase = getKoin().get(),
+                getEntityAuditLogsUseCase = getKoin().get(),
+                getProjectByIdUseCase = getKoin().get(),
+                viewer = getKoin().get(),
+                reader = getKoin().get(),
+                tablePrinter = getKoin().get()
+            )
+        }
+    }
 }

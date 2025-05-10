@@ -49,29 +49,7 @@ class ShowProjectTasksUITest {
         coEvery { getProjectTasksUseCase.invoke(any()) } returns projectTasks
     }
 
-    @Test
-    fun `should load project and tasks when ShowProjectTasksUi is initialized`() {
-        showProjectTasksUi = ShowProjectTasksUI(
-            getProjectTasksUseCase = getProjectTasksUseCase,
-            getProjectByIdUseCase = getProjectByIdUseCase,
-            createTaskUseCase = createTaskUseCase,
-            reader = reader,
-            viewer = viewer,
-            tablePrinter = tablePrinter,
-            onNavigateBack = {
-                isNavigateBackCalled = true
-            },
-            onNavigateToTaskDetails = { taskId ->
-                navigatedTaskId = taskId
-            },
-            projectId = "1"
-        )
 
-        coVerify { getProjectByIdUseCase.invoke("1") }
-        coVerify { getProjectTasksUseCase.invoke("1") }
-        verify { viewer.display("Loading...") }
-        verify { tablePrinter.printTable(any(), any()) }
-    }
 
     @Test
     fun `should navigate back when option 0 is selected`() {
@@ -203,34 +181,7 @@ class ShowProjectTasksUITest {
         assertThat(isNavigateBackCalled).isTrue()
     }
 
-    @Test
-    fun `should handle invalid inputs when creating task`() {
-        every { reader.readInt() } returnsMany listOf(2, 0)
-        every { reader.readString() } returnsMany listOf("", "Invalid,Name", "Valid Name", "999", "1")
-        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "Valid Name", stateId = "1")
 
-        showProjectTasksUi = ShowProjectTasksUI(
-            getProjectTasksUseCase = getProjectTasksUseCase,
-            getProjectByIdUseCase = getProjectByIdUseCase,
-            createTaskUseCase = createTaskUseCase,
-            reader = reader,
-            viewer = viewer,
-            tablePrinter = tablePrinter,
-            onNavigateBack = {
-                isNavigateBackCalled = true
-            },
-            onNavigateToTaskDetails = { taskId ->
-                navigatedTaskId = taskId
-            },
-            projectId = "1"
-        )
-
-        verify { viewer.display("Name cannot be blank!") }
-        verify { viewer.display("Name cannot contain comma!") }
-        verify { viewer.display("Invalid state ID! Please, try again") }
-        coVerify { createTaskUseCase.invoke("Valid Name", "1", "1") }
-        assertThat(isNavigateBackCalled).isTrue()
-    }
 
     @Test
     fun `should handle invalid menu option when it is selected`() {

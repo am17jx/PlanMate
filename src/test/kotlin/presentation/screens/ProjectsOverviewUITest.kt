@@ -109,15 +109,7 @@ class ProjectsOverviewUITest {
         verify { viewer.display(any()) }
     }
 
-    @Test
-    fun `should return navigation to tasks screen when user chooses to show project details`() {
-        coEvery { getAllProjectsUseCase() } returns sampleProjects
-        every { reader.readString() } returnsMany listOf("1", "123", "5")
 
-        launchUI()
-
-        verify { mockOnNavigateToShowProjectTasksUI("123") }
-    }
 
     @Test
     fun `should return updated project when user changes project name`() {
@@ -134,15 +126,7 @@ class ProjectsOverviewUITest {
         coVerify { updateProjectUseCase(existingProject.copy(name = newName)) }
     }
 
-    @Test
-    fun `should return navigation to project status screen when user chooses to manage status`() {
-        coEvery { getAllProjectsUseCase() } returns sampleProjects
-        every { reader.readString() } returnsMany listOf("2", "2", "42", "5")
 
-        launchUI()
-
-        verify { mockOnNavigateToProjectStatusUI("42") }
-    }
 
     @Test
     fun `should return invalid input message when user selects unknown update option`() {

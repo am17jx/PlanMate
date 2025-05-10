@@ -11,6 +11,7 @@ import org.example.logic.utils.InvalidInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
+import presentation.utils.cyan
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -52,10 +53,6 @@ class ShowProjectTasksUI(
     }
 
     private fun displaySwimLanesTasksTable() {
-        if (project.states.isEmpty()) {
-            viewer.display("<==========( No States Added yet )==========>")
-            return
-        }
         val (statesHeaders, tasksColumns) = getTableHeadersAndColumns()
         tablePrinter.printTable(
             headers = statesHeaders,
@@ -69,9 +66,10 @@ class ShowProjectTasksUI(
             state to tasksForState
         }
         val statesHeaders = groupedTasksByState.map { it.first.title }
-        val tasksColumns = groupedTasksByState.map { it.second.map { task -> "${task.name}(id: ${task.id})" } }
+        val tasksColumns = groupedTasksByState.map { it.second.map { task -> task.name } }
         return statesHeaders to tasksColumns
     }
+
 
     private fun getUserSelectedOption() {
         while (true) {
@@ -79,20 +77,16 @@ class ShowProjectTasksUI(
             displayOptions()
             val userInput = reader.readInt() ?: -1
             when (userInput) {
-                0 -> {
-                    return onNavigateBack()
-                }
-
                 1 -> {
-                    return getSelectedTaskId()
+                    startCreateTaskFlow()
                 }
 
                 2 -> {
-                    if (project.states.isEmpty()) {
-                        viewer.display("No project states added yet! Go back and update project with new states.")
-                    } else {
-                        startCreateTaskFlow()
-                    }
+                    return getSelectedTaskId()
+                }
+
+                3 -> {
+                    return onNavigateBack()
                 }
 
                 else -> {
@@ -103,23 +97,41 @@ class ShowProjectTasksUI(
     }
 
     private fun displayOptions() {
-        viewer.display("=== Select Option to Continue ========")
-        viewer.display("0. Go Back")
-        viewer.display("1. View Task Details")
-        viewer.display("2. Create New Task")
-        viewer.display("======================================")
+        viewer.display("========== Select Option to Continue ==========".cyan())
+        showCreateTaskOption()
+        if (projectTasks.isNotEmpty()) showViewTaskDetails()
+        viewer.display("3- Back")
+        viewer.display("Select an option:")
     }
 
+    private fun showViewTaskDetails(){
+        viewer.display("2- View Task Details")
+    }
+
+    private fun showCreateTaskOption() {
+        viewer.display("1- Create New Task")
+    }
+
+
     private fun getSelectedTaskId() {
-        viewer.display("Enter Task Id: ")
-        val userInput = reader.readString()
-        if (projectTasks.any { it.id == userInput }) {
-            onNavigateToTaskDetails(userInput)
-        } else {
-            viewer.display("Id is incorrect!")
-            loadTasks()
+        viewer.display("========== Select a Task by Index ==========".cyan())
+        val indexedTasks = projectTasks.mapIndexed { index, task -> "${index + 1}- ${task.name}" }
+        indexedTasks.forEach { viewer.display(it) }
+
+        while (true) {
+            viewer.display("Enter task index: ")
+            val input = reader.readString()
+            val index = input.toIntOrNull()?.minus(1)
+
+            if (index == null || index !in projectTasks.indices) {
+                viewer.display("Invalid index. Please try again.")
+            } else {
+                val selectedTaskId = projectTasks[index].id
+                return onNavigateToTaskDetails(selectedTaskId)
+            }
         }
     }
+
 
     private fun startCreateTaskFlow() = runBlocking{
         val taskName = readTaskName()
@@ -147,17 +159,25 @@ class ShowProjectTasksUI(
     }
 
     private fun readSelectedState(): String {
-        viewer.display("Select a state from the following states:")
-        project.states.forEachIndexed { index, state ->
-            viewer.display("- ${state.title} (id = ${state.id})")
-        }
+        viewer.display("Select a state from the following table:")
+
+        val indices = project.states.indices.map { (it + 1).toString() }
+        val titles = project.states.map { it.title }
+
+        tablePrinter.printTable(
+            headers = listOf("Index", "State Name"),
+            columnValues = listOf(indices, titles)
+        )
+
         while (true) {
-            viewer.display("Enter state ID: ")
-            val userInput = reader.readString()
-            if (project.states.any { it.id == userInput }) {
-                return userInput
+            viewer.display("Enter state index: ")
+            val input = reader.readString()
+            val index = input.toIntOrNull()?.minus(1)
+
+            if (index == null || index !in project.states.indices) {
+                viewer.display("Invalid index! Please, try again.")
             } else {
-                viewer.display("Invalid state ID! Please, try again")
+                return project.states[index].id
             }
         }
     }

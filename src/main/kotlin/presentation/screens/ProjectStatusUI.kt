@@ -10,6 +10,10 @@ import org.example.logic.utils.InvalidInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskStateNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
+import presentation.utils.TablePrinter
+import presentation.utils.cyan
+import presentation.utils.green
+import presentation.utils.red
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -21,7 +25,8 @@ class ProjectStatusUI(
     private val projectId: String,
     private val viewer: Viewer,
     private val reader: Reader,
-    private val onNavigateBack: () -> Unit
+    private val onNavigateBack: () -> Unit,
+    private val tablePrinter: TablePrinter
 ) {
 
     init {
@@ -44,14 +49,13 @@ class ProjectStatusUI(
                     onNavigateBack()
                     return
                 }
-
-                null -> viewer.display("Invalid input. Please try again.")
+                null -> viewer.display("Invalid input. Please try again.".red())
             }
         }
     }
 
     private fun displayMenu() {
-        viewer.display("\n=== Manage Project States ===")
+        viewer.display("\n========== Manage Project States ==========".cyan())
         StatusMenuOption.entries.forEach {
             viewer.display("${it.key}- ${it.label}")
         }
@@ -61,45 +65,60 @@ class ProjectStatusUI(
     private fun showProjectStates() = runBlocking {
         try {
             val project = getProjectByIdUseCase(projectId)
-            if (project.states.isEmpty()) {
-                viewer.display("No states found for this project.")
-            } else {
-                project.states.forEach {
-                    viewer.display("State ID: ${it.id}, State Name: ${it.title}")
-                }
-            }
+            viewer.display("\n========== Project States ==========".cyan())
+
+            val indexList = project.states.indices.map { (it + 1).toString() }
+            val stateTitles = project.states.map { it.title }
+
+            tablePrinter.printTable(
+                headers = listOf("Index", "State Title"),
+                columnValues = listOf(indexList, stateTitles)
+            )
+
         } catch (e: ProjectNotFoundException) {
             viewer.display("Failed to fetch project states: ${e.message}")
         }catch (e: InvalidInputException) {
             viewer.display("Failed to fetch project states: Project ID is invalid")
         }catch (e: Exception) {
-            viewer.display("Failed to fetch project states: ${e.message}")
+            viewer.display("Failed to fetch project states: ${e.message}".red())
         }
     }
 
-    private fun createProjectState() = runBlocking{
+    private fun createProjectState() = runBlocking {
         try {
             viewer.display("Enter the new state name:")
             val stateName = reader.readString()
             createStateUseCase(projectId, stateName)
-            viewer.display("State created successfully.")
+            viewer.display("State created successfully.".green())
         } catch (e: ProjectNotFoundException) {
             viewer.display("Failed to create state: Project not found")
         }catch (e: BlankInputException) {
             viewer.display("Input cannot be blank")
         }catch (e: Exception) {
-            viewer.display("Failed to create state: ${e.message}")
+            viewer.display("Failed to create state: ${e.message}".red())
         }
     }
 
-    private fun updateProjectState() = runBlocking{
+    private fun updateProjectState() = runBlocking {
         try {
-            viewer.display("Enter the state ID to update:")
-            val stateId = reader.readString()
-            viewer.display("Enter the new state name:")
+            val project = getProjectByIdUseCase(projectId)
+
+            viewer.display("Enter the index of the state to update:".cyan())
+            val input = reader.readString()
+            val stateIndex = input.toIntOrNull()?.minus(1)
+
+            if (stateIndex == null || stateIndex !in project.states.indices) {
+                viewer.display("Invalid index. Please try again.".red())
+                return@runBlocking
+            }
+
+            val stateId = project.states[stateIndex].id
+            viewer.display("Enter the new state name:".cyan())
             val newStateName = reader.readString()
+
             updateStateUseCase(newStateName, stateId, projectId)
-            viewer.display("State updated successfully.")
+            viewer.display("State updated successfully.".green())
+
         } catch (e: TaskStateNotFoundException) {
             viewer.display("Failed to update state: State not found")
         }catch (e: ProjectNotFoundException) {
@@ -107,22 +126,33 @@ class ProjectStatusUI(
         }catch (e: BlankInputException) {
             viewer.display("Input cannot be blank")
         }catch (e: Exception) {
-            viewer.display("Failed to update state: ${e.message}")
+            viewer.display("Failed to update state: ${e.message}".red())
         }
     }
 
-    private fun deleteProjectState() = runBlocking{
+    private fun deleteProjectState() = runBlocking {
         try {
-            viewer.display("Enter the state ID to delete:")
-            val stateId = reader.readString()
+            val project = getProjectByIdUseCase(projectId)
+
+            viewer.display("Enter the index of the state to delete:".cyan())
+            val input = reader.readString()
+            val stateIndex = input.toIntOrNull()?.minus(1)
+
+            if (stateIndex == null || stateIndex !in project.states.indices) {
+                viewer.display("Invalid index. Please try again.".red())
+                return@runBlocking
+            }
+
+            val stateId = project.states[stateIndex].id
             deleteStateUseCase(stateId, projectId)
-            viewer.display("State deleted successfully.")
+            viewer.display("State deleted successfully.".green())
+
         } catch (e: ProjectNotFoundException) {
             viewer.display("Failed to delete state: Project not found")
         } catch (e: BlankInputException) {
             viewer.display("Input cannot be blank")
         }catch (e: Exception) {
-            viewer.display("Failed to delete state: ${e.message}")
+            viewer.display("Failed to delete state: ${e.message}".red())
         }
     }
 
@@ -139,7 +169,8 @@ class ProjectStatusUI(
                 deleteStateUseCase = getKoin().get(),
                 getProjectByIdUseCase = getKoin().get(),
                 viewer = getKoin().get(),
-                reader = getKoin().get()
+                reader = getKoin().get(),
+                tablePrinter = getKoin().get()
             )
         }
     }

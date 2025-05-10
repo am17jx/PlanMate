@@ -6,14 +6,15 @@ import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Task
-import org.example.logic.useCase.DeleteTaskUseCase
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
+import org.example.logic.useCase.DeleteTaskUseCase
 import org.example.logic.useCase.UpdateTaskUseCase
 import org.example.presentation.screens.ShowTaskInformation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -23,9 +24,11 @@ class ShowTaskInformationTest {
     private lateinit var updateTaskUseCase: UpdateTaskUseCase
     private lateinit var deleteTaskUseCase: DeleteTaskUseCase
     private lateinit var getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase
+    private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
     private lateinit var viewer: Viewer
     private lateinit var reader: Reader
     private lateinit var showTaskInformation: ShowTaskInformation
+    private val tablePrinter = mockk<TablePrinter>(relaxed = true)
 
     private val sampleTask =
         Task(
@@ -68,16 +71,19 @@ class ShowTaskInformationTest {
         viewer = mockk(relaxed = true)
         reader = mockk(relaxed = true)
 
-        showTaskInformation =
-            ShowTaskInformation(
-                getTaskByIdUseCase,
-                getStateNameUseCase,
-                updateTaskUseCase,
-                deleteTaskUseCase,
-                getEntityAuditLogsUseCase,
-                viewer,
-                reader,
-            )
+
+        showTaskInformation = ShowTaskInformation(
+            tablePrinter = tablePrinter,
+            getTaskByIdUseCase = getTaskByIdUseCase,
+            getStateNameUseCase = getStateNameUseCase,
+            updateTaskUseCase = updateTaskUseCase,
+            deleteTaskUseCase = deleteTaskUseCase,
+            getEntityAuditLogsUseCase = getEntityAuditLogsUseCase,
+            viewer = viewer,
+            reader = reader,
+            getProjectByIdUseCase = getProjectByIdUseCase,
+            onNavigateBack = {}
+        )
     }
 
     @Test

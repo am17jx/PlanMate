@@ -3,6 +3,8 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import org.example.logic.useCase.CreateMateUseCase
 import org.example.logic.utils.*
+import presentation.utils.cyan
+import presentation.utils.green
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -18,7 +20,7 @@ class CreateUserUi(
     }
 
     private fun run() = runBlocking{
-        viewer.display("\n===== Create New Mate User =====")
+        viewer.display("\n========== Create New Mate User ==========".cyan())
         viewer.display("Enter username: ")
         val username = reader.readString()
 
@@ -27,7 +29,7 @@ class CreateUserUi(
 
         try {
             val user = createMateUseCase(username, password)
-            viewer.display("✅ User '${user.username}' created successfully with role: ${user.role}")
+            viewer.display("✅ User '${user.username}' created successfully".green())
         } catch (e: BlankInputException) {
             viewer.display("❌ Error: Username or Password cannot be blank")
         } catch (e: InvalidUsernameException) {
