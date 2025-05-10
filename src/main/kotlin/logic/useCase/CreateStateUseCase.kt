@@ -38,7 +38,7 @@ class CreateStateUseCase(
     private suspend fun getProject(projectId: String): Project =
         (
             projectRepository.getProjectById(projectId)
-                ?: throw ProjectNotFoundException("Project not found")
+                ?: throw ProjectNotFoundException()
         )
 
 
@@ -47,8 +47,8 @@ class CreateStateUseCase(
         projectId: String,
     ) {
         when {
-            stateName.isBlank() -> throw BlankInputException("State name cannot be blank")
-            projectId.isBlank() -> throw BlankInputException("Project id cannot be blank")
+            stateName.isBlank() -> throw BlankInputException()
+            projectId.isBlank() -> throw BlankInputException()
         }
     }
 

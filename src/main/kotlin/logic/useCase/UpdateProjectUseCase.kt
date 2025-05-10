@@ -20,7 +20,7 @@ class UpdateProjectUseCase(
     private val createAuditLogUseCase: CreateAuditLogUseCase
 ) {
     suspend operator fun invoke(updatedProject: Project): Project {
-        if (updatedProject.name.isEmpty()) throw BlankInputException(BLANK_PROJECT_NAME_EXCEPTION_MESSAGE)
+        if (updatedProject.name.isEmpty()) throw BlankInputException()
         val originalProject = currentOriginalProject(updatedProject)
         detectChanges(updatedProject, originalProject)
         return saveUpdatedProject(originalProject, updatedProject)
@@ -44,27 +44,14 @@ class UpdateProjectUseCase(
 
 
 
-    private fun detectChanges(
-        originalProject: Project,
-        newProject: Project,
-    ) {
-        if ((originalProject.name == newProject.name) &&
-            (originalProject.states.toSet() == newProject.states.toSet())
-        ) {
-            throw ProjectNotChangedException(
-                "No changes detected ^_^",
-            )
-        }
+    private fun detectChanges(originalProject: Project, newProject: Project) {
+        if ((originalProject.name == newProject.name) && (originalProject.states.toSet() == newProject.states.toSet())) throw ProjectNotChangedException()
     }
 
-    private suspend fun currentOriginalProject(updatedProject: Project): Project =
-        projectRepository.getProjectById(updatedProject.id) ?: throw ProjectNotFoundException(
-            PROJECT_NOT_FOUND_EXCEPTION_MESSAGE,
-        )
-
-    companion object {
-        const val PROJECT_NOT_CHANGED_EXCEPTION_MESSAGE = "Project Not changed"
-        const val BLANK_PROJECT_NAME_EXCEPTION_MESSAGE = "project name shouldn't be empty"
-        const val PROJECT_NOT_FOUND_EXCEPTION_MESSAGE = "Project not found"
+    private suspend fun currentOriginalProject(
+        updatedProject: Project
+    ): Project {
+        return projectRepository.getProjectById(updatedProject.id) ?: throw ProjectNotFoundException()
     }
+
 }

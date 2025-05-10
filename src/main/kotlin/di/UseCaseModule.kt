@@ -26,6 +26,7 @@ val useCaseModule =
         singleOf(::GetStateNameUseCase)
         singleOf(::GetTaskByIdUseCase)
         singleOf(::LoginUserUseCase)
+        singleOf(::LogoutUseCase)
         singleOf(::UpdateProjectUseCase)
         singleOf(::UpdateStateUseCase)
         singleOf(::UpdateTaskUseCase)

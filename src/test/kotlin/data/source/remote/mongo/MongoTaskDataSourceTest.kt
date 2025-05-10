@@ -1,28 +1,33 @@
 package data.source.remote.mongo
 
-import org.junit.jupiter.api.Assertions.*
-
+import com.mongodb.MongoTimeoutException
 import com.mongodb.client.model.Filters
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.InsertOneResult
 import com.mongodb.client.result.UpdateResult
 import com.mongodb.kotlin.client.coroutine.FindFlow
 import com.mongodb.kotlin.client.coroutine.MongoCollection
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.example.data.source.remote.mongo.utils.mapper.toTaskDTO
 import org.example.data.source.remote.models.TaskDTO
 import org.example.data.source.remote.mongo.MongoTaskDataSource
+import org.example.data.source.remote.mongo.utils.mapper.toTaskDTO
 import org.example.data.utils.Constants.ID
 import org.example.data.utils.Constants.STATE_ID_FIELD
 import org.example.logic.models.Task
-import org.example.logic.utils.*
-import org.junit.jupiter.api.Test
-
+import org.example.logic.utils.TaskCreationFailedException
+import org.example.logic.utils.TaskDeletionFailedException
+import org.example.logic.utils.TaskNotChangedException
+import org.example.logic.utils.TaskNotFoundException
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class MongoTaskDataSourceTest {
@@ -57,11 +62,11 @@ class MongoTaskDataSourceTest {
         }
 
         @Test
-        fun `createTask should throw CreationItemFailedException when creation task failed MongoDB`() = runTest {
+        fun `createTask should throw TaskCreationFailedException when creation task failed MongoDB`() = runTest {
 
-            coEvery { mongoClient.insertOne(testTaskDTOs[0], any()) } throws CreationItemFailedException("")
+            coEvery { mongoClient.insertOne(testTaskDTOs[0], any()) } throws TaskCreationFailedException()
 
-            assertThrows<CreationItemFailedException> { mongoTaskDataSource.createTask(task = testTasks[0]) }
+            assertThrows<TaskCreationFailedException> { mongoTaskDataSource.createTask(task = testTasks[0]) }
         }
 
     }
@@ -83,12 +88,12 @@ class MongoTaskDataSourceTest {
         }
 
         @Test
-        fun `updateTask should throw UpdateItemFailedException  when update task fails`() = runTest {
+        fun `updateTask should throw TaskNotChangedException  when update task fails`() = runTest {
             coEvery {
                 mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id), testTaskDTOs[0], any())
-            } throws UpdateItemFailedException("")
+            } throws TaskNotChangedException()
 
-            assertThrows<UpdateItemFailedException> { mongoTaskDataSource.updateTask(testTasks[0]) }
+            assertThrows<TaskNotChangedException> { mongoTaskDataSource.updateTask(testTasks[0]) }
         }
 
     }
@@ -114,7 +119,6 @@ class MongoTaskDataSourceTest {
             coEvery { findFlow.firstOrNull() } returns testTaskDTOs[0]
 
             val result = mongoTaskDataSource.getTaskById("3")
-            advanceUntilIdle()
 
             coVerify(exactly = 1) { mongoClient.find(filter = any()) }
 
@@ -132,23 +136,23 @@ class MongoTaskDataSourceTest {
         }
 
         @Test
-        fun `getAllTasks should throw GetItemByIdFailedException when get all tasks fails`() = runTest {
+        fun `getAllTasks should throw TaskNotFoundException when get all tasks fails`() = runTest {
 
             every {
                 mongoClient.find(filter = any())
-            } throws GetItemsFailedException("")
+            } throws TaskNotFoundException()
 
-            assertThrows<GetItemsFailedException> { mongoTaskDataSource.getAllTasks() }
+            assertThrows<TaskNotFoundException> { mongoTaskDataSource.getAllTasks() }
         }
 
         @Test
-        fun `geTaskById should throw GetItemByIdFailedException when get task by Id fails`() = runTest {
+        fun `geTaskById should throw TaskNotFoundException when get task by Id fails`() = runTest {
 
             every {
                 mongoClient.find(filter = any())
-            } throws GetItemByIdFailedException("")
+            } throws TaskNotFoundException()
 
-            assertThrows<GetItemByIdFailedException> { mongoTaskDataSource.getTaskById("1") }
+            assertThrows<TaskNotFoundException> { mongoTaskDataSource.getTaskById("1") }
         }
 
     }
@@ -172,9 +176,9 @@ class MongoTaskDataSourceTest {
         fun `deleteTask should throw DeleteItemFailedException when deleting task by ID fails`() =
             runTest {
 
-                coEvery { mongoClient.deleteOne(filter = any(), options = any()) } throws DeleteItemFailedException("")
+                coEvery { mongoClient.deleteOne(filter = any(), options = any()) } throws TaskDeletionFailedException()
 
-                assertThrows<DeleteItemFailedException> { mongoTaskDataSource.deleteTask("1") }
+                assertThrows<TaskDeletionFailedException> { mongoTaskDataSource.deleteTask("1") }
             }
 
         @Test
@@ -191,19 +195,19 @@ class MongoTaskDataSourceTest {
             mongoTaskDataSource.deleteTasksByStateId(stateId, taskId)
 
             coVerify {
-                mongoClient.deleteOne(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID, taskId)), any())
+                mongoClient.deleteMany(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID, taskId)), any())
             }
         }
 
         @Test
-        fun `deleteTasksByStateId should throw DeleteItemFailedException when deleting task by StateId fails`() =
+        fun `deleteTasksByStateId should throw MongoTimeoutException when when happen incorrect configuration`() =
             runTest {
                 val stateId = "open"
                 val taskId = "6"
 
-                coEvery { mongoClient.deleteOne(filter = any(), options = any()) } throws DeleteItemFailedException("")
+                coEvery { mongoClient.deleteMany(filter = any(), options = any()) } throws MongoTimeoutException("Error")
 
-                assertThrows<DeleteItemFailedException> { mongoTaskDataSource.deleteTasksByStateId(stateId, taskId) }
+                assertThrows<MongoTimeoutException> { mongoTaskDataSource.deleteTasksByStateId(stateId, taskId) }
             }
 
     }

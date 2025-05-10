@@ -57,7 +57,7 @@ class UpdateProjectUseCaseTest {
     fun `should throws ProjectNotFoundException when project does not exist`() = runTest {
         val updatedProject = createProject(name = "updated project")
         coEvery { currentUserUseCase() } returns createUser(role = UserRole.ADMIN)
-        coEvery { projectRepository.getProjectById(updatedProject.id) } throws ProjectNotFoundException("No Project Found")
+        coEvery { projectRepository.getProjectById(updatedProject.id) } throws ProjectNotFoundException()
 
         assertThrows<ProjectNotFoundException> {
             updateProjectUseCase(updatedProject)
@@ -69,9 +69,9 @@ class UpdateProjectUseCaseTest {
         val updatedProject = createProject(name = "Plan")
         coEvery { currentUserUseCase() } returns createUser(role = UserRole.ADMIN)
         coEvery { projectRepository.getProjectById(updatedProject.id) } returns createProject()
-        coEvery { auditLogRepository.createAuditLog(any()) } throws UpdateItemFailedException("")
+        coEvery { auditLogRepository.createAuditLog(any()) } throws ProjectNotChangedException()
 
-        assertThrows<UpdateItemFailedException> {
+        assertThrows<ProjectNotChangedException> {
             updateProjectUseCase(updatedProject)
         }
     }
@@ -79,7 +79,7 @@ class UpdateProjectUseCaseTest {
     @Test
     fun `should throw NoLoggedInUserException when no user is logged in`() = runTest {
         val updatedProject = createProject(name = "PlanMate")
-        coEvery { currentUserUseCase() } throws NoLoggedInUserException("No user is currently logged in.")
+        coEvery { currentUserUseCase() } throws NoLoggedInUserException()
 
         assertThrows<NoLoggedInUserException> {
             updateProjectUseCase(updatedProject)
@@ -90,7 +90,7 @@ class UpdateProjectUseCaseTest {
     fun `should throw ProjectNotFoundException when project does not exist`() = runTest {
         val updatedProject = createProject(name = "Updated")
         coEvery { currentUserUseCase() } returns createUser(role = UserRole.ADMIN)
-        coEvery { projectRepository.getProjectById(updatedProject.id) } throws ProjectNotFoundException("No Project Found")
+        coEvery { projectRepository.getProjectById(updatedProject.id) } throws ProjectNotFoundException()
 
         assertThrows<ProjectNotFoundException> {
             updateProjectUseCase(updatedProject)

@@ -6,6 +6,7 @@ import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.TaskStateNotFoundException
 import org.example.logic.utils.StateNotFoundException
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -49,12 +50,12 @@ class UpdateStateUseCase(
         states: List<State>,
         stateId: String,
     ) {
-        if (states.none { state -> state.id == stateId }) throw StateNotFoundException("State not found")
+        if (states.none { state -> state.id == stateId }) throw TaskStateNotFoundException()
     }
 
     private suspend fun getProject(projectId: String): Project =
         projectRepository.getProjectById(projectId)
-            ?: throw ProjectNotFoundException("Project not found")
+            ?: throw ProjectNotFoundException()
 
 
 
@@ -64,9 +65,9 @@ class UpdateStateUseCase(
         projectId: String,
     ) {
         when {
-            newStateName.isBlank() -> throw BlankInputException("State name cannot be blank")
-            stateId.isBlank() -> throw BlankInputException("State id cannot be blank")
-            projectId.isBlank() -> throw BlankInputException("Project id cannot be blank")
+            newStateName.isBlank() -> throw BlankInputException()
+            stateId.isBlank() -> throw BlankInputException()
+            projectId.isBlank() -> throw BlankInputException()
         }
     }
 

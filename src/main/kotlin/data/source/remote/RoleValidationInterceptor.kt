@@ -3,7 +3,7 @@ package org.example.data.source.remote
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.utils.NoLoggedInUserException
-import org.example.logic.utils.UnauthorizedException
+import org.example.logic.utils.UnauthorizedAccessException
 
 
 class RoleValidationInterceptor(
@@ -11,10 +11,10 @@ class RoleValidationInterceptor(
 ) {
     suspend fun <T> validateRole(requiredRoles: List<UserRole> = listOf(UserRole.ADMIN), operation: suspend () -> T): T {
         val currentUser = authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No logged-in user found")
+            ?: throw NoLoggedInUserException()
 
         if (currentUser.role !in requiredRoles) {
-            throw UnauthorizedException("User does not have the required role: $requiredRoles")
+            throw UnauthorizedAccessException()
         }
         return operation()
     }

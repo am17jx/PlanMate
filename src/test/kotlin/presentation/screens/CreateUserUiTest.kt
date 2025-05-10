@@ -8,7 +8,7 @@ import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.useCase.CreateMateUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.InvalidUserNameInputException
+import org.example.logic.utils.InvalidUsernameException
 import org.example.logic.utils.UserAlreadyExistsException
 import org.junit.Test
 import presentation.utils.io.Reader
@@ -39,7 +39,7 @@ class CreateUserUiTest {
     fun `should return error message when username is blank`() {
         val exceptionMessage = "Username cannot be blank"
         every { readerMock.readString() } returns "" andThen "password123"
-        coEvery { createMateUseCase(any(), any()) } throws BlankInputException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws BlankInputException()
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -51,7 +51,7 @@ class CreateUserUiTest {
     fun `should return error message when password is blank`() {
         val exceptionMessage = "Password cannot be blank"
         every { readerMock.readString() } returns "newUser" andThen ""
-        coEvery { createMateUseCase(any(), any()) } throws BlankInputException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws BlankInputException()
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -63,7 +63,7 @@ class CreateUserUiTest {
     fun `should return error message when username is invalid`() {
         val exceptionMessage = "Invalid username input"
         every { readerMock.readString() } returns "invalid#user" andThen "password123"
-        coEvery { createMateUseCase(any(), any()) } throws InvalidUserNameInputException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws InvalidUsernameException()
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 
@@ -75,7 +75,7 @@ class CreateUserUiTest {
     fun `should return error message when user already exists`() {
         val exceptionMessage = "User already exists"
         every { readerMock.readString() } returns "existingUser" andThen "password123"
-        coEvery { createMateUseCase(any(), any()) } throws UserAlreadyExistsException(exceptionMessage)
+        coEvery { createMateUseCase(any(), any()) } throws UserAlreadyExistsException()
 
         val createUserUi = CreateUserUi(createMateUseCase, readerMock, viewerMock, onBackMock)
 

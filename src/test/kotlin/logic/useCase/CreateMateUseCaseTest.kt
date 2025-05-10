@@ -2,7 +2,6 @@ package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.logic.models.User
@@ -10,8 +9,7 @@ import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.useCase.CreateMateUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.InvalidUserNameInputException
-import org.example.logic.utils.UserAlreadyExistsException
+import org.example.logic.utils.InvalidUsernameException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -64,7 +62,7 @@ class CreateMateUseCaseTest {
 
         coEvery { authenticationRepository.getAllUsers() } returns users
 
-        assertThrows<InvalidUserNameInputException> { createUserUseCase("new testUsername", "testPassword") }
+        assertThrows<InvalidUsernameException> { createUserUseCase("new testUsername", "testPassword") }
     }
 
 }
