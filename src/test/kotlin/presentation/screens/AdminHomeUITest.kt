@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 class AdminHomeUITest {
-
     private val originalOut = System.out
     private val originalIn = System.`in`
     private lateinit var outContent: ByteArrayOutputStream
@@ -20,6 +19,7 @@ class AdminHomeUITest {
     private var navigateToCreateProjectCalled = false
     private var navigateToCreateUserCalled = false
     private var navigateToBackCalled = false
+    private var navigateToExitCalled = false
 
     @BeforeEach
     fun setUp() {
@@ -43,17 +43,20 @@ class AdminHomeUITest {
         System.setIn(inputStream)
 
         AdminHomeUI(
-            viewer = object : Viewer {
-            override fun display(message: String?) {
-                println(message)
-            }
-        },
+            viewer =
+                object : Viewer {
+                    override fun display(message: String?) {
+                        println(message)
+                    }
+                },
             reader = ConsoleReader(),
             userRole = UserRole.ADMIN,
             onNavigateToShowAllProjectsUI = { navigateToShowAllProjectsCalled = true },
             onNavigateToCreateProject = { navigateToCreateProjectCalled = true },
             onNavigateToCreateUser = { navigateToCreateUserCalled = true },
-            onNavigateToOnBackStack = { navigateToBackCalled = true })
+            onNavigateToOnBackStack = { navigateToBackCalled = true },
+            onNavigateToOnExit = { navigateToExitCalled = true },
+        )
     }
 
     @Test
