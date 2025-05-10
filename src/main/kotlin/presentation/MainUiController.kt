@@ -40,6 +40,7 @@ class MainUiController(
                     onNavigateToCreateProject = { navigationController.navigateTo(Route.CreateProjectRoute) },
                     onNavigateToCreateUser = { navigationController.navigateTo(Route.CreateUserRoute) },
                     onNavigateToOnBackStack = { navigationController.popBackStack() },
+                    onNavigateToOnExit = { onFinish() },
                     viewer = viewer,
                     reader = reader,
                     userRole = UserRole.ADMIN,
@@ -56,6 +57,9 @@ class MainUiController(
                     },
                     onNavigateBack = {
                         navigationController.popBackStack()
+                    },
+                    onNavigateToExit = {
+                        onFinish()
                     },
                     projectScreensOptions = userFactory(route.userRole),
                 )

@@ -26,7 +26,8 @@ class ProjectsOverviewUI(
     private val viewer: Viewer,
     private val reader: Reader,
     private val tablePrinter: TablePrinter,
-    private val onNavigateBack: () -> Unit
+    private val onNavigateBack: () -> Unit,
+    private val onNavigateToExit: () -> Unit,
 ) {
     private val options: Map<String, String> = projectScreensOptions.showAllProjectsOptions()
 
@@ -34,46 +35,44 @@ class ProjectsOverviewUI(
         showMainMenu()
     }
 
-    private fun showAllProjects() = runBlocking {
-        try {
-            val projects = getAllProjectsUseCase()
+    private fun showAllProjects() =
+        runBlocking {
+            try {
+                val projects = getAllProjectsUseCase()
 
-            if (projects.isEmpty()) {
-                displayNoProjectsMessage()
-                return@runBlocking
+                if (projects.isEmpty()) {
+                    displayNoProjectsMessage()
+                    return@runBlocking
+                }
+
+                showProjectsInTable(projects)
+            } catch (e: Exception) {
+                displayLoadingError(e)
             }
-
-            showProjectsInTable(projects)
-
-        } catch (e: Exception) {
-            displayLoadingError(e)
         }
-    }
 
     private fun displayNoProjectsMessage() {
         viewer.display("No projects found.")
     }
 
-    private fun showProjectsInTable(projects:List<Project>){
-        val projectIds= projects.map { it.id }
+    private fun showProjectsInTable(projects: List<Project>) {
+        val projectIds = projects.map { it.id }
         val projectNames = projects.map { it.name }
         tablePrinter.printTable(
             headers = listOf("Project ID", "Project Name"),
-            columnValues = listOf(projectIds,projectNames),
+            columnValues = listOf(projectIds, projectNames),
         )
     }
-
 
     private fun displayLoadingError(e: Exception) {
         viewer.display("Failed to load projects: ${e.message}")
     }
 
-
     private fun showMainMenu() {
         while (true) {
             showAllProjects()
             viewer.display("\n=== Project Menu ===")
-            val sortedOptions=options.toSortedMap()
+            val sortedOptions = options.toSortedMap()
             sortedOptions.forEach { option ->
                 option.value.let {
                     viewer.display(it)
@@ -93,41 +92,44 @@ class ProjectsOverviewUI(
                     back()
                     return
                 }
+                MainMenuOption.EXIT -> onNavigateToExit()
 
                 null -> viewer.display("Invalid input. Please try again.")
             }
         }
     }
 
-    private fun showProjectLogsInTable() = runBlocking{
-        try {
-            viewer.display("Please enter the project ID:")
-            val projectId = reader.readString()
-            val projectLogs = getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
-            val actions = projectLogs.map { it.action }
-            tablePrinter.printTable(
-                headers = listOf("Actions"),
-                columnValues = listOf( actions)
-            )
-        }catch (e: Exception){
-            viewer.display("Failed to load project logs: ${e.message}")
+    private fun showProjectLogsInTable() =
+        runBlocking {
+            try {
+                viewer.display("Please enter the project ID:")
+                val projectId = reader.readString()
+                val projectLogs = getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
+                val actions = projectLogs.map { it.action }
+                tablePrinter.printTable(
+                    headers = listOf("Actions"),
+                    columnValues = listOf(actions),
+                )
+            } catch (e: Exception) {
+                viewer.display("Failed to load project logs: ${e.message}")
+            }
         }
-    }
 
     private fun back() {
-            onNavigateBack()
+        onNavigateBack()
     }
 
-    private fun deleteProject() = runBlocking{
-        try {
-            viewer.display("Please enter the project ID:")
-            val projectId = reader.readString()
-            deleteProjectUseCase(projectId)
-            viewer.display("Project deleted successfully.")
-        } catch (e: Exception) {
-            viewer.display("Failed to delete project: ${e.message}")
+    private fun deleteProject() =
+        runBlocking {
+            try {
+                viewer.display("Please enter the project ID:")
+                val projectId = reader.readString()
+                deleteProjectUseCase(projectId)
+                viewer.display("Project deleted successfully.")
+            } catch (e: Exception) {
+                viewer.display("Failed to delete project: ${e.message}")
+            }
         }
-    }
 
     private fun updateProject() {
         try {
@@ -150,45 +152,53 @@ class ProjectsOverviewUI(
         }
     }
 
-    private fun updateProjectName() = runBlocking{
-        try {
-            viewer.display("Please enter the project ID:")
-            val projectId = reader.readString()
+    private fun updateProjectName() =
+        runBlocking {
+            try {
+                viewer.display("Please enter the project ID:")
+                val projectId = reader.readString()
 
-            viewer.display("Please enter new project name:")
-            val newName = reader.readString()
+                viewer.display("Please enter new project name:")
+                val newName = reader.readString()
 
-            val project = getProjectByIdUseCase(projectId)
-            val updatedProject = project.copy(name = newName)
+                val project = getProjectByIdUseCase(projectId)
+                val updatedProject = project.copy(name = newName)
 
-            updateProjectUseCase(updatedProject)
-            viewer.display("Project name updated successfully.")
-        } catch (e: Exception) {
-            viewer.display("Failed to update project name: ${e.message}")
+                updateProjectUseCase(updatedProject)
+                viewer.display("Project name updated successfully.")
+            } catch (e: Exception) {
+                viewer.display("Failed to update project name: ${e.message}")
+            }
         }
-    }
 
     private fun showProjectDetails() {
-            viewer.display("Please enter the project ID:")
-            val projectId = reader.readString()
-            onNavigateToShowProjectTasksUI(projectId)
+        viewer.display("Please enter the project ID:")
+        val projectId = reader.readString()
+        onNavigateToShowProjectTasksUI(projectId)
     }
 
-    enum class MainMenuOption(val key: String) {
+    enum class MainMenuOption(
+        val key: String,
+    ) {
         SHOW_DETAILS("1"),
         UPDATE_PROJECT("2"),
         DELETE_PROJECT("3"),
         SHOW_PROJECT_LOGS("4"),
-        BACK("5");
+        BACK("5"),
+        EXIT("0"),
+        ;
 
         companion object {
             fun fromKey(key: String): MainMenuOption? = entries.find { it.key == key }
         }
     }
 
-    enum class UpdateProjectOption(val key: String) {
+    enum class UpdateProjectOption(
+        val key: String,
+    ) {
         UPDATE_NAME("1"),
-        MANAGE_STATUS("2");
+        MANAGE_STATUS("2"),
+        ;
 
         companion object {
             fun fromKey(key: String): UpdateProjectOption? = entries.find { it.key == key }
@@ -200,9 +210,10 @@ class ProjectsOverviewUI(
             onNavigateToShowProjectTasksUI: (id: String) -> Unit,
             onNavigateToProjectStatusUI: (id: String) -> Unit,
             onNavigateBack: () -> Unit,
-            projectScreensOptions: ProjectScreensOptions
-        ): ProjectsOverviewUI {
-            return ProjectsOverviewUI(
+            onNavigateToExit: () -> Unit,
+            projectScreensOptions: ProjectScreensOptions,
+        ): ProjectsOverviewUI =
+            ProjectsOverviewUI(
                 onNavigateToShowProjectTasksUI = onNavigateToShowProjectTasksUI,
                 onNavigateToProjectStatusUI = onNavigateToProjectStatusUI,
                 projectScreensOptions = projectScreensOptions,
@@ -214,8 +225,8 @@ class ProjectsOverviewUI(
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get(),
-                onNavigateBack = onNavigateBack
+                onNavigateBack = onNavigateBack,
+                onNavigateToExit = onNavigateToExit,
             )
-        }
     }
 }
