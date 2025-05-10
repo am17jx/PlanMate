@@ -20,7 +20,7 @@ class GetProjectByIdUseCaseTest {
     private val project = Project(
         id = "123456",
         name = "spacecraft work",
-        states = listOf(
+        tasksStatesIds = listOf(
             State(id = "state-001", title = "Design Phase"),
             State(id = "state-002", title = "Prototype Build"),
         ),
