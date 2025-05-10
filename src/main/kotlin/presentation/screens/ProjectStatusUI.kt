@@ -102,18 +102,18 @@ class ProjectStatusUI(
 
     private fun updateProjectState() = runBlocking {
         try {
-            val project = getProjectByIdUseCase(projectId)
+            val projectStates = getProjectStatesUseCase(projectId)
 
             viewer.display("Enter the index of the state to update:".cyan())
             val input = reader.readString()
             val stateIndex = input.toIntOrNull()?.minus(1)
 
-            if (stateIndex == null || stateIndex !in project.states.indices) {
+            if (stateIndex == null || stateIndex !in projectStates.indices) {
                 viewer.display("Invalid index. Please try again.".red())
                 return@runBlocking
             }
 
-            val stateId = project.states[stateIndex].id
+            val stateId = projectStates[stateIndex].id
             viewer.display("Enter the new state name:".cyan())
             val newStateName = reader.readString()
 
@@ -133,18 +133,18 @@ class ProjectStatusUI(
 
     private fun deleteProjectState() = runBlocking {
         try {
-            val project = getProjectByIdUseCase(projectId)
+            val projectStates = getProjectStatesUseCase(projectId)
 
             viewer.display("Enter the index of the state to delete:".cyan())
             val input = reader.readString()
             val stateIndex = input.toIntOrNull()?.minus(1)
 
-            if (stateIndex == null || stateIndex !in project.states.indices) {
+            if (stateIndex == null || stateIndex !in projectStates.indices) {
                 viewer.display("Invalid index. Please try again.".red())
                 return@runBlocking
             }
 
-            val stateId = project.states[stateIndex].id
+            val stateId = projectStates[stateIndex].id
             deleteStateUseCase(stateId, projectId)
             viewer.display("State deleted successfully.".green())
 

@@ -21,7 +21,7 @@ class MongoTaskStateDataSource(
             mongoClient.insertOne(taskState.toStateDTO())
             return taskState
         } catch (e: Exception) {
-            throw CreationItemFailedException("taskState creation failed ${e.message}")
+            throw TaskCreationFailedException()
 
         }
     }
@@ -31,7 +31,7 @@ class MongoTaskStateDataSource(
             mongoClient.replaceOne(Filters.eq(ID, updatedTaskState.id), updatedTaskState.toStateDTO())
             return updatedTaskState
         } catch (e: Exception) {
-            throw UpdateItemFailedException("taskState update failed ${e.message}")
+            throw TaskNotChangedException()
 
         }
     }
@@ -40,7 +40,7 @@ class MongoTaskStateDataSource(
         try {
             mongoClient.deleteOne(Filters.eq(ID, taskStateId))
         } catch (e: Exception) {
-            throw DeleteItemFailedException("taskState delete failed ${e.message}")
+            throw TaskDeletionFailedException()
         }
     }
 
@@ -49,7 +49,7 @@ class MongoTaskStateDataSource(
         try {
             return mongoClient.find(Filters.eq(ID, taskStateId)).firstOrNull()?.toState()
         } catch (e: Exception) {
-            throw GetItemByIdFailedException("task get by id failed ${e.message}")
+            throw TaskNotFoundException()
         }
 
     }
@@ -60,7 +60,7 @@ class MongoTaskStateDataSource(
                 .toList()
                 .map { it.toState() }
         } catch (e: Exception) {
-            throw GetItemByIdFailedException("Failed to get project task states: ${e.message}")
+            throw  TaskNotFoundException()
         }
     }
 

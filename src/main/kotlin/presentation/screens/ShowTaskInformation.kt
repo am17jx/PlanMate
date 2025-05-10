@@ -3,7 +3,9 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Project
+import org.example.logic.models.State
 import org.example.logic.models.Task
+import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.*
 import org.example.logic.utils.*
 import org.koin.java.KoinJavaComponent.getKoin
@@ -18,6 +20,7 @@ class ShowTaskInformation(
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
+    private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val viewer: Viewer,
     private val reader: Reader,
     private val tablePrinter: TablePrinter,
@@ -30,12 +33,12 @@ class ShowTaskInformation(
                 val task = getTaskByIdUseCase(taskId)
                 val stateName = getStateNameUseCase(taskId)
                 val project = getProjectByIdUseCase(task.projectId)
-
+                val projectTests = getProjectStatesUseCase(task.projectId)
                 displayTaskDetails(task, stateName)
                 displayMenu()
 
                 when (reader.readString().trim()) {
-                    "1" -> updateTask(task, project)
+                    "1" -> updateTask(task, projectTests)
                     "2" -> {
                         deleteTask(taskId)
                         isRunning = false
@@ -92,15 +95,16 @@ class ShowTaskInformation(
         viewer.display("Enter your choice:")
     }
 
-    private fun updateTask(task: Task, project: Project) = runBlocking {
+    private fun updateTask(task: Task, projectState: List<State>) = runBlocking {
+     
         try {
             viewer.display("Enter new task name:")
             val newName = reader.readString().takeIf { it.isNotBlank() } ?: task.name
 
             viewer.display("Select a new state from the following list:")
 
-            val stateNames = project.states.map { it.title }
-            val stateIds = project.states.map { it.id }
+            val stateNames = projectState.map { it.title }
+            val stateIds = projectState.map { it.id }
             val headers = listOf("Index", "State Name")
             val columnValues = listOf(
                 stateNames.indices.map { (it + 1).toString() },
@@ -187,7 +191,8 @@ class ShowTaskInformation(
                 getProjectByIdUseCase = getKoin().get(),
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
-                tablePrinter = getKoin().get()
+                tablePrinter = getKoin().get(),
+                getProjectStatesUseCase =  getKoin().get(),
             )
         }
     }

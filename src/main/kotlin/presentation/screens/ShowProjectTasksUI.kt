@@ -3,6 +3,7 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
+import org.example.logic.models.State
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectStatesUseCase
@@ -29,6 +30,7 @@ class ShowProjectTasksUI(
     private val tablePrinter: TablePrinter
 ) {
     private lateinit var project: Project
+    private lateinit var projectStates: List<State>
     private lateinit var projectTasks: List<Task>
 
     init {
@@ -39,6 +41,7 @@ class ShowProjectTasksUI(
         viewer.display("Loading...")
         try {
             project = getProjectByIdUseCase(projectId)
+            projectStates = getProjectStatesUseCase(projectId)
             loadTasks()
         } catch (e: Exception) {
             handleError(e)
@@ -54,7 +57,7 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun displaySwimLanesTasksTable() {
+    private suspend fun displaySwimLanesTasksTable() {
         val (statesHeaders, tasksColumns) = getTableHeadersAndColumns()
         tablePrinter.printTable(
             headers = statesHeaders,
@@ -163,8 +166,8 @@ class ShowProjectTasksUI(
     private fun readSelectedState(): String {
         viewer.display("Select a state from the following table:")
 
-        val indices = project.states.indices.map { (it + 1).toString() }
-        val titles = project.states.map { it.title }
+        val indices = projectStates.indices.map { (it + 1).toString() }
+        val titles = projectStates.map { it.title }
 
         tablePrinter.printTable(
             headers = listOf("Index", "State Name"),
@@ -176,10 +179,10 @@ class ShowProjectTasksUI(
             val input = reader.readString()
             val index = input.toIntOrNull()?.minus(1)
 
-            if (index == null || index !in project.states.indices) {
+            if (index == null || index !in projectStates.indices) {
                 viewer.display("Invalid index! Please, try again.")
             } else {
-                return project.states[index].id
+                return projectStates[index].id
             }
         }
     }

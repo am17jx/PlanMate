@@ -1,7 +1,5 @@
 package org.example.data.repository
 
-import org.example.data.source.local.contract.LocalTaskDataSource
-import org.example.data.source.remote.contract.RemoteTaskDataSource
 import org.example.data.source.remote.contract.RemoteTaskStateDataSource
 import org.example.logic.models.State
 import org.example.logic.models.Task

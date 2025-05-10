@@ -7,8 +7,8 @@ import org.example.logic.repositries.TaskRepository
 import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.DeleteItemFailedException
 import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.TaskDeletionFailedException
 
 
 class DeleteStateUseCase(
@@ -23,7 +23,7 @@ class DeleteStateUseCase(
         checkInputValidation(stateId, projectId)
         val project = getProject(projectId)
         val updatedStates = removeState(project, stateId)
-        if (project.tasksStatesIds.size == 1) throw DeleteItemFailedException("Projects States can't be empty")
+        if (project.tasksStatesIds.size == 1) throw TaskDeletionFailedException()
         val projectStateTasks =
             taskRepository.getAllTasks().filter { it.projectId == projectId && it.stateId == stateId }
         for (task in projectStateTasks) {
