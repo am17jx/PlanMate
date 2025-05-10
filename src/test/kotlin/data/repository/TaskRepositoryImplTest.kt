@@ -7,7 +7,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import mockdata.createTask
 import org.example.data.repository.TaskRepositoryImpl
-import org.example.data.source.remote.contract.RemoteTaskDataSource
+import org.example.data.repository.sources.remote.RemoteTaskDataSource
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

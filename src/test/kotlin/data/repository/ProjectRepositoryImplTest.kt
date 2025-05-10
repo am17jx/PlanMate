@@ -5,7 +5,7 @@ import io.mockk.*
 import kotlinx.coroutines.test.runTest
 import org.example.data.repository.ProjectRepositoryImpl
 import org.example.data.source.remote.RoleValidationInterceptor
-import org.example.data.source.remote.contract.RemoteProjectDataSource
+import org.example.data.repository.sources.remote.RemoteProjectDataSource
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.junit.jupiter.api.BeforeEach
