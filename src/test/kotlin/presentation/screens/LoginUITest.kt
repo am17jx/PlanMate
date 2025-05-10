@@ -71,7 +71,7 @@ class LoginUITest {
         )
 
         verify { onNavigateToShowAllProjectsMock(UserRole.USER) }
-        verify (exactly = 6){ viewerMock.display(any()) }
+        verify (exactly = 5){ viewerMock.display(any()) }
     }
 
     @Test
