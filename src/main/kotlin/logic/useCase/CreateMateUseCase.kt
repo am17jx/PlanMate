@@ -3,7 +3,7 @@ package org.example.logic.useCase
 import org.example.logic.models.User
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.InvalidUserNameInputException
+import org.example.logic.utils.InvalidUsernameException
 
 class CreateMateUseCase(
     private val authenticationRepository: AuthenticationRepository,

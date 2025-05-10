@@ -20,19 +20,19 @@ class AuthenticationRepositoryImpl(
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun createMate(username: String, password: String): User {
         return mapExceptionsToDomainException(UserCreationFailedException()) {
-        val hashedPassword = hashWithMD5(password)
-        val user = User(Uuid.random().getCroppedId(),username,hashedPassword, UserRole.USER)
-        remoteAuthenticationDataSource.saveUser(user)
-         user
-    }
+            val hashedPassword = hashWithMD5(password)
+            val user = User(Uuid.random().getCroppedId(), username, hashedPassword, UserRole.USER)
+            remoteAuthenticationDataSource.saveUser(user)
+            user
         }
+    }
 
     override suspend fun login(username: String, password: String): User {
         return mapExceptionsToDomainException(UserNotFoundException()) {
-        val hashedPassword = hashWithMD5(password)
-         remoteAuthenticationDataSource.login(username, hashedPassword)
-    }
+            val hashedPassword = hashWithMD5(password)
+            remoteAuthenticationDataSource.login(username, hashedPassword)
         }
+    }
     override suspend fun logout() {
         remoteAuthenticationDataSource.logout()
     }
