@@ -40,9 +40,9 @@ class CreateProjectUseCase(
 
     private fun getDefaultStates() =
         listOf(
-            State(Uuid.random().getCroppedId(), "To Do"),
-            State(Uuid.random().getCroppedId(), "In Progress"),
-            State(Uuid.random().getCroppedId(), "Done"),
+            State(Uuid.random().getCroppedId(), DEFAULT_TO_DO_STATE_NAME),
+            State(Uuid.random().getCroppedId(), DEFAULT_IN_PROGRESS_STATE_NAME),
+            State(Uuid.random().getCroppedId(), DEFAULT_DONE_STATE_NAME),
         )
 
     private fun checkInputValidation(projectName: String) {
@@ -73,5 +73,8 @@ class CreateProjectUseCase(
         const val BLANK_INPUT_EXCEPTION_MESSAGE = "Project name cannot be blank"
         const val PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE = "Failed to create project"
         const val PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE = "Project name should not exceed 16 characters"
+        const val DEFAULT_TO_DO_STATE_NAME = "To Do"
+        const val DEFAULT_IN_PROGRESS_STATE_NAME = "In Progress"
+        const val DEFAULT_DONE_STATE_NAME = "Done"
     }
 }
