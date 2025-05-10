@@ -165,7 +165,7 @@ class ProjectsOverviewUI(
     private fun showProjectLogsInTable(projects: List<Project>) = runBlocking {
         try {
                 val project = getProjectByUserIndexSelection(projects) ?: return@runBlocking
-                val projectLogs = getEntityAuditLogsUseCase(project.id, AuditLogEntityType.PROJECT)
+                val projectLogs = getEntityAuditLogsUseCase(project.id, AuditLog.EntityType.PROJECT)
                 val actions = projectLogs.map { it.toReadableMessage() }
                 tablePrinter.printTable(
                     headers = listOf("Actions"),

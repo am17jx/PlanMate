@@ -19,31 +19,26 @@ class GetAllProjectsUseCaseTest {
     private lateinit var getAllProjectsUseCase: GetAllProjectsUseCase
     private val projects = listOf(
         Project(
-            id = "1", name = "Spacecraft Work", states = listOf(
-                State(id = "state-001", title = "Design Phase"), State(id = "state-002", title = "Prototype Build")
+            id = "1", name = "Spacecraft Work", tasksStatesIds = listOf(
+                "state-001", "state-002",
             ), auditLogsIds = listOf(
                 "audit-1001", "audit-1002"
             )
         ), Project(
-            id = "2", name = "Mars Rover Development", states = listOf(
-                State(id = "state-003", title = "Initial Research"),
-                State(id = "state-004", title = "Component Testing"),
-                State(id = "state-005", title = "Final Assembly")
+            id = "2", name = "Mars Rover Development", tasksStatesIds = listOf(
+                "state-001", "state-002",
             ), auditLogsIds = listOf(
                 "audit-2001", "audit-2002", "audit-2003"
             )
         ), Project(
-            id = "3", name = "Satellite Deployment", states = emptyList(), auditLogsIds = listOf(
+            id = "3", name = "Satellite Deployment", tasksStatesIds = emptyList(), auditLogsIds = listOf(
                 "audit-3001"
             )
         ), Project(
-            id = "4", name = "Empty Project", states = emptyList(), auditLogsIds = emptyList()
+            id = "4", name = "Empty Project", tasksStatesIds = emptyList(), auditLogsIds = emptyList()
         ), Project(
-            id = "5", name = "Lunar Base Planning", states = listOf(
-                State(id = "state-006", title = "Site Selection"),
-                State(id = "state-007", title = "Resource Mapping"),
-                State(id = "state-008", title = "Construction Planning"),
-                State(id = "state-009", title = "Crew Training")
+            id = "5", name = "Lunar Base Planning", tasksStatesIds = listOf(
+                "state-001", "state-002",
             ), auditLogsIds = listOf(
                 "audit-4001", "audit-4002", "audit-4003", "audit-4004", "audit-4005"
             )

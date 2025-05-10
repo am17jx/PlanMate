@@ -12,7 +12,7 @@ fun ProjectDTO.toProject(): Project {
     return Project(
         id = id,
         name = name,
-        states = states,
+        tasksStatesIds = statesIds,
         auditLogsIds = auditLogsIds.map { Uuid.parse(it) }
     )
 }
@@ -22,7 +22,7 @@ fun Project.toProjectDTO(): ProjectDTO {
     return ProjectDTO(
         id = id,
         name = name,
-        states = states,
+        statesIds = tasksStatesIds,
         auditLogsIds = auditLogsIds.map { it.toHexString() }
     )
 }

@@ -1,6 +1,7 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
+import org.example.logic.useCase.*
 import org.example.logic.useCase.CreateStateUseCase
 import org.example.logic.useCase.DeleteStateUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
@@ -21,7 +22,7 @@ class ProjectStatusUI(
     private val createStateUseCase: CreateStateUseCase,
     private val updateStateUseCase: UpdateStateUseCase,
     private val deleteStateUseCase: DeleteStateUseCase,
-    private val getProjectByIdUseCase: GetProjectByIdUseCase,
+    private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val projectId: String,
     private val viewer: Viewer,
     private val reader: Reader,
@@ -64,11 +65,11 @@ class ProjectStatusUI(
 
     private fun showProjectStates() = runBlocking {
         try {
-            val project = getProjectByIdUseCase(projectId)
+            val projectStates = getProjectStatesUseCase(projectId)
             viewer.display("\n========== Project States ==========".cyan())
 
-            val indexList = project.states.indices.map { (it + 1).toString() }
-            val stateTitles = project.states.map { it.title }
+            val indexList = projectStates.indices.map { (it + 1).toString() }
+            val stateTitles = projectStates.map { it.title }
 
             tablePrinter.printTable(
                 headers = listOf("Index", "State Title"),
@@ -101,18 +102,18 @@ class ProjectStatusUI(
 
     private fun updateProjectState() = runBlocking {
         try {
-            val project = getProjectByIdUseCase(projectId)
+            val projectStates = getProjectStatesUseCase(projectId)
 
             viewer.display("Enter the index of the state to update:".cyan())
             val input = reader.readString()
             val stateIndex = input.toIntOrNull()?.minus(1)
 
-            if (stateIndex == null || stateIndex !in project.states.indices) {
+            if (stateIndex == null || stateIndex !in projectStates.indices) {
                 viewer.display("Invalid index. Please try again.".red())
                 return@runBlocking
             }
 
-            val stateId = project.states[stateIndex].id
+            val stateId = projectStates[stateIndex].id
             viewer.display("Enter the new state name:".cyan())
             val newStateName = reader.readString()
 
@@ -132,18 +133,18 @@ class ProjectStatusUI(
 
     private fun deleteProjectState() = runBlocking {
         try {
-            val project = getProjectByIdUseCase(projectId)
+            val projectStates = getProjectStatesUseCase(projectId)
 
             viewer.display("Enter the index of the state to delete:".cyan())
             val input = reader.readString()
             val stateIndex = input.toIntOrNull()?.minus(1)
 
-            if (stateIndex == null || stateIndex !in project.states.indices) {
+            if (stateIndex == null || stateIndex !in projectStates.indices) {
                 viewer.display("Invalid index. Please try again.".red())
                 return@runBlocking
             }
 
-            val stateId = project.states[stateIndex].id
+            val stateId = projectStates[stateIndex].id
             deleteStateUseCase(stateId, projectId)
             viewer.display("State deleted successfully.".green())
 
@@ -167,7 +168,7 @@ class ProjectStatusUI(
                 createStateUseCase = getKoin().get(),
                 updateStateUseCase = getKoin().get(),
                 deleteStateUseCase = getKoin().get(),
-                getProjectByIdUseCase = getKoin().get(),
+                getProjectStatesUseCase = getKoin().get(),
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get()
