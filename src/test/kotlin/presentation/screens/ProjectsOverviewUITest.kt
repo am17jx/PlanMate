@@ -21,6 +21,7 @@ class ProjectsOverviewUITest {
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
     private lateinit var getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase
+    private lateinit var logoutUseCase: LogoutUseCase
     private lateinit var reader: Reader
     private lateinit var deleteProjectUseCase: DeleteProjectUseCase
     private lateinit var viewer: Viewer
@@ -29,7 +30,8 @@ class ProjectsOverviewUITest {
 
     private val mockOnNavigateToShowProjectTasksUI = mockk<(String) -> Unit>(relaxed = true)
     private val mockOnNavigateToProjectStatusUI = mockk<(String) -> Unit>(relaxed = true)
-    private val mockOnNavigateBack = mockk<() -> Unit>(relaxed = true)
+    private val mockOnLogout = mockk<() -> Unit>(relaxed = true)
+    private val mockOnExit = mockk<() -> Unit>(relaxed = true)
 
     private val sampleProjects =
         listOf(
@@ -41,35 +43,38 @@ class ProjectsOverviewUITest {
         ProjectsOverviewUI(
             onNavigateToShowProjectTasksUI = mockOnNavigateToShowProjectTasksUI,
             onNavigateToProjectStatusUI = mockOnNavigateToProjectStatusUI,
-            onNavigateBack = mockOnNavigateBack,
+            onLogout = mockOnLogout,
             getAllProjectsUseCase = getAllProjectsUseCase,
             updateProjectUseCase = updateProjectUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             getEntityAuditLogsUseCase = getEntityAuditLogsUseCase,
+            logoutUseCase = logoutUseCase,
             reader = reader,
             viewer = viewer,
             deleteProjectUseCase = deleteProjectUseCase,
             tablePrinter = tablePrinter,
             projectScreensOptions = projectScreensOptions,
+            onExit = mockOnExit,
         )
     }
 
     @BeforeEach
     fun setUp() {
-        getAllProjectsUseCase = mockk()
+        getAllProjectsUseCase = mockk(relaxed = true)
         updateProjectUseCase = mockk(relaxed = true)
-        getProjectByIdUseCase = mockk()
-        getEntityAuditLogsUseCase = mockk()
-        reader = mockk()
+        getProjectByIdUseCase = mockk(relaxed = true)
+        getEntityAuditLogsUseCase = mockk(relaxed = true)
+        logoutUseCase = mockk(relaxed = true)
+        reader = mockk(relaxed = true)
         viewer = mockk(relaxed = true)
-        projectScreensOptions = mockk()
-        deleteProjectUseCase = mockk()
+        projectScreensOptions = mockk(relaxed = true)
+        deleteProjectUseCase = mockk(relaxed = true)
         tablePrinter = mockk(relaxed = true)
 
         every { projectScreensOptions.showAllProjectsOptions() } returns
             mapOf(
                 "1" to "1 - Show Project Details",
-                "5" to "5 - Back",
+                "5" to "5 - Logout",
             )
     }
 
@@ -193,12 +198,12 @@ class ProjectsOverviewUITest {
     }
 
     @Test
-    fun `should return to previous screen when back is selected`() {
+    fun `should logout when user chooses to logout`() {
         coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("5", "0")
 
         launchUI()
 
-        verify { mockOnNavigateBack() }
+        verify { mockOnLogout() }
     }
 }
