@@ -13,6 +13,7 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
+    private val createStateUseCase: CreateStateUseCase,
     private val auditLogRepository: AuditLogRepository,
     private val currentUserUseCase: GetCurrentUserUseCase,
 ) {
