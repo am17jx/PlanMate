@@ -20,17 +20,13 @@ class GetEntityAuditLogsUseCase(
     }
 
     private fun getEntityNotFoundException(entityType: AuditLogEntityType) = when (entityType) {
-        AuditLogEntityType.TASK -> TaskNotFoundException(TASK_NOT_FOUND_ERROR_MESSAGE)
-        AuditLogEntityType.PROJECT -> ProjectNotFoundException(PROJECT_NOT_FOUND_ERROR_MESSAGE)
+        AuditLogEntityType.TASK -> TaskNotFoundException()
+        AuditLogEntityType.PROJECT -> ProjectNotFoundException()
     }
 
     private fun verifyEntityIdNotBlank(entityId: String) {
-        if (entityId.isBlank()) throw BlankInputException(BLANK_ENTITY_ID_ERROR_MESSAGE)
+        if (entityId.isBlank()) throw BlankInputException()
     }
 
-    companion object{
-        const val BLANK_ENTITY_ID_ERROR_MESSAGE = "Entity id cannot be blank"
-        const val TASK_NOT_FOUND_ERROR_MESSAGE = "No task found with this id"
-        const val PROJECT_NOT_FOUND_ERROR_MESSAGE = "No project found with this id"
-    }
+
 }

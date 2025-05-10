@@ -1,6 +1,6 @@
 package org.example.data.source.local.csv
 
-import org.example.data.source.local.contract.LocalProjectDataSource
+import org.example.data.repository.sources.local.LocalProjectDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvLines
@@ -26,7 +26,7 @@ class CsvProjectDataSource(
             saveToFile()
             project
         } catch (_: IOException) {
-            throw ProjectCreationFailedException("PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE")
+            throw ProjectCreationFailedException()
         }
 
     override fun updateProject(updatedProject: Project): Project =
@@ -36,7 +36,7 @@ class CsvProjectDataSource(
             saveToFile()
             updatedProject
         } catch (_: IOException) {
-            throw ProjectNotChangedException("Project Not changed")
+            throw ProjectNotChangedException()
         }
 
     override fun deleteProject(projectId: String) {

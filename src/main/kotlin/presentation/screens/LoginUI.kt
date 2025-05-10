@@ -5,8 +5,10 @@ import org.example.logic.models.UserRole
 import org.example.logic.useCase.LoginUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.UserNotFoundException
+import presentation.utils.cyan
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import presentation.utils.red
 
 class LoginUI(
     private val onNavigateToAdminHome: () -> Unit,
@@ -21,9 +23,9 @@ class LoginUI(
     }
 
     private fun run() = runBlocking{
-        viewer.display("====================================")
+        viewer.display("====================================".cyan())
         viewer.display(" Welcome to the Task Management System ")
-        viewer.display("====================================")
+        viewer.display("====================================".cyan())
 
         while (true) {
             viewer.display("Enter username: ")
@@ -44,7 +46,7 @@ class LoginUI(
             } catch (e: UserNotFoundException) {
                 viewer.display("Error: ${e.message}")
             } catch (e: Exception) {
-                viewer.display("Unexpected error: ${e.message}")
+                viewer.display("\nInvalid Login Credentials. Please try again.".red())
             }
         }
     }

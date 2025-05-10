@@ -4,7 +4,7 @@ import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskStateRepository
-import org.example.logic.utils.StateNotFoundException
+import org.example.logic.utils.TaskStateNotFoundException
 
 class GetStateNameUseCase(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
@@ -14,6 +14,6 @@ class GetStateNameUseCase(
         val task: Task = getTaskByIdUseCase(taskId)
         taskStateRepository.getTaskStateById(task.stateId)
         return taskStateRepository.getTaskStateById(task.stateId)?.title
-            ?: throw StateNotFoundException("State not found")
+            ?: throw TaskStateNotFoundException()
     }
 }

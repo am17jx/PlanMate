@@ -1,7 +1,6 @@
 package org.example.data.source.remote.mongo
 
 import com.mongodb.kotlin.client.coroutine.MongoClient
-import com.mongodb.reactivestreams.client.MongoClients
 import io.github.cdimascio.dotenv.dotenv
 import org.example.data.source.remote.models.*
 import org.example.data.utils.Constants
@@ -11,14 +10,14 @@ import org.example.data.utils.Constants.CollectionNames.STATE_DOCUMENTATION
 import org.example.data.utils.Constants.CollectionNames.TASKS_DOCUMENTATION
 import org.example.data.utils.Constants.CollectionNames.USERS_DOCUMENTATION
 import org.example.data.utils.Constants.MONGODB_URI
-import org.example.logic.utils.DataBaseUriNoFoundException
+import org.example.logic.utils.DataBaseException
 
 
 object PlanMateDataBase {
 
-    private val uri: String = dotenv()[MONGODB_URI] ?: throw DataBaseUriNoFoundException("Data base uri not found")
-    val client = MongoClient.create(connectionString = uri)
-    val database = client.getDatabase(databaseName = Constants.DATABASE_NAME)
+    private val uri: String = dotenv()[MONGODB_URI] ?: throw DataBaseException()
+    private val client = MongoClient.create(connectionString = uri)
+    private val database = client.getDatabase(databaseName = Constants.DATABASE_NAME)
 
 
     val projectDoc = database.getCollection<ProjectDTO>(collectionName = PROJECTS_DOCUMENTATION)

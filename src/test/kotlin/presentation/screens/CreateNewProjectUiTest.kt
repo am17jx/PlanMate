@@ -25,7 +25,7 @@ class CreateNewProjectUiTest {
         )
         coEvery { createProjectUseCase(projectName) } returns project
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("✅ Project '${project.name}' created successfully with ID: ${project.id}") }
         verify { onBackMock.invoke() }
@@ -35,9 +35,9 @@ class CreateNewProjectUiTest {
     fun `should return error message when project name is blank`() {
         val exceptionMessage = "Project name cannot be blank"
         every { readerMock.readString() } returns ""
-        coEvery { createProjectUseCase(any()) } throws BlankInputException(exceptionMessage)
+        coEvery { createProjectUseCase(any()) } throws BlankInputException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -47,9 +47,9 @@ class CreateNewProjectUiTest {
     fun `should return error message when project creation fails`() {
         val exceptionMessage = "Project creation failed"
         every { readerMock.readString() } returns "Project Name"
-        coEvery { createProjectUseCase(any()) } throws ProjectCreationFailedException(exceptionMessage)
+        coEvery { createProjectUseCase(any()) } throws ProjectCreationFailedException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -59,9 +59,9 @@ class CreateNewProjectUiTest {
     fun `should return error message when no user is logged in`() {
         val exceptionMessage = "No user logged in"
         every { readerMock.readString() } returns "Project Name"
-        coEvery { createProjectUseCase(any()) } throws NoLoggedInUserException(exceptionMessage)
+        coEvery { createProjectUseCase(any()) } throws NoLoggedInUserException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -71,9 +71,9 @@ class CreateNewProjectUiTest {
     fun `should return error message when the user is unauthorized to create a project`() {
         val exceptionMessage = "User is not authorized"
         every { readerMock.readString() } returns "Project Name"
-        coEvery { createProjectUseCase(any()) } throws UnauthorizedException(exceptionMessage)
+        coEvery { createProjectUseCase(any()) } throws UnauthorizedAccessException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -83,9 +83,9 @@ class CreateNewProjectUiTest {
     fun `should return error message when there is an invalid audit input`() {
         val exceptionMessage = "Invalid audit input"
         every { readerMock.readString() } returns "Project Name"
-        coEvery { createProjectUseCase(any()) } throws AuditInputException(exceptionMessage)
+        coEvery { createProjectUseCase(any()) } throws InvalidAuditInputException()
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Error: $exceptionMessage") }
         verify { onBackMock.invoke() }
@@ -97,7 +97,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws Exception(exceptionMessage)
 
-        val createNewProjectUi = CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+         CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display("❌ Unexpected error: $exceptionMessage") }
         verify { onBackMock.invoke() }

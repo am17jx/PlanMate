@@ -41,7 +41,7 @@ class DeleteStateUseCase(
 
     private suspend fun getProject(projectId: String): Project =
         projectRepository.getProjectById(projectId)
-            ?: throw ProjectNotFoundException("Project not found")
+            ?: throw ProjectNotFoundException()
 
 
     private fun checkInputValidation(
@@ -49,8 +49,8 @@ class DeleteStateUseCase(
         projectId: String,
     ) {
         when {
-            stateId.isBlank() -> throw BlankInputException("State id cannot be blank")
-            projectId.isBlank() -> throw BlankInputException("Project id cannot be blank")
+            stateId.isBlank() -> throw BlankInputException()
+            projectId.isBlank() -> throw BlankInputException()
         }
     }
 

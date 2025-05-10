@@ -7,9 +7,12 @@ import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectStatesUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.InvalidInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
+import presentation.utils.cyan
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -51,11 +54,7 @@ class ShowProjectTasksUI(
         }
     }
 
-    private suspend fun displaySwimLanesTasksTable() {
-        if (project.tasksStatesIds.isEmpty()) {
-            viewer.display("<==========( No States Added yet )==========>")
-            return
-        }
+    private fun displaySwimLanesTasksTable() {
         val (statesHeaders, tasksColumns) = getTableHeadersAndColumns()
         tablePrinter.printTable(
             headers = statesHeaders,
@@ -69,9 +68,10 @@ class ShowProjectTasksUI(
             state to tasksForState
         }
         val statesHeaders = groupedTasksByState.map { it.first.title }
-        val tasksColumns = groupedTasksByState.map { it.second.map { task -> "${task.name}(id: ${task.id})" } }
+        val tasksColumns = groupedTasksByState.map { it.second.map { task -> task.name } }
         return statesHeaders to tasksColumns
     }
+
 
     private suspend fun getUserSelectedOption() {
         while (true) {
@@ -79,20 +79,16 @@ class ShowProjectTasksUI(
             displayOptions()
             val userInput = reader.readInt() ?: -1
             when (userInput) {
-                0 -> {
-                    return onNavigateBack()
-                }
-
                 1 -> {
-                    return getSelectedTaskId()
+                    startCreateTaskFlow()
                 }
 
                 2 -> {
-                    if (project.tasksStatesIds.isEmpty()) {
-                        viewer.display("No project states added yet! Go back and update project with new states.")
-                    } else {
-                        startCreateTaskFlow()
-                    }
+                    return getSelectedTaskId()
+                }
+
+                3 -> {
+                    return onNavigateBack()
                 }
 
                 else -> {
@@ -103,23 +99,41 @@ class ShowProjectTasksUI(
     }
 
     private fun displayOptions() {
-        viewer.display("=== Select Option to Continue ========")
-        viewer.display("0. Go Back")
-        viewer.display("1. View Task Details")
-        viewer.display("2. Create New Task")
-        viewer.display("======================================")
+        viewer.display("========== Select Option to Continue ==========".cyan())
+        showCreateTaskOption()
+        if (projectTasks.isNotEmpty()) showViewTaskDetails()
+        viewer.display("3- Back")
+        viewer.display("Select an option:")
     }
 
+    private fun showViewTaskDetails(){
+        viewer.display("2- View Task Details")
+    }
+
+    private fun showCreateTaskOption() {
+        viewer.display("1- Create New Task")
+    }
+
+
     private fun getSelectedTaskId() {
-        viewer.display("Enter Task Id: ")
-        val userInput = reader.readString()
-        if (projectTasks.any { it.id == userInput }) {
-            onNavigateToTaskDetails(userInput)
-        } else {
-            viewer.display("Id is incorrect!")
-            loadTasks()
+        viewer.display("========== Select a Task by Index ==========".cyan())
+        val indexedTasks = projectTasks.mapIndexed { index, task -> "${index + 1}- ${task.name}" }
+        indexedTasks.forEach { viewer.display(it) }
+
+        while (true) {
+            viewer.display("Enter task index: ")
+            val input = reader.readString()
+            val index = input.toIntOrNull()?.minus(1)
+
+            if (index == null || index !in projectTasks.indices) {
+                viewer.display("Invalid index. Please try again.")
+            } else {
+                val selectedTaskId = projectTasks[index].id
+                return onNavigateToTaskDetails(selectedTaskId)
+            }
         }
     }
+
 
     private fun startCreateTaskFlow() = runBlocking{
         val taskName = readTaskName()
@@ -146,18 +160,26 @@ class ShowProjectTasksUI(
         }
     }
 
-    private suspend fun readSelectedState(): String {
-        viewer.display("Select a state from the following states:")
-        getProjectStatesUseCase(projectId).forEachIndexed { index, state ->
-            viewer.display("- ${state.title} (id = ${state.id})")
-        }
+    private fun readSelectedState(): String {
+        viewer.display("Select a state from the following table:")
+
+        val indices = project.states.indices.map { (it + 1).toString() }
+        val titles = project.states.map { it.title }
+
+        tablePrinter.printTable(
+            headers = listOf("Index", "State Name"),
+            columnValues = listOf(indices, titles)
+        )
+
         while (true) {
-            viewer.display("Enter state ID: ")
-            val userInput = reader.readString()
-            if (project.tasksStatesIds.any { it == userInput }) {
-                return userInput
+            viewer.display("Enter state index: ")
+            val input = reader.readString()
+            val index = input.toIntOrNull()?.minus(1)
+
+            if (index == null || index !in project.states.indices) {
+                viewer.display("Invalid index! Please, try again.")
             } else {
-                viewer.display("Invalid state ID! Please, try again")
+                return project.states[index].id
             }
         }
     }
@@ -165,8 +187,15 @@ class ShowProjectTasksUI(
     private fun handleError(e: Exception) {
         when (e) {
             is ProjectNotFoundException -> {
-                viewer.display(e.message)
+                viewer.display("Error: project not found")
                 return onNavigateBack()
+            }
+            is InvalidInputException -> {
+                viewer.display("Error: Project ID is invalid")
+                return onNavigateBack()
+            }
+            is BlankInputException -> {
+                viewer.display("Error: Input cannot be blank")
             }
 
             else -> {

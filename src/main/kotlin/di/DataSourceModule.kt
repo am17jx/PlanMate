@@ -3,6 +3,10 @@ package org.example.di
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import org.example.data.source.local.contract.*
+import org.example.data.repository.sources.local.LocalAuditLogDataSource
+import org.example.data.repository.sources.local.LocalAuthenticationDataSource
+import org.example.data.repository.sources.local.LocalProjectDataSource
+import org.example.data.repository.sources.local.LocalTaskDataSource
 import org.example.data.source.local.csv.CsvAuditLogDataSource
 import org.example.data.source.local.csv.CsvAuthenticationDataSource
 import org.example.data.source.local.csv.CsvProjectDataSource
@@ -10,6 +14,10 @@ import org.example.data.source.local.csv.CsvTaskDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.remote.contract.*
+import org.example.data.repository.sources.remote.RemoteAuditLogDataSource
+import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
+import org.example.data.repository.sources.remote.RemoteProjectDataSource
+import org.example.data.repository.sources.remote.RemoteTaskDataSource
 import org.example.data.source.remote.mongo.*
 import org.example.data.utils.Constants
 import org.koin.core.parameter.parametersOf
