@@ -8,7 +8,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.data.source.remote.mongo.utils.mapper.toAuditLogDTO
 import org.example.data.source.remote.models.AuditLogDTO
-import org.example.data.source.remote.contract.RemoteAuditLogDataSource
+import org.example.data.repository.sources.remote.RemoteAuditLogDataSource
 import org.example.data.source.remote.mongo.MongoAuditLogDataSource
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType

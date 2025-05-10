@@ -1,14 +1,12 @@
 package org.example.data.source.local.csv
 
-import org.example.data.source.local.contract.LocalAuthenticationDataSource
+import org.example.data.repository.sources.local.LocalAuthenticationDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvRow
 import org.example.data.source.local.csv.utils.mapper.toUsers
 import org.example.logic.models.User
-import org.example.logic.models.UserRole
 import org.example.logic.utils.UserAlreadyExistsException
-import org.example.logic.utils.UserNotFoundException
 
 class CsvAuthenticationDataSource(
     private val csvWriter: CSVWriter,

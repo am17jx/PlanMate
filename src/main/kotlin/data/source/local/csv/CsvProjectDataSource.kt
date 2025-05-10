@@ -1,6 +1,6 @@
 package org.example.data.source.local.csv
 
-import org.example.data.source.local.contract.LocalProjectDataSource
+import org.example.data.repository.sources.local.LocalProjectDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvLines
