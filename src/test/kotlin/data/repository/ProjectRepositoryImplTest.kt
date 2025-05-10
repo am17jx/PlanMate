@@ -5,7 +5,7 @@ import io.mockk.*
 import kotlinx.coroutines.test.runTest
 import org.example.data.repository.ProjectRepositoryImpl
 import org.example.data.source.remote.RoleValidationInterceptor
-import org.example.data.source.remote.contract.RemoteProjectDataSource
+import org.example.data.repository.sources.remote.RemoteProjectDataSource
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.junit.jupiter.api.BeforeEach
@@ -81,6 +81,22 @@ class ProjectRepositoryImplTest {
         coVerify(exactly = 1) { mockRemoteDataSource.getAllProjects() }
         assertThat(result).isEqualTo(testProjects)
         assertThat(result).hasSize(2)
+    }
+
+    @Test
+    fun `deleteProject should delegates to localDataSource`() = runTest {
+        val projectIdToDelete = "1"
+        coEvery { mockRemoteDataSource.deleteProject(any()) } just runs
+        coEvery { roleValidationInterceptor.validateRole<Project>(any(),any()) } returns Project(
+            id = "1",
+            name = "Project 1",
+            states = listOf(State(id = "1", title = "To Do")),
+            auditLogsIds = listOf("100"),
+        )
+
+        repository.deleteProject(projectIdToDelete)
+
+        coVerify(exactly = 1) {roleValidationInterceptor.validateRole<Project>(any(),any())  }
     }
 
     @Test

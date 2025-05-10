@@ -7,13 +7,15 @@ interface AuthenticationRepository {
 
     suspend fun createMate(
         username: String,
-        hashedPassword: String,
+        password: String,
     ): User
 
     suspend fun login(
         username: String,
-        hashedPassword: String,
+        password: String,
     ): User
+
+    suspend fun logout()
 
     suspend fun getAllUsers(): List<User>
 }
