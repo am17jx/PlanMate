@@ -17,6 +17,8 @@ fun Uuid.getCroppedId(limit: Int = MAX_ID_LENGTH): String = this.toHexString().s
 
 fun String.isValidId() = matches(Regex("^[a-zA-Z0-9]+$")) && length == MAX_ID_LENGTH
 
+fun Long.toInstant() = Instant.fromEpochMilliseconds(this)
+
 fun Instant.formattedString(): String{
     val customFormat = DateTimeComponents.Format {
         year(); char('/'); monthNumber(padding = Padding.ZERO); char('/'); dayOfMonth(padding = Padding.ZERO)

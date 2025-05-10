@@ -1,14 +1,11 @@
 package org.example.data.source.remote.models
 
-import org.example.logic.models.AuditLogActionType
-import org.example.logic.models.AuditLogEntityType
-
 data class AuditLogDTO(
     val id: String,
     val userId: String,
     val action: String,
-    val timestamp: Long,
+    val createdAt: Long,
     val entityType: String,
     val entityId: String,
-    val actionType: String
+    val actionType: String,
 )

@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.datetime.Clock
 import mockdata.createAuditLog
 import org.example.data.source.local.csv.CsvAuditLogDataSource
 import org.example.data.source.local.csv.utils.CSVReader
@@ -30,26 +31,27 @@ class CsvAuditLogDataSourceTest {
     inner class SaveAuditLogTests {
         @Test
         fun `should write new audit when called`() {
-
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
 
-            val newLog = createAuditLog(
-                id = "asd2-qwe2-asdw-wer1",
-                userId = "1",
-                action = "user abc changed task XYZ-001 from InProgress to InDevReview",
-                entityType = AuditLogEntityType.TASK,
-                entityId = "2",
-                actionType = AuditLogActionType.UPDATE
-            )
+            val currentTime = Clock.System.now()
+            val newLog =
+                createAuditLog(
+                    id = "asd2-qwe2-asdw-wer1",
+                    userId = "1",
+                    action = "user abc changed task XYZ-001 from InProgress to InDevReview",
+                    createdAt = currentTime,
+                    entityType = AuditLogEntityType.TASK,
+                    entityId = "2",
+                    actionType = AuditLogActionType.UPDATE,
+                )
             val newLogCsvRow =
-                "asd2-qwe2-asdw-wer1,1,user abc changed task XYZ-001 from InProgress to InDevReview,0,TASK,2,UPDATE"
+                "asd2-qwe2-asdw-wer1,1,user abc changed task XYZ-001 from InProgress to InDevReview,${currentTime.toEpochMilliseconds()},TASK,2,UPDATE"
             val result = csvAuditLogDataSource.saveAuditLog(newLog)
 
             assertThat(result).isEqualTo(newLog)
-            verify() { csvReader.readLines() }
-            verify() { csvWriter.writeLines(listOf(newLogCsvRow)) }
+            verify { csvReader.readLines() }
+            verify { csvWriter.writeLines(listOf(newLogCsvRow)) }
         }
-
     }
 
     @Nested
@@ -77,7 +79,6 @@ class CsvAuditLogDataSourceTest {
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
             val log = csvAuditLogDataSource.getEntityLogs("2", AuditLogEntityType.TASK)
             assertThat(log).isEmpty()
-
         }
     }
 
@@ -104,7 +105,6 @@ class CsvAuditLogDataSourceTest {
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
             val log = csvAuditLogDataSource.getEntityLogByLogId("2")
             assertThat(log).isNull()
-
         }
     }
 
@@ -113,14 +113,15 @@ class CsvAuditLogDataSourceTest {
         @Test
         fun `should do nothing when entity not found`() {
             val existingLogCsv = "log-id-1,1,action,1234567890,TASK,100,CREATE"
-            val auditLogToDelete = createAuditLog(
-                id = "non-existent-id",
-                userId = "1",
-                action = "some action",
-                entityType = AuditLogEntityType.TASK,
-                entityId = "100",
-                actionType = AuditLogActionType.CREATE
-            )
+            val auditLogToDelete =
+                createAuditLog(
+                    id = "non-existent-id",
+                    userId = "1",
+                    action = "some action",
+                    entityType = AuditLogEntityType.TASK,
+                    entityId = "100",
+                    actionType = AuditLogActionType.CREATE,
+                )
 
             every { csvReader.readLines() } returns listOf(existingLogCsv)
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
@@ -132,25 +133,27 @@ class CsvAuditLogDataSourceTest {
 
         @Test
         fun `should remove the log from file when the log found`() {
-            val logToDelete = createAuditLog(
-                id = "log-id-123",
-                userId = "1",
-                action = "user abc deleted task XYZ-001",
-                timestamp = 1234567890,
-                entityType = AuditLogEntityType.TASK,
-                entityId = "2",
-                actionType = AuditLogActionType.DELETE
-            )
+            val logToDelete =
+                createAuditLog(
+                    id = "log-id-123",
+                    userId = "1",
+                    action = "user abc deleted task XYZ-001",
+                    createdAt = Clock.System.now(),
+                    entityType = AuditLogEntityType.TASK,
+                    entityId = "2",
+                    actionType = AuditLogActionType.DELETE,
+                )
             val matchingCsvRow = logToDelete.toCsvRow()
-            val otherLogCsvRow = createAuditLog(
-                id = "log-id-999",
-                userId = "2",
-                action = "user def updated task XYZ-002",
-                timestamp = 1234567891,
-                entityType = AuditLogEntityType.TASK,
-                entityId = "3",
-                actionType = AuditLogActionType.UPDATE
-            ).toCsvRow()
+            val otherLogCsvRow =
+                createAuditLog(
+                    id = "log-id-999",
+                    userId = "2",
+                    action = "user def updated task XYZ-002",
+                    createdAt = Clock.System.now(),
+                    entityType = AuditLogEntityType.TASK,
+                    entityId = "3",
+                    actionType = AuditLogActionType.UPDATE,
+                ).toCsvRow()
 
             every { csvReader.readLines() } returns listOf(matchingCsvRow, otherLogCsvRow)
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
