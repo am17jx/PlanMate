@@ -15,5 +15,7 @@ interface AuthenticationRepository {
         password: String,
     ): User
 
+    suspend fun logout()
+
     suspend fun getAllUsers(): List<User>
 }

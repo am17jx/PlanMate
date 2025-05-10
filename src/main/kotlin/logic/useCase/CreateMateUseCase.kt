@@ -13,9 +13,9 @@ class CreateMateUseCase(
         password: String,
     ): User {
         when {
-            username.isBlank() -> throw BlankInputException("Username is blank")
-            password.isBlank() -> throw BlankInputException("Password is blank")
-            hasSpace(username) -> throw InvalidUserNameInputException("Username cannot contain spaces")
+            username.isBlank() -> throw BlankInputException()
+            password.isBlank() -> throw BlankInputException()
+            hasSpace(username) -> throw InvalidUsernameException()
             else -> {
                 return authenticationRepository.createMate(username, password)
             }

@@ -143,7 +143,7 @@ class UpdateTaskUseCaseTest {
 
         coEvery { taskRepository.getTaskById("t8") } returns oldTask
         coEvery { taskRepository.updateTask(updatedTask) } returns updatedTask
-        coEvery {currentUserUseCase() } throws  NoLoggedInUserException("No user is currently logged in.")
+        coEvery {currentUserUseCase() } throws  NoLoggedInUserException()
 
         assertThrows<NoLoggedInUserException> {
             useCase("t8", updatedTask)

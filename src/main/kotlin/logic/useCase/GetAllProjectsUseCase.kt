@@ -10,7 +10,7 @@ class GetAllProjectsUseCase(
     suspend operator fun invoke(): List<Project> {
        return  projectRepository.getAllProjects()
            .takeIf { it.isNotEmpty() }
-           ?: throw NoProjectsFoundException("No projects found")
+           ?: throw NoProjectsFoundException()
 
     }
 }

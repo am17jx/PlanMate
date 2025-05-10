@@ -8,14 +8,12 @@ import mockdata.createState
 import mockdata.createTask
 import mockdata.createUser
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.StateNotFoundException
-import org.example.logic.utils.UserNotFoundException
+import org.example.logic.utils.TaskStateNotFoundException
 import org.example.logic.utils.getCroppedId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -111,7 +109,7 @@ class CreateTaskUseCaseTest {
         val differentStateId = "3"
         coEvery{ projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = differentStateId)))
 
-        assertThrows<StateNotFoundException> {
+        assertThrows<TaskStateNotFoundException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
         }
     }
