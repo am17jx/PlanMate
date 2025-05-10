@@ -7,6 +7,7 @@ import org.example.logic.useCase.DeleteProjectUseCase
 import org.example.logic.useCase.GetAllProjectsUseCase
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
+import org.example.logic.useCase.LogoutUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.presentation.role.ProjectScreensOptions
 import org.example.presentation.screens.ProjectsOverviewUI
