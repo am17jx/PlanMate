@@ -5,9 +5,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.data.source.remote.mongo.utils.mapper.toUserDTO
 import org.example.data.source.remote.models.UserDTO
 import org.example.data.source.remote.mongo.MongoAuthenticationDataSource
+import org.example.data.source.remote.mongo.utils.mapper.toUserDTO
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.utils.CreationItemFailedException
@@ -29,47 +29,46 @@ class MongoAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `saveUser should insert the user into the user collection when called`() = runTest {
-
-        remoteAuthenticationDataSource.saveUser(user)
-
-        coVerify(exactly = 1) { mongoCollection.insertOne(userDTO, any()) }
-    }
-
-
-    @Test
-    fun `saveUser should throw CreationItemFailedException when insert in mongo fails`() = runTest {
-        coEvery { mongoCollection.insertOne(userDTO, any()) } throws Exception()
-
-        assertThrows<CreationItemFailedException> {
+    fun `saveUser should insert the user into the user collection when called`() =
+        runTest {
             remoteAuthenticationDataSource.saveUser(user)
+
+            coVerify(exactly = 1) { mongoCollection.insertOne(userDTO, any()) }
         }
-    }
-
 
     @Test
-    fun `getAllUsers should return all users when get all from the user collection`() = runTest {
-        remoteAuthenticationDataSource.getAllUsers()
+    fun `saveUser should throw CreationItemFailedException when insert in mongo fails`() =
+        runTest {
+            coEvery { mongoCollection.insertOne(userDTO, any()) } throws Exception()
 
-        coVerify(exactly = 1) { mongoCollection.find(filter = any()) }
-    }
+            assertThrows<CreationItemFailedException> {
+                remoteAuthenticationDataSource.saveUser(user)
+            }
+        }
 
     @Test
-    fun `getAllUsers should throw GetItemsFailedException when get all users from mongo fails`() = runTest {
-        coEvery { mongoCollection.find(filter = any()) } throws Exception()
-
-        assertThrows<GetItemsFailedException> {
+    fun `getAllUsers should return all users when get all from the user collection`() =
+        runTest {
             remoteAuthenticationDataSource.getAllUsers()
+
+            coVerify(exactly = 1) { mongoCollection.find(filter = any()) }
         }
-    }
 
+    @Test
+    fun `getAllUsers should throw GetItemsFailedException when get all users from mongo fails`() =
+        runTest {
+            coEvery { mongoCollection.find(filter = any()) } throws Exception()
 
+            assertThrows<GetItemsFailedException> {
+                remoteAuthenticationDataSource.getAllUsers()
+            }
+        }
 
+    @Test
+    fun `logout should set the current user to null`() =
+        runTest {
+            remoteAuthenticationDataSource.logout()
 
-
-
-
-
-
-
+            assert(remoteAuthenticationDataSource.getCurrentUser() == null)
+        }
 }
