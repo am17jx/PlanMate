@@ -3,7 +3,7 @@ package org.example.logic.useCase
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.models.Task
-import org.example.logic.utils.StateNotFoundException
+import org.example.logic.utils.TaskStateNotFoundException
 
 class GetStateNameUseCase(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
@@ -16,5 +16,5 @@ class GetStateNameUseCase(
     }
     private fun getState(project: Project, stateId: String): State =
         project.states.find { it.id == stateId }
-            ?: throw StateNotFoundException("State not found")
+            ?: throw TaskStateNotFoundException()
 }

@@ -16,7 +16,7 @@ class CsvAuthenticationDataSource(
 
     override fun saveUser(user: User) {
         if (isUserExists(user.username)) {
-            throw UserAlreadyExistsException("User already exists")
+            throw UserAlreadyExistsException()
         }
         val allUsersRows = csvReader.readLines() + user.toCsvRow()
         csvWriter.writeLines(allUsersRows)
@@ -34,7 +34,7 @@ class CsvAuthenticationDataSource(
                 .also { currentUser = it }
                 .let { User(it.id, it.username, it.password, it.role) }
         } catch (e: NoSuchElementException) {
-            throw NoSuchElementException("User not found")
+            throw NoSuchElementException()
         }
     }
 

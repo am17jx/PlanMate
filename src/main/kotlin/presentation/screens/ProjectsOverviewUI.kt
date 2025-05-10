@@ -9,6 +9,7 @@ import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.LogoutUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
+import org.example.logic.utils.*
 import org.example.presentation.role.ProjectScreensOptions
 import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
@@ -30,6 +31,7 @@ class ProjectsOverviewUI(
     private val viewer: Viewer,
     private val reader: Reader,
     private val tablePrinter: TablePrinter,
+    private val onNavigateBack: () -> Unit,
 ) {
     private val options: Map<String, String> = projectScreensOptions.showAllProjectsOptions()
 
@@ -48,7 +50,9 @@ class ProjectsOverviewUI(
                 }
 
                 showProjectsInTable(projects)
-            } catch (e: Exception) {
+            } catch (e: NoProjectsFoundException) {
+            displayLoadingError(e)
+        } catch (e: Exception) {
                 displayLoadingError(e)
             }
         }
@@ -101,25 +105,30 @@ class ProjectsOverviewUI(
         }
     }
 
-    private fun showProjectLogsInTable() =
-        runBlocking {
-            try {
-                viewer.display("Please enter the project ID:")
-                val projectId = reader.readString()
-                val projectLogs = getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
-                val actions = projectLogs.map { it.action }
-                tablePrinter.printTable(
-                    headers = listOf("Actions"),
-                    columnValues = listOf(actions),
-                )
-            } catch (e: Exception) {
-                viewer.display("Failed to load project logs: ${e.message}")
-            }
+    private fun showProjectLogsInTable() = runBlocking {
+        try {
+            viewer.display("Please enter the project ID:")
+            val projectId = reader.readString()
+            val projectLogs = getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
+            val actions = projectLogs.map { it.action }
+            tablePrinter.printTable(
+                headers = listOf("Actions"),
+                columnValues = listOf(actions)
+            )
+        } catch (e: TaskNotFoundException) {
+            viewer.display("Failed to load project logs: $TASK_NOT_FOUND_ERROR_MESSAGE")
+        } catch (e: ProjectNotFoundException) {
+            viewer.display("Failed to load project logs: $PROJECT_NOT_FOUND_ERROR_MESSAGE")
+        } catch (e: BlankInputException) {
+            viewer.display("Failed to load project logs: $BLANK_ENTITY_ID_ERROR_MESSAGE")
+        } catch (e: Exception) {
+            viewer.display("Failed to load project logs: ${e.message}")
         }
+    }
 
     private fun logout() =
         runBlocking {
-            logoutUseCase()
+        logoutUseCase()
             onLogout()
         }
 
@@ -170,7 +179,13 @@ class ProjectsOverviewUI(
 
                 updateProjectUseCase(updatedProject)
                 viewer.display("Project name updated successfully.")
-            } catch (e: Exception) {
+            } catch (e: BlankInputException) {
+            viewer.display("Failed to update project name: ${e.message}")
+        } catch (e: ProjectNotChangedException) {
+            viewer.display("Failed to update project name: $NO_CHANGES_DETECTED_EXCEPTION_MESSAGE")
+        } catch (e: ProjectNotFoundException) {
+            viewer.display("Failed to update project name: $PROJECT_NOT_FOUND_EXCEPTION_MESSAGE")
+        } catch (e: Exception) {
                 viewer.display("Failed to update project name: ${e.message}")
             }
         }
@@ -233,5 +248,15 @@ class ProjectsOverviewUI(
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get(),
             )
+        }
+
+        const val PROJECT_NOT_FOUND_EXCEPTION_MESSAGE = "Project not found"
+        const val NO_CHANGES_DETECTED_EXCEPTION_MESSAGE = "No changes detected ^_^"
+        const val BLANK_ENTITY_ID_ERROR_MESSAGE = "Entity id cannot be blank"
+        const val TASK_NOT_FOUND_ERROR_MESSAGE = "No task found with this id"
+        const val PROJECT_NOT_FOUND_ERROR_MESSAGE = "No project found with this id"
+
+
     }
+
 }
