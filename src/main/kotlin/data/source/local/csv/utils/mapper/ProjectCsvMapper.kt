@@ -10,7 +10,7 @@ import org.example.logic.models.State
 fun Project.toCsvLine(): String =
     "$id," +
         "$name," +
-        "[${states.joinToString(",") { it.id + ":" + it.title }}]," +
+        "[${tasksStatesIds.joinToString(",")}]," +
         "[${auditLogsIds.joinToString(",")}]"
 
 fun String.toProject(): Project {
@@ -21,16 +21,13 @@ fun String.toProject(): Project {
     return Project(
         id = segments[ID_INDEX],
         name = segments[NAME_INDEX],
-        states =
+        tasksStatesIds =
             segments[STATES_INDEX]
                 .trim('[', ']')
                 .takeIf { it.isNotBlank() }
                 ?.split(",")
-                ?.map { stateStr ->
-                    val parts = stateStr.split(":")
-                    if (parts.size < 2) throw IllegalArgumentException("Invalid state format: $stateStr")
-                    State(parts[0], parts[1])
-                } ?: emptyList(),
+                ?.map { it.trim() }
+                ?: emptyList(),
         auditLogsIds =
             segments[AUDIT_LOGS_IDS_INDEX]
                 .trim('[', ']')

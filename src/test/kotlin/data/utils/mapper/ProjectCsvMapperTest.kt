@@ -19,7 +19,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "1",
                 name = "Test Project",
-                states =
+                tasksStatesIds =
                     listOf(
                         State(id = "1", title = "To Do"),
                         State(id = "2", title = "In Progress"),
@@ -44,7 +44,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "1",
                 name = "Test Project",
-                states =
+                tasksStatesIds =
                     listOf(
                         State(id = "1", title = "To Do"),
                         State(id = "2", title = "In Progress"),
@@ -61,7 +61,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "2",
                 name = "Empty Project",
-                states = emptyList(),
+                tasksStatesIds = emptyList(),
                 auditLogsIds = emptyList(),
             )
 
@@ -79,13 +79,13 @@ class ProjectCsvMapperTest {
                 Project(
                     id = "1",
                     name = "Project 1",
-                    states = listOf(State(id = "1", title = "Task 1")),
+                    tasksStatesIds = listOf(State(id = "1", title = "Task 1")),
                     auditLogsIds = listOf("100"),
                 ),
                 Project(
                     id = "2",
                     name = "Project 2",
-                    states = listOf(State(id = "2", title = "Task 2")),
+                    tasksStatesIds = listOf(State(id = "2", title = "Task 2")),
                     auditLogsIds = listOf("200"),
                 ),
             )
@@ -122,7 +122,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "4",
                 name = "Complex Project",
-                states =
+                tasksStatesIds =
                     listOf(
                         State(id = "1", title = "To Do"),
                         State(id = "2", title = "In Progress"),
@@ -137,8 +137,8 @@ class ProjectCsvMapperTest {
         assertThat(csvLine).isEqualTo("4,Complex Project,[1:To Do,2:In Progress,3:Ready for Review],[300,301]")
         assertThat(convertedProject.id).isEqualTo("4")
         assertThat(convertedProject.name).isEqualTo("Complex Project")
-        assertThat(convertedProject.states).hasSize(3)
-        assertThat(convertedProject.states[2].title).isEqualTo("Ready for Review")
+        assertThat(convertedProject.tasksStatesIds).hasSize(3)
+        assertThat(convertedProject.tasksStatesIds[2].title).isEqualTo("Ready for Review")
         assertThat(convertedProject.auditLogsIds).containsExactly("300", "301").inOrder()
     }
 
