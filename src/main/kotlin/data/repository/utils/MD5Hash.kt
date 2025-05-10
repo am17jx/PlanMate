@@ -1,4 +1,4 @@
-package org.example.logic.utils
+package org.example.data.repository.utils
 
 import java.security.MessageDigest
 

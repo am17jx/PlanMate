@@ -10,7 +10,7 @@ import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
-import org.example.logic.utils.StateNotFoundException
+import org.example.logic.utils.TaskStateNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -63,7 +63,7 @@ class GetStateNameUseCaseTest {
         coEvery { getProjectByIdUseCase(projectId) } returns dummyProject
         coEvery { getTaskByIdUseCase(taskId) } returns missingStateTask
 
-        assertThrows<StateNotFoundException> {
+        assertThrows<TaskStateNotFoundException> {
             getStateNameUseCase(taskId)
         }
     }

@@ -4,27 +4,26 @@ import org.example.data.source.remote.models.AuditLogDTO
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
+import org.example.logic.utils.toInstant
 
-fun AuditLogDTO.toAuditLog(): AuditLog {
-    return AuditLog(
+fun AuditLogDTO.toAuditLog(): AuditLog =
+    AuditLog(
         id = id,
         userId = userId,
         action = action,
-        timestamp = timestamp,
+        createdAt = createdAt.toInstant(),
         entityType = AuditLogEntityType.valueOf(entityType),
         entityId = entityId,
-        actionType = AuditLogActionType.valueOf(actionType)
+        actionType = AuditLogActionType.valueOf(actionType),
     )
-}
 
-fun AuditLog.toAuditLogDTO(): AuditLogDTO {
-    return AuditLogDTO(
+fun AuditLog.toAuditLogDTO(): AuditLogDTO =
+    AuditLogDTO(
         id = id,
         userId = userId,
         action = action,
-        timestamp = timestamp,
+        createdAt = createdAt.toEpochMilliseconds(),
         entityType = entityType.name,
         entityId = entityId,
-        actionType = actionType.name
+        actionType = actionType.name,
     )
-}

@@ -4,8 +4,11 @@ import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Project
 import org.example.logic.models.Task
-import org.example.logic.useCase.*
-import org.koin.java.KoinJavaComponent.getKoin
+import org.example.logic.useCase.GetEntityAuditLogsUseCase
+import org.example.logic.useCase.GetStateNameUseCase
+import org.example.logic.useCase.GetTaskByIdUseCase
+import org.example.logic.useCase.DeleteTaskUseCase
+import org.example.logic.useCase.UpdateTaskUseCase
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -39,18 +42,33 @@ class ShowTaskInformation(
                         deleteTask(taskId)
                         isRunning = false
                     }
+
                     "3" -> showTaskLogs(taskId)
                     "4" -> {
                         onNavigateBack
                     }
+
                     else -> viewer.display("Invalid choice. Please try again.")
                 }
+            } catch (e: InvalidInputException) {
+                viewer.display("Error: Task ID should be alphanumeric")
+                isRunning = false
+            } catch (e: BlankInputException) {
+                viewer.display("Error: Task ID cannot be blank")
+                isRunning = false
+            } catch (e: TaskNotFoundException) {
+                viewer.display("Error: No task found with id: $taskId")
+                isRunning = false
+            } catch (e: TaskStateNotFoundException) {
+                viewer.display("Error: State not found")
+                isRunning = false
             } catch (e: Exception) {
                 viewer.display("Error: ${e.message}")
                 isRunning = false
             }
         }
     }
+
     private fun displayTaskDetails(task: Task, stateName: String) {
         val headers = listOf("Field", "Value")
         val rows = listOf(
@@ -104,7 +122,11 @@ class ShowTaskInformation(
             val updatedTask = task.copy(name = newName, stateId = newStateId)
             updateTaskUseCase(task.id, updatedTask)
             viewer.display("Task updated successfully.")
-        } catch (e: Exception) {
+        } catch (e: TaskNotFoundException) {
+            viewer.display("Error Task with id ${task.id} not found")
+        }catch (e: TaskNotChangedException) {
+            viewer.display("Error No changes detected for task with id ${task.id}")
+        }catch (e: Exception) {
             viewer.display("Error updating task: ${e.message}")
         }
     }
@@ -121,7 +143,10 @@ class ShowTaskInformation(
                 viewer.display("Deletion cancelled.")
                 return@runBlocking false
             }
-        } catch (e: Exception) {
+        } catch (e: TaskDeletionFailedException) {
+            viewer.display("Error: Cannot delete task")
+            return@runBlocking  false
+        }catch (e: Exception) {
             viewer.display("Error deleting task: ${e.message}")
             return@runBlocking false
         }
@@ -139,6 +164,12 @@ class ShowTaskInformation(
                 headers = listOf("Actions"),
                 columnValues = listOf(actions)
             )
+        } catch (e: ProjectNotFoundException) {
+            viewer.display("Error: No project found with this id")
+        }catch (e: TaskNotFoundException) {
+            viewer.display("Error: No task found with this id")
+        }catch (e: BlankInputException) {
+            viewer.display("Error: Entity id cannot be blank")
         } catch (e: Exception) {
             viewer.display("Error fetching logs: ${e.message}")
         }

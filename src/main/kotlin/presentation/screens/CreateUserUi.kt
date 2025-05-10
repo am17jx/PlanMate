@@ -31,11 +31,11 @@ class CreateUserUi(
             val user = createMateUseCase(username, password)
             viewer.display("✅ User '${user.username}' created successfully".green())
         } catch (e: BlankInputException) {
-            viewer.display("❌ Error: ${e.message}")
-        } catch (e: InvalidUserNameInputException) {
-            viewer.display("❌ Error: ${e.message}")
+            viewer.display("❌ Error: Username or Password cannot be blank")
+        } catch (e: InvalidUsernameException) {
+            viewer.display("❌ Error: Username cannot contain spaces")
         } catch (e: UserAlreadyExistsException) {
-            viewer.display("❌ Error: ${e.message}")
+            viewer.display("❌ Error: User already exists")
         } catch (e: Exception) {
             viewer.display("❌ Unexpected error: ${e.message}")
         }

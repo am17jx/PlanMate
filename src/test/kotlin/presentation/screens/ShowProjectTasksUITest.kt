@@ -209,7 +209,7 @@ class ShowProjectTasksUITest {
 
     @Test
     fun `should handle project not found exception`() {
-        coEvery { getProjectByIdUseCase.invoke(any()) } throws ProjectNotFoundException("Project not found")
+        coEvery { getProjectByIdUseCase.invoke(any()) } throws ProjectNotFoundException()
 
         showProjectTasksUi = ShowProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -227,7 +227,7 @@ class ShowProjectTasksUITest {
             projectId = "1"
         )
 
-        verify { viewer.display("Project not found") }
+        verify { viewer.display("Error: project not found") }
         assertThat(isNavigateBackCalled).isTrue()
     }
 

@@ -9,7 +9,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.data.source.remote.mongo.utils.mapper.toProjectDTO
 import org.example.data.source.remote.models.ProjectDTO
-import org.example.data.source.remote.contract.RemoteProjectDataSource
+import org.example.data.repository.sources.remote.RemoteProjectDataSource
 import org.example.data.source.remote.mongo.MongoProjectDataSource
 import org.example.data.utils.Constants.ID
 import org.example.logic.models.Project
@@ -56,11 +56,11 @@ class MongoProjectDataSourceTest {
         coVerify(exactly = 1) { mongoClientCollection.find(filter = any()) }
     }
     @Test
-    fun `should throw GetItemsFailedException exception when try to get projects fails in MongoDB`() = runTest{
+    fun `should throw NoProjectsFoundException exception when try to get projects fails in MongoDB`() = runTest{
 
-        coEvery {  mongoClientCollection.find(filter = any())} throws GetItemsFailedException("")
+        coEvery {  mongoClientCollection.find(filter = any())} throws NoProjectsFoundException()
 
-        assertThrows<GetItemsFailedException> {  remoteProjectDataSource.getAllProjects() }
+        assertThrows<NoProjectsFoundException> {  remoteProjectDataSource.getAllProjects() }
     }
 
     @Test
@@ -86,7 +86,7 @@ class MongoProjectDataSourceTest {
     }
 
     @Test
-    fun `should throw CreationItemFailedException exception when create project fails in MongoDB`() = runTest {
+    fun `should throw ProjectCreationFailedException exception when create project fails in MongoDB`() = runTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
@@ -100,9 +100,9 @@ class MongoProjectDataSourceTest {
             auditLogsIds = listOf("300")
         )
 
-        coEvery {  mongoClientCollection.insertOne(projectDTO, any())  } throws CreationItemFailedException("")
+        coEvery {  mongoClientCollection.insertOne(projectDTO, any())  } throws ProjectCreationFailedException()
 
-        assertThrows<CreationItemFailedException> { remoteProjectDataSource.createProject(newProject)   }
+        assertThrows<ProjectCreationFailedException> { remoteProjectDataSource.createProject(newProject)   }
 
     }
 
@@ -131,7 +131,7 @@ class MongoProjectDataSourceTest {
     }
 
     @Test
-    fun `should throw UpdateCreationFailedException exception when update project fails in MongoDB`() = runTest {
+    fun `should throw ProjectNotChangedException exception when update project fails in MongoDB`() = runTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
@@ -146,9 +146,9 @@ class MongoProjectDataSourceTest {
             auditLogsIds = listOf("300")
         )
 
-        coEvery { mongoClientCollection.replaceOne(Filters.eq(ID, newProject.id), projectDTO, any())} throws UpdateItemFailedException("")
+        coEvery { mongoClientCollection.replaceOne(Filters.eq(ID, newProject.id), projectDTO, any())} throws ProjectNotChangedException()
 
-        assertThrows<UpdateItemFailedException> {  remoteProjectDataSource.updateProject(newProject) }
+        assertThrows<ProjectNotChangedException> {  remoteProjectDataSource.updateProject(newProject) }
     }
 
 
@@ -164,9 +164,9 @@ class MongoProjectDataSourceTest {
     @Test
     fun `should throw GetProjectByIdFailedException exception when get project by by ID fails in MongoDB`() = runTest {
 
-        coEvery{ mongoClientCollection.find(filter = any()) }throws GetItemByIdFailedException("")
+        coEvery{ mongoClientCollection.find(filter = any()) }throws ProjectNotFoundException()
 
-        assertThrows<GetItemByIdFailedException> { remoteProjectDataSource.getProjectById("1")  }
+        assertThrows<ProjectNotFoundException> { remoteProjectDataSource.getProjectById("1")  }
     }
 
 
@@ -182,9 +182,9 @@ class MongoProjectDataSourceTest {
     @Test
     fun `should throw DeleteProjectFailedException exception when deleting project by ID fails in MongoDB`() = runTest {
 
-        coEvery {  mongoClientCollection.deleteOne(filter = any(), options = any()) } throws DeleteItemFailedException("")
+        coEvery {  mongoClientCollection.deleteOne(filter = any(), options = any()) } throws ProjectDeletionFailedException()
 
-        assertThrows<DeleteItemFailedException> { remoteProjectDataSource.deleteProject("1") }
+        assertThrows<ProjectDeletionFailedException> { remoteProjectDataSource.deleteProject("1") }
     }
 
 

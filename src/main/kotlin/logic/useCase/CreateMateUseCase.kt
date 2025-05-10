@@ -3,9 +3,7 @@ package org.example.logic.useCase
 import org.example.logic.models.User
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.InvalidUserNameInputException
-import org.example.logic.utils.UserAlreadyExistsException
-import org.example.logic.utils.hashWithMD5
+import org.example.logic.utils.InvalidUsernameException
 
 class CreateMateUseCase(
     private val authenticationRepository: AuthenticationRepository,
@@ -15,12 +13,11 @@ class CreateMateUseCase(
         password: String,
     ): User {
         when {
-            username.isBlank() -> throw BlankInputException("Username is blank")
-            password.isBlank() -> throw BlankInputException("Password is blank")
-            hasSpace(username) -> throw InvalidUserNameInputException("Username cannot contain spaces")
+            username.isBlank() -> throw BlankInputException()
+            password.isBlank() -> throw BlankInputException()
+            hasSpace(username) -> throw InvalidUsernameException()
             else -> {
-                val hashedPassword = hashWithMD5(password)
-                return authenticationRepository.createMate(username, hashedPassword)
+                return authenticationRepository.createMate(username, password)
             }
         }
     }

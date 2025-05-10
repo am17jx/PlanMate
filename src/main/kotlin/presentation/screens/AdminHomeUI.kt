@@ -23,7 +23,8 @@ class AdminHomeUI(
         viewer.display("1. Show All Projects")
         viewer.display("2. Create New Project")
         viewer.display("3. Create User")
-        viewer.display("4. Back")
+        viewer.display("4. Logout")
+        viewer.display("0. Exit")
         viewer.display("Enter your choice: ")
 
         val choice = reader.readInt() ?: -1
@@ -31,11 +32,18 @@ class AdminHomeUI(
             1 -> onNavigateToShowAllProjectsUI(userRole)
             2 -> onNavigateToCreateProject()
             3 -> onNavigateToCreateUser()
-            4 -> onNavigateToOnBackStack()
+            4 -> logout()
+            0 -> onExit()
             else -> {
                 viewer.display("Invalid input. Try again.")
                 showMenu()
             }
         }
     }
+
+    private fun logout() =
+        runBlocking {
+            logoutUseCase()
+            onLogout()
+        }
 }

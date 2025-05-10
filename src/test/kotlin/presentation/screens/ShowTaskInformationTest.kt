@@ -1,11 +1,16 @@
 package presentation.screens
 
 import io.mockk.*
+import kotlinx.datetime.Clock
 import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Task
-import org.example.logic.useCase.*
+import org.example.logic.useCase.GetEntityAuditLogsUseCase
+import org.example.logic.useCase.GetStateNameUseCase
+import org.example.logic.useCase.GetTaskByIdUseCase
+import org.example.logic.useCase.DeleteTaskUseCase
+import org.example.logic.useCase.UpdateTaskUseCase
 import org.example.presentation.screens.ShowTaskInformation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,33 +30,36 @@ class ShowTaskInformationTest {
     private lateinit var showTaskInformation: ShowTaskInformation
     private val tablePrinter = mockk<TablePrinter>(relaxed = true)
 
-    private val sampleTask = Task(
-        id = "task-1",
-        name = "Old Name",
-        stateId = "state-1",
-        addedBy = "user-1",
-        auditLogsIds = emptyList(),
-        projectId = "proj-1"
-    )
-    val logs = listOf(
-        AuditLog(
-            id = "log-1",
-            userId = "user-1",
-            action = "Created Task",
-            timestamp = 1682937600000L,
-            entityType = AuditLogEntityType.TASK,
-            entityId = "task-1",
-            actionType = AuditLogActionType.CREATE
-        ), AuditLog(
-            id = "log-2",
-            userId = "user-2",
-            action = "Updated Task",
-            timestamp = 1683024000000L,
-            entityType = AuditLogEntityType.TASK,
-            entityId = "task-1",
-            actionType = AuditLogActionType.UPDATE
+    private val sampleTask =
+        Task(
+            id = "task-1",
+            name = "Old Name",
+            stateId = "state-1",
+            addedBy = "user-1",
+            auditLogsIds = emptyList(),
+            projectId = "proj-1",
         )
-    )
+    val logs =
+        listOf(
+            AuditLog(
+                id = "log-1",
+                userId = "user-1",
+                action = "Created Task",
+                createdAt = Clock.System.now(),
+                entityType = AuditLogEntityType.TASK,
+                entityId = "task-1",
+                actionType = AuditLogActionType.CREATE,
+            ),
+            AuditLog(
+                id = "log-2",
+                userId = "user-2",
+                action = "Updated Task",
+                createdAt = Clock.System.now(),
+                entityType = AuditLogEntityType.TASK,
+                entityId = "task-1",
+                actionType = AuditLogActionType.UPDATE,
+            ),
+        )
 
     @BeforeEach
     fun setUp() {
@@ -135,9 +143,13 @@ class ShowTaskInformationTest {
     fun `should display error updating task when updateTaskUseCase throws`() {
         coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
         coEvery { getStateNameUseCase("task-1") } returns "To Do"
-        every { reader.readString() } returnsMany listOf(
-            "1", "New Name", "new-state", "4"
-        )
+        every { reader.readString() } returnsMany
+            listOf(
+                "1",
+                "New Name",
+                "new-state",
+                "4",
+            )
         coEvery { updateTaskUseCase("task-1", any()) } throws RuntimeException("update failure")
 
         showTaskInformation.showTaskInformation("task-1")
@@ -200,7 +212,6 @@ class ShowTaskInformationTest {
 
         showTaskInformation.showTaskInformation("task-1")
 
-
         verify { viewer.display(any()) }
     }
 
@@ -208,9 +219,13 @@ class ShowTaskInformationTest {
     fun `should update task with default values when new name and sate id are blank`() {
         coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
         coEvery { getStateNameUseCase("task-1") } returns "To Do"
-        every { reader.readString() } returnsMany listOf(
-            "1", "", "", "4"
-        )
+        every { reader.readString() } returnsMany
+            listOf(
+                "1",
+                "",
+                "",
+                "4",
+            )
 
         showTaskInformation.showTaskInformation("task-1")
 
@@ -218,5 +233,4 @@ class ShowTaskInformationTest {
         coVerify { updateTaskUseCase("task-1", expectedTask) }
         verify { viewer.display(any()) }
     }
-
 }

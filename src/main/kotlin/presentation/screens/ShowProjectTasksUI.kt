@@ -6,6 +6,8 @@ import org.example.logic.models.Project
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.InvalidInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
@@ -183,8 +185,15 @@ class ShowProjectTasksUI(
     private fun handleError(e: Exception) {
         when (e) {
             is ProjectNotFoundException -> {
-                viewer.display(e.message)
+                viewer.display("Error: project not found")
                 return onNavigateBack()
+            }
+            is InvalidInputException -> {
+                viewer.display("Error: Project ID is invalid")
+                return onNavigateBack()
+            }
+            is BlankInputException -> {
+                viewer.display("Error: Input cannot be blank")
             }
 
             else -> {
