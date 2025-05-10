@@ -50,13 +50,13 @@ class CreateStateUseCaseTest {
         coEvery { authenticationRepository.getCurrentUser() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns dummyProject
         coEvery { updateProjectUseCase(any()) } returns
-            dummyProject.copy(states = dummyProject.states + State(id = "8", title = stateName))
+            dummyProject.copy(tasksStatesIds = dummyProject.tasksStatesIds + State(id = "8", title = stateName))
 
         val updatedProject = createStateUseCase(stateName, dummyProject.id)
 
         coVerify { projectRepository.getProjectById(any()) }
-        assertThat(updatedProject.states).hasSize(4)
-        assertThat(updatedProject.states.map { it.title }).contains(stateName)
+        assertThat(updatedProject.tasksStatesIds).hasSize(4)
+        assertThat(updatedProject.tasksStatesIds.map { it.title }).contains(stateName)
     }
 
     @Test

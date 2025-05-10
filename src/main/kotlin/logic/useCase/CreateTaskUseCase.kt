@@ -1,10 +1,8 @@
 package logic.useCase
 
 import kotlinx.datetime.*
-import org.example.data.repository.AuthenticationRepositoryImpl
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
@@ -69,7 +67,7 @@ class CreateTaskUseCase(
 
     private suspend fun verifyProjectAndStateExist(projectId: String, stateId: String) {
         projectRepository.getProjectById(projectId)?.let { project ->
-            if (project.states.none { it.id == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
+            if (project.tasksStatesIds.none { it == stateId }) throw StateNotFoundException(NO_STATE_FOUND_ERROR_MESSAGE)
         } ?: throw ProjectNotFoundException(NO_PROJECT_FOUND_ERROR_MESSAGE)
     }
 
