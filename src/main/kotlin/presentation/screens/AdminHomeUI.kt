@@ -1,6 +1,8 @@
 package org.example.presentation.screens
 
+import kotlinx.coroutines.runBlocking
 import org.example.logic.models.UserRole
+import org.example.logic.useCase.LogoutUseCase
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -8,11 +10,12 @@ class AdminHomeUI(
     private val viewer: Viewer,
     private val reader: Reader,
     private val userRole: UserRole,
+    private val logoutUseCase: LogoutUseCase,
     private val onNavigateToShowAllProjectsUI: (userRole: UserRole) -> Unit,
     private val onNavigateToCreateProject: () -> Unit,
     private val onNavigateToCreateUser: () -> Unit,
-    private val onNavigateToOnBackStack: () -> Unit,
-    private val onNavigateToOnExit: () -> Unit,
+    private val onLogout: () -> Unit,
+    private val onExit: () -> Unit,
 ) {
     init {
         showMenu()
@@ -32,12 +35,18 @@ class AdminHomeUI(
             1 -> onNavigateToShowAllProjectsUI(userRole)
             2 -> onNavigateToCreateProject()
             3 -> onNavigateToCreateUser()
-            4 -> onNavigateToOnBackStack()
-            0 -> onNavigateToOnExit()
+            4 -> logout()
+            0 -> onExit()
             else -> {
                 viewer.display("Invalid input. Try again.")
                 showMenu()
             }
         }
     }
+
+    private fun logout() =
+        runBlocking {
+            logoutUseCase()
+            onLogout()
+        }
 }

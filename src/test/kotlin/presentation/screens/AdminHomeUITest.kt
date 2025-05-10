@@ -1,5 +1,7 @@
 import com.google.common.truth.Truth.assertThat
+import io.mockk.mockk
 import org.example.logic.models.UserRole
+import org.example.logic.useCase.LogoutUseCase
 import org.example.presentation.screens.AdminHomeUI
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -11,6 +13,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 class AdminHomeUITest {
+    private lateinit var logoutUseCase: LogoutUseCase
     private val originalOut = System.out
     private val originalIn = System.`in`
     private lateinit var outContent: ByteArrayOutputStream
@@ -23,6 +26,7 @@ class AdminHomeUITest {
 
     @BeforeEach
     fun setUp() {
+        logoutUseCase = mockk(relaxed = true)
         outContent = ByteArrayOutputStream()
         System.setOut(PrintStream(outContent))
 
@@ -51,11 +55,12 @@ class AdminHomeUITest {
                 },
             reader = ConsoleReader(),
             userRole = UserRole.ADMIN,
+            logoutUseCase = logoutUseCase,
             onNavigateToShowAllProjectsUI = { navigateToShowAllProjectsCalled = true },
             onNavigateToCreateProject = { navigateToCreateProjectCalled = true },
             onNavigateToCreateUser = { navigateToCreateUserCalled = true },
-            onNavigateToOnBackStack = { navigateToBackCalled = true },
-            onNavigateToOnExit = { navigateToExitCalled = true },
+            onLogout = { navigateToBackCalled = true },
+            onExit = { navigateToExitCalled = true },
         )
     }
 

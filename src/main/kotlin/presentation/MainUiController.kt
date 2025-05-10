@@ -36,11 +36,12 @@ class MainUiController(
 
             is Route.AdminHomeRoute -> {
                 AdminHomeUI(
+                    logoutUseCase = getKoin().get(),
                     onNavigateToShowAllProjectsUI = { navigationController.navigateTo(Route.ProjectsOverviewUI(it)) },
                     onNavigateToCreateProject = { navigationController.navigateTo(Route.CreateProjectRoute) },
                     onNavigateToCreateUser = { navigationController.navigateTo(Route.CreateUserRoute) },
-                    onNavigateToOnBackStack = { navigationController.popBackStack() },
-                    onNavigateToOnExit = { onFinish() },
+                    onLogout = { navigationController.popBackStack() },
+                    onExit = { onFinish() },
                     viewer = viewer,
                     reader = reader,
                     userRole = UserRole.ADMIN,
@@ -55,10 +56,10 @@ class MainUiController(
                     onNavigateToProjectStatusUI = { projectId ->
                         navigationController.navigateTo(Route.ProjectStatusRoute(projectId = projectId))
                     },
-                    onNavigateBack = {
+                    onLogout = {
                         navigationController.popBackStack()
                     },
-                    onNavigateToExit = {
+                    onExit = {
                         onFinish()
                     },
                     projectScreensOptions = userFactory(route.userRole),

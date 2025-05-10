@@ -7,6 +7,7 @@ import org.example.logic.useCase.DeleteProjectUseCase
 import org.example.logic.useCase.GetAllProjectsUseCase
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
+import org.example.logic.useCase.LogoutUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.presentation.role.ProjectScreensOptions
 import org.koin.java.KoinJavaComponent.getKoin
@@ -17,17 +18,18 @@ import presentation.utils.io.Viewer
 class ProjectsOverviewUI(
     private val onNavigateToShowProjectTasksUI: (id: String) -> Unit,
     private val onNavigateToProjectStatusUI: (id: String) -> Unit,
+    private val onLogout: () -> Unit,
+    private val onExit: () -> Unit,
     private val projectScreensOptions: ProjectScreensOptions,
     private val getAllProjectsUseCase: GetAllProjectsUseCase,
     private val updateProjectUseCase: UpdateProjectUseCase,
     private val deleteProjectUseCase: DeleteProjectUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
+    private val logoutUseCase: LogoutUseCase,
     private val viewer: Viewer,
     private val reader: Reader,
     private val tablePrinter: TablePrinter,
-    private val onNavigateBack: () -> Unit,
-    private val onNavigateToExit: () -> Unit,
 ) {
     private val options: Map<String, String> = projectScreensOptions.showAllProjectsOptions()
 
@@ -88,11 +90,11 @@ class ProjectsOverviewUI(
                 MainMenuOption.UPDATE_PROJECT -> updateProject()
                 MainMenuOption.DELETE_PROJECT -> deleteProject()
                 MainMenuOption.SHOW_PROJECT_LOGS -> showProjectLogsInTable()
-                MainMenuOption.BACK -> {
-                    back()
+                MainMenuOption.LOGOUT -> {
+                    logout()
                     return
                 }
-                MainMenuOption.EXIT -> onNavigateToExit()
+                MainMenuOption.EXIT -> onExit()
 
                 null -> viewer.display("Invalid input. Please try again.")
             }
@@ -115,9 +117,11 @@ class ProjectsOverviewUI(
             }
         }
 
-    private fun back() {
-        onNavigateBack()
-    }
+    private fun logout() =
+        runBlocking {
+            logoutUseCase()
+            onLogout()
+        }
 
     private fun deleteProject() =
         runBlocking {
@@ -184,7 +188,7 @@ class ProjectsOverviewUI(
         UPDATE_PROJECT("2"),
         DELETE_PROJECT("3"),
         SHOW_PROJECT_LOGS("4"),
-        BACK("5"),
+        LOGOUT("5"),
         EXIT("0"),
         ;
 
@@ -209,24 +213,25 @@ class ProjectsOverviewUI(
         fun create(
             onNavigateToShowProjectTasksUI: (id: String) -> Unit,
             onNavigateToProjectStatusUI: (id: String) -> Unit,
-            onNavigateBack: () -> Unit,
-            onNavigateToExit: () -> Unit,
+            onLogout: () -> Unit,
+            onExit: () -> Unit,
             projectScreensOptions: ProjectScreensOptions,
         ): ProjectsOverviewUI =
             ProjectsOverviewUI(
                 onNavigateToShowProjectTasksUI = onNavigateToShowProjectTasksUI,
                 onNavigateToProjectStatusUI = onNavigateToProjectStatusUI,
+                onLogout = onLogout,
+                onExit = onExit,
                 projectScreensOptions = projectScreensOptions,
                 getAllProjectsUseCase = getKoin().get(),
                 updateProjectUseCase = getKoin().get(),
                 getProjectByIdUseCase = getKoin().get(),
                 deleteProjectUseCase = getKoin().get(),
                 getEntityAuditLogsUseCase = getKoin().get(),
+                logoutUseCase = getKoin().get(),
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get(),
-                onNavigateBack = onNavigateBack,
-                onNavigateToExit = onNavigateToExit,
             )
     }
 }
