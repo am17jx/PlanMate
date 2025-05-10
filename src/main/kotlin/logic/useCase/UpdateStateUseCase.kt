@@ -8,11 +8,14 @@ import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskStateNotFoundException
+import org.example.logic.utils.StateNotFoundException
+import kotlin.uuid.ExperimentalUuidApi
 
 class UpdateStateUseCase(
     private val taskStateRepository: TaskStateRepository,
     private val projectRepository: ProjectRepository,
 ) {
+    @OptIn(ExperimentalUuidApi::class)
     suspend operator fun invoke(
         newStateName: String,
         stateId: String,

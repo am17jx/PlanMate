@@ -31,4 +31,5 @@ val useCaseModule =
         singleOf(::UpdateStateUseCase)
         singleOf(::UpdateTaskUseCase)
         singleOf(::GetProjectStatesUseCase)
+        singleOf(::CreateAuditLogUseCase)
     }

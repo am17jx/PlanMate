@@ -2,37 +2,47 @@ package org.example.logic.useCase.updateProject
 
 import kotlinx.datetime.Clock
 import org.example.logic.models.*
+import org.example.logic.models.AuditLog.FieldChange.Companion.detectChanges
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
+import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotChangedException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.formattedString
 import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class UpdateProjectUseCase(
     private val projectRepository: ProjectRepository,
-    private val auditLogRepository: AuditLogRepository,
-    private val currentUserUseCase: GetCurrentUserUseCase,
+    private val createAuditLogUseCase: CreateAuditLogUseCase
 ) {
     suspend operator fun invoke(updatedProject: Project): Project {
         if (updatedProject.name.isEmpty()) throw BlankInputException()
         val originalProject = currentOriginalProject(updatedProject)
         detectChanges(updatedProject, originalProject)
-
-        return saveUpdatedProject(originalProject, updatedProject, currentUserUseCase())
+        return saveUpdatedProject(originalProject, updatedProject)
     }
 
     private suspend fun saveUpdatedProject(
         originalProject: Project,
-        newProject: Project,
-        currentUser: User,
+        newProject: Project
     ): Project {
-
-        projectRepository.updateProject(newProject)
+        val logsIds = newProject.detectChanges(originalProject).map { change ->
+            createAuditLogUseCase.logUpdate(
+                entityId = newProject.id,
+                entityName = newProject.name,
+                entityType = AuditLog.EntityType.PROJECT,
+                fieldChange = change
+            ).id
+        }
+        projectRepository.updateProject(newProject.copy(auditLogsIds = newProject.auditLogsIds.plus(logsIds)))
         return newProject
     }
+
+
 
     private fun detectChanges(originalProject: Project, newProject: Project) {
         if ((originalProject.name == newProject.name) && (originalProject.tasksStatesIds.toSet() == newProject.tasksStatesIds.toSet())) throw ProjectNotChangedException()

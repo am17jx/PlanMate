@@ -2,17 +2,19 @@ package org.example.logic.useCase
 
 import kotlinx.datetime.Clock
 import org.example.logic.models.*
+import org.example.logic.models.AuditLog.FieldChange.Companion.detectChanges
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.utils.TaskNotChangedException
 import org.example.logic.utils.TaskNotFoundException
 import org.example.logic.utils.formattedString
 import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class UpdateTaskUseCase(
     private val taskRepository: TaskRepository,
-    private val auditLogRepository: AuditLogRepository,
-    private val currentUserUseCase: GetCurrentUserUseCase,
+    private val createAuditLogUseCase: CreateAuditLogUseCase
 ) {
     suspend operator fun invoke(
         taskId: String,
@@ -20,37 +22,22 @@ class UpdateTaskUseCase(
     ): Task {
         val existingTask = getExistingTaskOrThrow(taskId)
         ensureTaskIsChanged(existingTask, updatedTask)
-        return updateAndLogTask(existingTask, updatedTask, currentUserUseCase())
+        return updateAndLogTask(existingTask, updatedTask)
     }
 
     private suspend fun updateAndLogTask(
         oldTask: Task,
         updatedTask: Task,
-        currentUser: User,
     ): Task {
-        val taskAuditLog = logAudit(currentUser, updatedTask, oldTask)
-
-        val taskLog = auditLogRepository.createAuditLog(taskAuditLog)
-
-        taskRepository.updateTask(updatedTask)
-        return updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(taskLog.id ?: ""))
-    }
-
-    private fun logAudit(
-        user: User,
-        oldTask: Task,
-        newTask: Task,
-    ): AuditLog {
-        val currentTime = Clock.System.now()
-        return AuditLog(
-            id = UUID.randomUUID().toString(),
-            userId = user.id,
-            action = "Updated task from stateId=${oldTask.stateId} to stateId=${newTask.stateId} at ${currentTime.formattedString()}",
-            createdAt = currentTime,
-            entityType = AuditLogEntityType.TASK,
-            entityId = newTask.id,
-            actionType = AuditLogActionType.UPDATE,
-        )
+        val logsIds = updatedTask.detectChanges(oldTask).map { change ->
+            createAuditLogUseCase.logUpdate(
+                entityType = AuditLog.EntityType.TASK,
+                entityId = oldTask.id,
+                entityName = updatedTask.name,
+                fieldChange = change
+            ).id
+        }
+        return taskRepository.updateTask(updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(logsIds)))
     }
 
     private suspend fun getExistingTaskOrThrow(taskId: String): Task {

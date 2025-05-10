@@ -1,29 +1,42 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package org.example.data.source.remote.mongo.utils.mapper
 
 import org.example.data.source.remote.models.AuditLogDTO
 import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLogActionType
-import org.example.logic.models.AuditLogEntityType
 import org.example.logic.utils.toInstant
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-fun AuditLogDTO.toAuditLog(): AuditLog =
-    AuditLog(
-        id = id,
-        userId = userId,
-        action = action,
-        createdAt = createdAt.toInstant(),
-        entityType = AuditLogEntityType.valueOf(entityType),
-        entityId = entityId,
-        actionType = AuditLogActionType.valueOf(actionType),
-    )
+fun AuditLogDTO.toAuditLog(): AuditLog = AuditLog(
+    id = Uuid.parse(id),
+    userId = userId,
+    userName = userName,
+    createdAt = createdAt.toInstant(),
+    entityType = AuditLog.EntityType.valueOf(entityType),
+    entityName = entityName,
+    entityId = entityId,
+    actionType = AuditLog.ActionType.valueOf(actionType),
+    fieldChange = fieldChange?.toFieldChange()
+)
 
-fun AuditLog.toAuditLogDTO(): AuditLogDTO =
-    AuditLogDTO(
-        id = id,
-        userId = userId,
-        action = action,
-        createdAt = createdAt.toEpochMilliseconds(),
-        entityType = entityType.name,
-        entityId = entityId,
-        actionType = actionType.name,
-    )
+fun AuditLog.toAuditLogDTO(): AuditLogDTO = AuditLogDTO(
+    id = id.toHexString(),
+    userId = userId,
+    userName = userName,
+    createdAt = createdAt.toEpochMilliseconds(),
+    entityType = entityType.name,
+    entityName = entityName,
+    entityId = entityId,
+    actionType = actionType.name,
+    fieldChange = fieldChange?.toFieldChangeDto()
+)
+
+
+fun AuditLog.FieldChange.toFieldChangeDto(): AuditLogDTO.FieldChangeDto = AuditLogDTO.FieldChangeDto(
+    fieldName = fieldName, oldValue = oldValue, newValue = newValue
+)
+
+fun AuditLogDTO.FieldChangeDto.toFieldChange(): AuditLog.FieldChange = AuditLog.FieldChange(
+    fieldName = fieldName, oldValue = oldValue, newValue = newValue
+)
