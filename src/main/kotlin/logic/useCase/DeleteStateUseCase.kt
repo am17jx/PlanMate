@@ -6,8 +6,10 @@ import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
+import kotlin.uuid.ExperimentalUuidApi
 
 
+@OptIn(ExperimentalUuidApi::class)
 class DeleteStateUseCase(
     private val projectRepository: ProjectRepository,
     private val updateProjectUseCase: UpdateProjectUseCase,
