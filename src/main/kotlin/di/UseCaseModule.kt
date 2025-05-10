@@ -29,4 +29,5 @@ val useCaseModule =
         singleOf(::UpdateProjectUseCase)
         singleOf(::UpdateStateUseCase)
         singleOf(::UpdateTaskUseCase)
+        singleOf(::GetProjectStatesUseCase)
     }

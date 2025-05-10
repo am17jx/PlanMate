@@ -2,20 +2,14 @@ package org.example.di
 
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import org.example.data.source.local.contract.LocalAuditLogDataSource
-import org.example.data.source.local.contract.LocalAuthenticationDataSource
-import org.example.data.source.local.contract.LocalProjectDataSource
-import org.example.data.source.local.contract.LocalTaskDataSource
+import org.example.data.source.local.contract.*
 import org.example.data.source.local.csv.CsvAuditLogDataSource
 import org.example.data.source.local.csv.CsvAuthenticationDataSource
 import org.example.data.source.local.csv.CsvProjectDataSource
 import org.example.data.source.local.csv.CsvTaskDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
-import org.example.data.source.remote.contract.RemoteAuditLogDataSource
-import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
-import org.example.data.source.remote.contract.RemoteProjectDataSource
-import org.example.data.source.remote.contract.RemoteTaskDataSource
+import org.example.data.source.remote.contract.*
 import org.example.data.source.remote.mongo.*
 import org.example.data.utils.Constants
 import org.koin.core.parameter.parametersOf
@@ -74,10 +68,12 @@ val dataSourceModule = module {
         val file = File("users.csv")
         CsvAuthenticationDataSource(CSVWriter(file), CSVReader(file))
     }
+
     single<RemoteProjectDataSource> { MongoProjectDataSource(PlanMateDataBase.projectDoc) }
     single<RemoteAuthenticationDataSource> { MongoAuthenticationDataSource(PlanMateDataBase.userDoc) }
     single<RemoteAuditLogDataSource> { MongoAuditLogDataSource(PlanMateDataBase.auditLogDoc) }
     single<RemoteTaskDataSource> { MongoTaskDataSource(PlanMateDataBase.taskDoc) }
+    single<RemoteTaskStateDataSource> { MongoTaskStateDataSource(PlanMateDataBase.stateDoc) }
 
 
 }
