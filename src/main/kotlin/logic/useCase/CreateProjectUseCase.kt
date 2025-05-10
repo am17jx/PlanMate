@@ -4,6 +4,7 @@ import kotlinx.datetime.Clock
 import org.example.logic.models.*
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
+import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectCreationFailedException
 import org.example.logic.utils.formattedString
@@ -14,8 +15,9 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
-    private val createAuditLogUseCase: CreateAuditLogUseCase
-) {
+    private val createAuditLogUseCase: CreateAuditLogUseCase,
+    private val taskStateRepository: TaskStateRepository,
+){
     suspend operator fun invoke(projectName: String): Project {
         checkInputValidation(projectName)
 
@@ -33,7 +35,7 @@ class CreateProjectUseCase(
             Project(
                 id = projectId,
                 name = projectName,
-                states = getDefaultStates(),
+                tasksStatesIds = getDefaultStates(),
                 auditLogsIds = listOf(audit.id),
             )
 
@@ -41,12 +43,12 @@ class CreateProjectUseCase(
         return newProject
     }
 
-    private fun getDefaultStates() =
+    private suspend fun getDefaultStates() =
         listOf(
-            State(Uuid.random().getCroppedId(), DEFAULT_TO_DO_STATE_NAME),
-            State(Uuid.random().getCroppedId(), DEFAULT_IN_PROGRESS_STATE_NAME),
-            State(Uuid.random().getCroppedId(), DEFAULT_DONE_STATE_NAME),
-        )
+            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_TO_DO_STATE_NAME)),
+            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_IN_PROGRESS_STATE_NAME)),
+            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_DONE_STATE_NAME)),
+        ).map { it.id }
 
     private fun checkInputValidation(projectName: String) {
         when {

@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.runTest
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.models.Task
+import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
@@ -19,6 +20,7 @@ class GetStateNameUseCaseTest {
     private lateinit var getTaskByIdUseCase: GetTaskByIdUseCase
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
     private lateinit var getStateNameUseCase: GetStateNameUseCase
+    private lateinit var taskStateRepository: TaskStateRepository
     private val dummyTask = Task(
         id = "task-123",
         name = "Some Task",
@@ -29,16 +31,17 @@ class GetStateNameUseCaseTest {
     )
 
     private val dummyProject = Project(
-        id = "project-1", name = "My Project", states = listOf(
-            State(id = "state-001", title = "to do"), State(id = "state-002", title = "in progress")
+        id = "project-1", name = "My Project", tasksStatesIds = listOf(
+            "state-001", "state-002",
         ), auditLogsIds = emptyList()
     )
 
     @BeforeEach
     fun setUp() {
+        taskStateRepository = mockk()
         getTaskByIdUseCase = mockk()
         getProjectByIdUseCase = mockk()
-        getStateNameUseCase = GetStateNameUseCase(getTaskByIdUseCase, getProjectByIdUseCase)
+        getStateNameUseCase = GetStateNameUseCase(getTaskByIdUseCase, taskStateRepository)
     }
 
     @Test

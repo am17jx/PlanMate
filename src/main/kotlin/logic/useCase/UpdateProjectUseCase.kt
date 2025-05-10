@@ -45,7 +45,7 @@ class UpdateProjectUseCase(
 
 
     private fun detectChanges(originalProject: Project, newProject: Project) {
-        if ((originalProject.name == newProject.name) && (originalProject.states.toSet() == newProject.states.toSet())) throw ProjectNotChangedException()
+        if ((originalProject.name == newProject.name) && (originalProject.tasksStatesIds.toSet() == newProject.tasksStatesIds.toSet())) throw ProjectNotChangedException()
     }
 
     private suspend fun currentOriginalProject(

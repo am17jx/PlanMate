@@ -21,7 +21,7 @@ class CreateNewProjectUiTest {
     fun `should return success message when project is created successfully`() {
         val projectName = "New Project"
         val project = Project(
-            id = "1", name = projectName, states = emptyList(), auditLogsIds = emptyList()
+            id = "1", name = projectName, tasksStatesIds = emptyList(), auditLogsIds = emptyList()
         )
         coEvery { createProjectUseCase(projectName) } returns project
 

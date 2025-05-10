@@ -19,8 +19,6 @@ class DeleteTaskUseCase(
                 entityType = AuditLog.EntityType.PROJECT, entityId = task.id, entityName = task.name
             )
             taskRepository.deleteTask(taskId)
-        } catch (e: Exception) {
-            throw TaskDeletionFailedException()
         }
     }
 }

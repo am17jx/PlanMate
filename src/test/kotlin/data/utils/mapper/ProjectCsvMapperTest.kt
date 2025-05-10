@@ -19,12 +19,8 @@ class ProjectCsvMapperTest {
             Project(
                 id = "1",
                 name = "Test Project",
-                states =
-                    listOf(
-                        State(id = "1", title = "To Do"),
-                        State(id = "2", title = "In Progress"),
-                        State(id = "3", title = "Done"),
-                    ),
+                tasksStatesIds =
+                    listOf("1", "2", "3"),
                 auditLogsIds = listOf("100", "101", "102"),
             )
 
@@ -44,12 +40,8 @@ class ProjectCsvMapperTest {
             Project(
                 id = "1",
                 name = "Test Project",
-                states =
-                    listOf(
-                        State(id = "1", title = "To Do"),
-                        State(id = "2", title = "In Progress"),
-                        State(id = "3", title = "Done"),
-                    ),
+                tasksStatesIds =
+                    listOf("1", "2", "3"),
                 auditLogsIds = listOf("100", "101", "102"),
             )
         assertThat(project).isEqualTo(expectedProject)
@@ -61,7 +53,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "2",
                 name = "Empty Project",
-                states = emptyList(),
+                tasksStatesIds = emptyList(),
                 auditLogsIds = emptyList(),
             )
 
@@ -79,13 +71,14 @@ class ProjectCsvMapperTest {
                 Project(
                     id = "1",
                     name = "Project 1",
-                    states = listOf(State(id = "1", title = "Task 1")),
+                    tasksStatesIds = listOf("1", "2", "3"),
+
                     auditLogsIds = listOf("100"),
                 ),
                 Project(
                     id = "2",
                     name = "Project 2",
-                    states = listOf(State(id = "2", title = "Task 2")),
+                    tasksStatesIds =  listOf("1", "2", "3"),
                     auditLogsIds = listOf("200"),
                 ),
             )
@@ -108,9 +101,9 @@ class ProjectCsvMapperTest {
         val projects = csvLines.toProjectList()
 
         val firstExpectedProject =
-            Project("1", "Project 1", listOf(State(id = "1", title = "Task 1")), listOf("100"))
+            Project("1", "Project 1", listOf("1", "2", "3"), listOf("100"))
         val secondExpectedProject =
-            Project("2", "Project 2", listOf(State(id = "2", title = "Task 2")), listOf("200"))
+            Project("2", "Project 2",  listOf("1", "2", "3"), listOf("200"))
         assertThat(projects).hasSize(2)
         assertThat(projects[0]).isEqualTo(firstExpectedProject)
         assertThat(projects[1]).isEqualTo(secondExpectedProject)
@@ -122,12 +115,8 @@ class ProjectCsvMapperTest {
             Project(
                 id = "4",
                 name = "Complex Project",
-                states =
-                    listOf(
-                        State(id = "1", title = "To Do"),
-                        State(id = "2", title = "In Progress"),
-                        State(id = "3", title = "Ready for Review"),
-                    ),
+                tasksStatesIds =
+                    listOf("1", "2", "3"),
                 auditLogsIds = listOf("300", "301"),
             )
 
@@ -137,8 +126,8 @@ class ProjectCsvMapperTest {
         assertThat(csvLine).isEqualTo("4,Complex Project,[1:To Do,2:In Progress,3:Ready for Review],[300,301]")
         assertThat(convertedProject.id).isEqualTo("4")
         assertThat(convertedProject.name).isEqualTo("Complex Project")
-        assertThat(convertedProject.states).hasSize(3)
-        assertThat(convertedProject.states[2].title).isEqualTo("Ready for Review")
+        assertThat(convertedProject.tasksStatesIds).hasSize(3)
+        assertThat(convertedProject.tasksStatesIds[2]).isEqualTo("3")
         assertThat(convertedProject.auditLogsIds).containsExactly("300", "301").inOrder()
     }
 

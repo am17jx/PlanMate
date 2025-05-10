@@ -3,8 +3,10 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
+import org.example.logic.models.State
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
+import org.example.logic.useCase.GetProjectStatesUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidInputException
@@ -21,12 +23,14 @@ class ShowProjectTasksUI(
     private val onNavigateBack: () -> Unit,
     private val getProjectTasksUseCase: GetProjectTasksUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
+    private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
     private val reader: Reader,
     private val viewer: Viewer,
     private val tablePrinter: TablePrinter
 ) {
     private lateinit var project: Project
+    private lateinit var projectStates: List<State>
     private lateinit var projectTasks: List<Task>
 
     init {
@@ -37,6 +41,7 @@ class ShowProjectTasksUI(
         viewer.display("Loading...")
         try {
             project = getProjectByIdUseCase(projectId)
+            projectStates = getProjectStatesUseCase(projectId)
             loadTasks()
         } catch (e: Exception) {
             handleError(e)
@@ -52,7 +57,7 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun displaySwimLanesTasksTable() {
+    private suspend fun displaySwimLanesTasksTable() {
         val (statesHeaders, tasksColumns) = getTableHeadersAndColumns()
         tablePrinter.printTable(
             headers = statesHeaders,
@@ -60,8 +65,8 @@ class ShowProjectTasksUI(
         )
     }
 
-    private fun getTableHeadersAndColumns(): Pair<List<String>, List<List<String>>> {
-        val groupedTasksByState = project.states.map { state ->
+    private suspend fun getTableHeadersAndColumns(): Pair<List<String>, List<List<String>>> {
+        val groupedTasksByState = getProjectStatesUseCase(projectId).map { state ->
             val tasksForState = projectTasks.filter { it.stateId == state.id }
             state to tasksForState
         }
@@ -71,7 +76,7 @@ class ShowProjectTasksUI(
     }
 
 
-    private fun getUserSelectedOption() {
+    private suspend fun getUserSelectedOption() {
         while (true) {
             displaySwimLanesTasksTable()
             displayOptions()
@@ -161,8 +166,8 @@ class ShowProjectTasksUI(
     private fun readSelectedState(): String {
         viewer.display("Select a state from the following table:")
 
-        val indices = project.states.indices.map { (it + 1).toString() }
-        val titles = project.states.map { it.title }
+        val indices = projectStates.indices.map { (it + 1).toString() }
+        val titles = projectStates.map { it.title }
 
         tablePrinter.printTable(
             headers = listOf("Index", "State Name"),
@@ -174,10 +179,10 @@ class ShowProjectTasksUI(
             val input = reader.readString()
             val index = input.toIntOrNull()?.minus(1)
 
-            if (index == null || index !in project.states.indices) {
+            if (index == null || index !in projectStates.indices) {
                 viewer.display("Invalid index! Please, try again.")
             } else {
-                return project.states[index].id
+                return projectStates[index].id
             }
         }
     }
@@ -215,7 +220,8 @@ class ShowProjectTasksUI(
                 createTaskUseCase = getKoin().get(),
                 reader = getKoin().get(),
                 viewer = getKoin().get(),
-                tablePrinter = getKoin().get()
+                tablePrinter = getKoin().get(),
+                getProjectStatesUseCase = getKoin().get(),
             )
         }
     }
