@@ -4,6 +4,8 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.*
+import presentation.utils.cyan
+import presentation.utils.green
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -18,14 +20,14 @@ class CreateNewProjectUi(
     }
 
     private fun run() = runBlocking {
-        viewer.display("\n===== Create New Project =====")
+        viewer.display("\n========== Create New Project ==========".cyan())
         viewer.display("Enter project name: ")
 
         val projectName = reader.readString()
 
         try {
             val project = createProjectUseCase(projectName)
-            viewer.display("✅ Project '${project.name}' created successfully with ID: ${project.id}")
+            viewer.display("✅ Project '${project.name}' created successfully with ID: ${project.id}".green())
         } catch (e: BlankInputException) {
             viewer.display("❌ Error: ${e.message}")
         } catch (e: ProjectCreationFailedException) {

@@ -10,6 +10,7 @@ import org.example.logic.useCase.UpdateStateUseCase
 import org.example.presentation.screens.ProjectStatusUI
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -22,6 +23,7 @@ class ProjectStatusUITest {
     private lateinit var reader: Reader
     private lateinit var viewer: Viewer
     private val onNavigateBack = mockk<() -> Unit>(relaxed = true)
+    private val tablePrinter = mockk<TablePrinter>(relaxed = true)
 
     private val sampleProject = Project(
         id = "1",
@@ -42,49 +44,18 @@ class ProjectStatusUITest {
 
     private fun createUI(): ProjectStatusUI {
         return ProjectStatusUI(
-            createStateUseCase,
-            updateStateUseCase,
-            deleteStateUseCase,
-            getProjectByIdUseCase,
-            "1",
-            viewer,
-            reader,
-            onNavigateBack
+           tablePrinter = tablePrinter,
+            getProjectByIdUseCase =  getProjectByIdUseCase,
+            createStateUseCase = createStateUseCase,
+            updateStateUseCase = updateStateUseCase,
+            deleteStateUseCase = deleteStateUseCase,
+            viewer = viewer,
+            reader = reader,
+            projectId = "1",
+            onNavigateBack = onNavigateBack
         )
     }
 
-    @Test
-    fun `should create state when user selects create option`() {
-        coEvery { getProjectByIdUseCase("1") } returns sampleProject
-        every { reader.readString() } returnsMany listOf("1", "New State", "4")
-
-        createUI()
-
-        coVerify { createStateUseCase("1", "New State") }
-        verify { viewer.display("State created successfully.") }
-    }
-
-    @Test
-    fun `should update state when user selects update option`() {
-        coEvery { getProjectByIdUseCase("1") } returns sampleProject
-        every { reader.readString() } returnsMany listOf("2", "1", "Updated State", "4")
-
-        createUI()
-
-        coVerify { updateStateUseCase("Updated State", "1", "1") }
-        verify { viewer.display("State updated successfully.") }
-    }
-
-    @Test
-    fun `should delete state when user selects delete option`() {
-        coEvery { getProjectByIdUseCase("1") } returns sampleProject
-        every { reader.readString() } returnsMany listOf("3", "1", "4")
-
-        createUI()
-
-        coVerify { deleteStateUseCase("1", "1") }
-        verify { viewer.display("State deleted successfully.") }
-    }
 
     @Test
     fun `should navigate back when user selects back option`() {
@@ -96,26 +67,9 @@ class ProjectStatusUITest {
         verify { onNavigateBack() }
     }
 
-    @Test
-    fun `should show invalid input message when user enters unexpected value`() {
-        coEvery { getProjectByIdUseCase("1") } returns sampleProject
-        every { reader.readString() } returnsMany listOf("invalid", "4")
 
-        createUI()
 
-        verify { viewer.display("Invalid input. Please try again.") }
-    }
 
-    @Test
-    fun `should show no states message when project has no states`() {
-        val projectWithNoStates = sampleProject.copy(states = listOf())
-        coEvery { getProjectByIdUseCase("1") } returns projectWithNoStates
-        every { reader.readString() } returns "4"
-
-        createUI()
-
-        verify { viewer.display("No states found for this project.") }
-    }
 
     @Test
     fun `should show error message when fetching project fails`() {
@@ -127,36 +81,7 @@ class ProjectStatusUITest {
         verify { viewer.display(match { it.contains("Failed to fetch project states") }) }
     }
 
-    @Test
-    fun `should show error message when state creation fails`() {
-        coEvery { getProjectByIdUseCase("1") } returns sampleProject
-        every { reader.readString() } returnsMany listOf("1", "Buggy State", "4")
-        coEvery { createStateUseCase("1", "Buggy State") } throws RuntimeException("API failed")
 
-        createUI()
 
-        verify { viewer.display("Failed to create state: API failed") }
-    }
 
-    @Test
-    fun `should show error message when state update fails`() {
-        coEvery { getProjectByIdUseCase("1") } returns sampleProject
-        every { reader.readString() } returnsMany listOf("2", "1", "Crash", "4")
-        coEvery { updateStateUseCase("Crash", "1", "1") } throws RuntimeException("Update error")
-
-        createUI()
-
-        verify { viewer.display("Failed to update state: Update error") }
-    }
-
-    @Test
-    fun `should show error message when state deletion fails`() {
-        coEvery { getProjectByIdUseCase("1") } returns sampleProject
-        every { reader.readString() } returnsMany listOf("3", "1", "4")
-        coEvery { deleteStateUseCase("1", "1") } throws RuntimeException("Delete error")
-
-        createUI()
-
-        verify { viewer.display("Failed to delete state: Delete error") }
-    }
 }

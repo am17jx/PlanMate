@@ -1,6 +1,7 @@
 package org.example.presentation.screens
 
 import org.example.logic.models.UserRole
+import presentation.utils.cyan
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
@@ -18,7 +19,7 @@ class AdminHomeUI(
     }
 
     private fun showMenu() {
-        viewer.display("\n===== Admin Home =====")
+        viewer.display("\n========== Admin Home ==========".cyan())
         viewer.display("1. Show All Projects")
         viewer.display("2. Create New Project")
         viewer.display("3. Create User")

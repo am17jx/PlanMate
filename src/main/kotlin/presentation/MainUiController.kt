@@ -97,14 +97,9 @@ class MainUiController(
             }
 
             is Route.TaskDetailsRoute -> {
-                ShowTaskInformation(
-                    getEntityAuditLogsUseCase = getKoin().get(),
-                    getStateNameUseCase = getKoin().get(),
-                    getTaskByIdUseCase = getKoin().get(),
-                    viewer = getKoin().get(),
-                    reader = getKoin().get(),
-                    deleteTaskUseCase = getKoin().get(),
-                    updateTaskUseCase = getKoin().get(),
+                ShowTaskInformation.create(
+                    onNavigateBack = navigationController::popBackStack
+
                 ).showTaskInformation(taskId = route.taskId)
             }
         }
