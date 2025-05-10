@@ -4,11 +4,9 @@ import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Project
 import org.example.logic.models.Task
-import org.example.logic.useCase.GetEntityAuditLogsUseCase
-import org.example.logic.useCase.GetStateNameUseCase
-import org.example.logic.useCase.GetTaskByIdUseCase
-import org.example.logic.useCase.DeleteTaskUseCase
-import org.example.logic.useCase.UpdateTaskUseCase
+import org.example.logic.useCase.*
+import org.example.logic.utils.*
+import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer

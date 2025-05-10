@@ -1,6 +1,8 @@
 package org.example.presentation.screens
 
+import kotlinx.coroutines.runBlocking
 import org.example.logic.models.UserRole
+import org.example.logic.useCase.LogoutUseCase
 import presentation.utils.cyan
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -12,7 +14,9 @@ class AdminHomeUI(
     private val onNavigateToShowAllProjectsUI: (userRole: UserRole) -> Unit,
     private val onNavigateToCreateProject: () -> Unit,
     private val onNavigateToCreateUser: () -> Unit,
-    private val onNavigateToOnBackStack: () -> Unit
+    private val logoutUseCase:LogoutUseCase,
+    private val onLogout: () -> Unit,
+    private val onExit: () -> Unit,
 ) {
     init {
         showMenu()

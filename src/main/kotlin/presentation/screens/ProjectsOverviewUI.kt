@@ -56,8 +56,8 @@ class ProjectsOverviewUI(
                 }catch (e: Exception) {
             displayLoadingError(e)
             return@runBlocking emptyList()
+            }
         }
-    }
 
     private fun displayNoProjectsMessage() {
         viewer.display("No projects found.")
