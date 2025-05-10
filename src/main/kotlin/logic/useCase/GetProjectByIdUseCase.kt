@@ -13,13 +13,13 @@ class GetProjectByIdUseCase(
     suspend operator fun invoke(projectId: String): Project {
         return projectId
             .takeIf {validateProjectId(it) }
-            .let { projectRepository.getProjectById(projectId) ?: throw ProjectNotFoundException("project not found") }
+            .let { projectRepository.getProjectById(projectId) ?: throw ProjectNotFoundException() }
     }
 
 
     private fun validateProjectId(projectId: String): Boolean{
-        require(projectId.isNotBlank()) { throw BlankInputException("Project ID is blank") }
-        require(projectId.isValidId()) { throw InvalidInputException("Project ID is invalid") }
+        require(projectId.isNotBlank()) { throw BlankInputException() }
+        require(projectId.isValidId()) { throw InvalidInputException() }
         return true
     }
 

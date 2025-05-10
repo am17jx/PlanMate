@@ -1,7 +1,9 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createUser
@@ -12,7 +14,8 @@ import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
-import org.example.logic.utils.*
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.ProjectCreationFailedException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -108,14 +111,13 @@ class CreateProjectUseCaseTest {
         }
 
     @Test
-    fun `should throws ProjectCreationFailedException when audit log return exception`() =
-        runTest {
-            val projectName = "Test Project"
-            coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
-            coEvery { auditLogRepository.createAuditLog(any()) } throws CreationItemFailedException("")
+    fun `should throws ProjectCreationFailedException when audit log return exception`() = runTest {
+        val projectName = "Test Project"
+        coEvery { authenticationRepository.getCurrentUser() } returns User("", "", "", UserRole.ADMIN)
+        coEvery { auditLogRepository.createAuditLog(any()) } throws ProjectCreationFailedException()
 
-            assertThrows<CreationItemFailedException> {
-                createProjectUseCase(projectName)
-            }
+        assertThrows<ProjectCreationFailedException> {
+            createProjectUseCase(projectName)
         }
+    }
 }

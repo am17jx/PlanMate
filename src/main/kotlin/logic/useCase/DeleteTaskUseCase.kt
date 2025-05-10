@@ -6,7 +6,7 @@ import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.utils.UnableToDeleteTaskException
+import org.example.logic.utils.TaskDeletionFailedException
 import org.example.logic.utils.formattedString
 import org.example.logic.utils.getCroppedId
 import kotlin.uuid.ExperimentalUuidApi
@@ -23,7 +23,7 @@ class DeleteTaskUseCase(
 
             taskRepository.deleteTask(taskId)
         } catch (e: Exception) {
-            throw UnableToDeleteTaskException("Cannot delete task")
+            throw TaskDeletionFailedException()
         }
     }
 

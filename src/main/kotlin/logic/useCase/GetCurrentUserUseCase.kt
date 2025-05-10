@@ -11,6 +11,6 @@ class GetCurrentUserUseCase(
 ) {
     suspend operator fun invoke(): User {
         return authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No user is currently logged in.")
+            ?: throw NoLoggedInUserException()
     }
 }

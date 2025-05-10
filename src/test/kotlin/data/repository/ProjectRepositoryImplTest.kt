@@ -84,6 +84,22 @@ class ProjectRepositoryImplTest {
     }
 
     @Test
+    fun `deleteProject should delegates to localDataSource`() = runTest {
+        val projectIdToDelete = "1"
+        coEvery { mockRemoteDataSource.deleteProject(any()) } just runs
+        coEvery { roleValidationInterceptor.validateRole<Project>(any(),any()) } returns Project(
+            id = "1",
+            name = "Project 1",
+            states = listOf(State(id = "1", title = "To Do")),
+            auditLogsIds = listOf("100"),
+        )
+
+        repository.deleteProject(projectIdToDelete)
+
+        coVerify(exactly = 1) {roleValidationInterceptor.validateRole<Project>(any(),any())  }
+    }
+
+    @Test
     fun `getProjectById should returns project when found`() = runTest {
         val projectId = "1"
         coEvery { mockRemoteDataSource.getProjectById(any()) } returns Project(
