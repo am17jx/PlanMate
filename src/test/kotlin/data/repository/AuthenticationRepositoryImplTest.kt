@@ -6,6 +6,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.data.repository.AuthenticationRepositoryImpl
+import org.example.data.repository.utils.hashWithMD5
 import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
@@ -61,7 +62,7 @@ class AuthenticationRepositoryImplTest {
 
             coVerify { remoteAuthenticationDataSource.saveUser(any()) }
             assertThat(createdUser.username).isEqualTo(testUsername)
-            assertThat(createdUser.password).isEqualTo(testPassword)
+            assertThat(createdUser.password).isEqualTo(hashWithMD5(testPassword))
             assertThat(createdUser.role).isEqualTo(UserRole.USER)
         }
 
