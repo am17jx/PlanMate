@@ -6,9 +6,13 @@ import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvLines
 import org.example.data.source.local.csv.utils.mapper.toTasks
 import org.example.logic.models.Task
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CsvTaskDataSource(
-    private val csvReader: CSVReader, private val csvWriter: CSVWriter
+    private val csvReader: CSVReader,
+    private val csvWriter: CSVWriter,
 ) : LocalTaskDataSource {
     private var tasks = mutableListOf<Task>()
 
@@ -23,35 +27,35 @@ class CsvTaskDataSource(
     }
 
     override fun updateTask(updatedTask: Task): Task {
-        tasks = tasks.map { task ->
-            if (task.id == updatedTask.id) {
-                updatedTask
-            } else {
-                task
-            }
-        }.toMutableList()
+        tasks =
+            tasks
+                .map { task ->
+                    if (task.id == updatedTask.id) {
+                        updatedTask
+                    } else {
+                        task
+                    }
+                }.toMutableList()
         writeCsvTasks()
         return updatedTask
     }
 
-    override fun deleteTask(taskId: String) {
+    override fun deleteTask(taskId: Uuid) {
         tasks.removeIf { it.id == taskId }
         writeCsvTasks()
     }
 
-    override fun getAllTasks(): List<Task> {
-        return tasks
-    }
+    override fun getAllTasks(): List<Task> = tasks
 
-    override fun getTaskById(taskId: String): Task? {
-        return tasks.firstOrNull { it.id == taskId }
-    }
+    override fun getTaskById(taskId: Uuid): Task? = tasks.firstOrNull { it.id == taskId }
 
-    override fun deleteTasksByStateId(stateId: String, projectId: String) {
+    override fun deleteTasksByStateId(
+        stateId: Uuid,
+        projectId: Uuid,
+    ) {
         tasks.removeIf { it.stateId == stateId && it.projectId == projectId }
         writeCsvTasks()
     }
-
 
     private fun readCsvTasks() {
         csvReader.readLines().toTasks().let { updatedTasks ->
@@ -61,7 +65,7 @@ class CsvTaskDataSource(
 
     private fun writeCsvTasks() {
         csvWriter.writeLines(
-            tasks.toCsvLines()
+            tasks.toCsvLines(),
         )
         readCsvTasks()
     }
