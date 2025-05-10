@@ -27,7 +27,7 @@ class CreateProjectUseCase(
             Project(
                 id = projectId,
                 name = projectName,
-                states = emptyList(),
+                tasksStatesIds = emptyList(),
                 auditLogsIds = listOf(audit.id),
             )
 

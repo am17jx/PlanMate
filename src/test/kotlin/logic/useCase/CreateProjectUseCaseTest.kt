@@ -61,7 +61,7 @@ class CreateProjectUseCaseTest {
 
         coVerify { projectRepository.createProject(any()) }
         coVerify { auditLogRepository.createAuditLog(any()) }
-        assertThat(createdProject.states).isEmpty()
+        assertThat(createdProject.tasksStatesIds).isEmpty()
     }
 
     @Test
