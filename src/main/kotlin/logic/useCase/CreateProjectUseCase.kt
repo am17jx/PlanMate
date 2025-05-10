@@ -61,8 +61,8 @@ class CreateProjectUseCase(
         return AuditLog(
             id = Uuid.random().getCroppedId(),
             userId = user.id,
-            action = "User ${user.username} created project $projectName at $currentTime",
-            timestamp = currentTime.epochSeconds,
+            action = "User ${user.username} created project $projectName at ${currentTime.formattedString()}",
+            createdAt = currentTime,
             entityType = AuditLogEntityType.PROJECT,
             entityId = projectId,
             actionType = AuditLogActionType.CREATE,
