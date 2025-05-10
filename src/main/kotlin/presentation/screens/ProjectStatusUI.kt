@@ -1,10 +1,7 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
-import org.example.logic.useCase.CreateStateUseCase
-import org.example.logic.useCase.DeleteStateUseCase
-import org.example.logic.useCase.GetProjectByIdUseCase
-import org.example.logic.useCase.UpdateStateUseCase
+import org.example.logic.useCase.*
 import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -13,7 +10,7 @@ class ProjectStatusUI(
     private val createStateUseCase: CreateStateUseCase,
     private val updateStateUseCase: UpdateStateUseCase,
     private val deleteStateUseCase: DeleteStateUseCase,
-    private val getProjectByIdUseCase: GetProjectByIdUseCase,
+    private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val projectId: String,
     private val viewer: Viewer,
     private val reader: Reader,
@@ -56,12 +53,12 @@ class ProjectStatusUI(
 
     private fun showProjectStates() = runBlocking {
         try {
-            val project = getProjectByIdUseCase(projectId)
-            if (project.states.isEmpty()) {
+            val states = getProjectStatesUseCase(projectId)
+            if (states.isEmpty()) {
                 viewer.display("No states found for this project.")
             } else {
-                project.states.forEach {
-                    viewer.display("State ID: ${it.id}, State Name: ${it.title}")
+                states.forEach {
+                    viewer.display("State ID:${it.id} , State Name:${it.title} ")
                 }
             }
         } catch (e: Exception) {
@@ -69,7 +66,7 @@ class ProjectStatusUI(
         }
     }
 
-    private fun createProjectState() = runBlocking{
+    private fun createProjectState() = runBlocking {
         try {
             viewer.display("Enter the new state name:")
             val stateName = reader.readString()
@@ -80,7 +77,7 @@ class ProjectStatusUI(
         }
     }
 
-    private fun updateProjectState() = runBlocking{
+    private fun updateProjectState() = runBlocking {
         try {
             viewer.display("Enter the state ID to update:")
             val stateId = reader.readString()
@@ -93,7 +90,7 @@ class ProjectStatusUI(
         }
     }
 
-    private fun deleteProjectState() = runBlocking{
+    private fun deleteProjectState() = runBlocking {
         try {
             viewer.display("Enter the state ID to delete:")
             val stateId = reader.readString()
@@ -115,7 +112,7 @@ class ProjectStatusUI(
                 createStateUseCase = getKoin().get(),
                 updateStateUseCase = getKoin().get(),
                 deleteStateUseCase = getKoin().get(),
-                getProjectByIdUseCase = getKoin().get(),
+                getProjectStatesUseCase = getKoin().get(),
                 viewer = getKoin().get(),
                 reader = getKoin().get()
             )

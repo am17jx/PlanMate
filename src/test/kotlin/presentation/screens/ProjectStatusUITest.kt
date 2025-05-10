@@ -26,7 +26,7 @@ class ProjectStatusUITest {
     private val sampleProject = Project(
         id = "1",
         name = "Test Project",
-        states = listOf(State("1", "To Do")),
+        tasksStatesIds = listOf(State("1", "To Do")),
         auditLogsIds = listOf()
     )
 
@@ -108,7 +108,7 @@ class ProjectStatusUITest {
 
     @Test
     fun `should show no states message when project has no states`() {
-        val projectWithNoStates = sampleProject.copy(states = listOf())
+        val projectWithNoStates = sampleProject.copy(tasksStatesIds = listOf())
         coEvery { getProjectByIdUseCase("1") } returns projectWithNoStates
         every { reader.readString() } returns "4"
 

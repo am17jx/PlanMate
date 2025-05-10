@@ -5,6 +5,7 @@ import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
+import org.example.logic.useCase.GetProjectStatesUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.ProjectNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
@@ -18,6 +19,7 @@ class ShowProjectTasksUI(
     private val onNavigateBack: () -> Unit,
     private val getProjectTasksUseCase: GetProjectTasksUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
+    private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
     private val reader: Reader,
     private val viewer: Viewer,
@@ -49,8 +51,8 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun displaySwimLanesTasksTable() {
-        if (project.states.isEmpty()) {
+    private suspend fun displaySwimLanesTasksTable() {
+        if (project.tasksStatesIds.isEmpty()) {
             viewer.display("<==========( No States Added yet )==========>")
             return
         }
@@ -61,8 +63,8 @@ class ShowProjectTasksUI(
         )
     }
 
-    private fun getTableHeadersAndColumns(): Pair<List<String>, List<List<String>>> {
-        val groupedTasksByState = project.states.map { state ->
+    private suspend fun getTableHeadersAndColumns(): Pair<List<String>, List<List<String>>> {
+        val groupedTasksByState = getProjectStatesUseCase(projectId).map { state ->
             val tasksForState = projectTasks.filter { it.stateId == state.id }
             state to tasksForState
         }
@@ -71,7 +73,7 @@ class ShowProjectTasksUI(
         return statesHeaders to tasksColumns
     }
 
-    private fun getUserSelectedOption() {
+    private suspend fun getUserSelectedOption() {
         while (true) {
             displaySwimLanesTasksTable()
             displayOptions()
@@ -86,7 +88,7 @@ class ShowProjectTasksUI(
                 }
 
                 2 -> {
-                    if (project.states.isEmpty()) {
+                    if (project.tasksStatesIds.isEmpty()) {
                         viewer.display("No project states added yet! Go back and update project with new states.")
                     } else {
                         startCreateTaskFlow()
@@ -144,15 +146,15 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun readSelectedState(): String {
+    private suspend fun readSelectedState(): String {
         viewer.display("Select a state from the following states:")
-        project.states.forEachIndexed { index, state ->
+        getProjectStatesUseCase(projectId).forEachIndexed { index, state ->
             viewer.display("- ${state.title} (id = ${state.id})")
         }
         while (true) {
             viewer.display("Enter state ID: ")
             val userInput = reader.readString()
-            if (project.states.any { it.id == userInput }) {
+            if (project.tasksStatesIds.any { it == userInput }) {
                 return userInput
             } else {
                 viewer.display("Invalid state ID! Please, try again")
@@ -186,7 +188,8 @@ class ShowProjectTasksUI(
                 createTaskUseCase = getKoin().get(),
                 reader = getKoin().get(),
                 viewer = getKoin().get(),
-                tablePrinter = getKoin().get()
+                tablePrinter = getKoin().get(),
+                getProjectStatesUseCase = getKoin().get(),
             )
         }
     }

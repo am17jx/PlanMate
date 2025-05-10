@@ -147,6 +147,7 @@ class ProjectsOverviewUI(
             }
         } catch (e: Exception) {
             viewer.display("Failed to update project: ${e.message}")
+            e.printStackTrace()
         }
     }
 
