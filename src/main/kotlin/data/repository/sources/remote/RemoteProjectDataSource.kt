@@ -1,4 +1,4 @@
-package org.example.data.source.remote.contract
+package org.example.data.repository.sources.remote
 
 import org.example.logic.models.Project
 

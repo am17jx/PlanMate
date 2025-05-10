@@ -1,7 +1,7 @@
 package org.example.data.repository
 
+import org.example.data.repository.sources.remote.RemoteTaskDataSource
 import org.example.data.repository.mapper.mapExceptionsToDomainException
-import org.example.data.source.remote.contract.RemoteTaskDataSource
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.utils.*

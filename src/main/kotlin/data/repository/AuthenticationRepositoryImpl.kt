@@ -2,7 +2,7 @@ package org.example.data.repository
 
 import org.example.data.repository.mapper.mapExceptionsToDomainException
 import org.example.data.repository.utils.hashWithMD5
-import org.example.data.source.remote.contract.RemoteAuthenticationDataSource
+import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository

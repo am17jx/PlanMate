@@ -1,6 +1,6 @@
 package org.example.data.source.local.csv
 
-import org.example.data.source.local.contract.LocalAuthenticationDataSource
+import org.example.data.repository.sources.local.LocalAuthenticationDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvRow
