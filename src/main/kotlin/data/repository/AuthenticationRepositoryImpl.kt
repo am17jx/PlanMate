@@ -14,28 +14,33 @@ import kotlin.uuid.Uuid
 class AuthenticationRepositoryImpl(
     private val remoteAuthenticationDataSource: RemoteAuthenticationDataSource,
 ) : AuthenticationRepository {
-
     override suspend fun getCurrentUser(): User? = remoteAuthenticationDataSource.getCurrentUser()
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun createMate(username: String, hashedPassword: String): User {
-        return mapExceptionsToDomainException(UserCreationFailedException()) {
+    override suspend fun createMate(
+        username: String,
+        hashedPassword: String,
+    ): User =
+        mapExceptionsToDomainException(UserCreationFailedException()) {
             val user = User(Uuid.random().getCroppedId(), username, hashedPassword, UserRole.USER)
             remoteAuthenticationDataSource.saveUser(user)
             user
         }
 
+    override suspend fun login(
+        username: String,
+        hashedPassword: String,
+    ): User =
+        mapExceptionsToDomainException(UserNotFoundException()) {
+            remoteAuthenticationDataSource.login(username, hashedPassword)
+        }
+
+    override suspend fun logout() {
+        remoteAuthenticationDataSource.logout()
     }
 
-    override suspend fun login(username: String, hashedPassword: String): User {
-        return mapExceptionsToDomainException(UserNotFoundException()) {
-             remoteAuthenticationDataSource.login(username, hashedPassword)
+    override suspend fun getAllUsers(): List<User> =
+        mapExceptionsToDomainException(UserNotFoundException()) {
+            remoteAuthenticationDataSource.getAllUsers()
         }
-    }
-
-    override suspend fun getAllUsers(): List<User> {
-        return mapExceptionsToDomainException(UserNotFoundException()) {
-             remoteAuthenticationDataSource.getAllUsers()
-        }
-    }
 }
