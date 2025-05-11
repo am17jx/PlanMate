@@ -81,7 +81,7 @@ class ShowTaskInformation(
         val rows =
             listOf(
                 listOf("Name", task.name),
-                listOf("Added By", task.addedBy),
+                listOf("Added By", task.addedByName),
                 listOf("State", stateName),
             )
 
@@ -132,7 +132,7 @@ class ShowTaskInformation(
                 }
 
             val updatedTask = task.copy(name = newName, stateId = newStateId)
-            updateTaskUseCase(task.id, updatedTask)
+            updateTaskUseCase(updatedTask)
             viewer.display("Task updated successfully.")
         } catch (e: TaskNotFoundException) {
             viewer.display("Error Task with id ${task.id} not found")

@@ -13,12 +13,13 @@ class DeleteProjectUseCase(
 ) {
     suspend operator fun invoke(projectId: Uuid) {
         getProjectByIdUseCase(projectId).let { project ->
-            createAuditLogUseCase.logDeletion(
-                entityType = AuditLog.EntityType.PROJECT,
-                entityId = project.id,
-                entityName = project.name,
-            )
-            projectRepository.deleteProject(projectId)
+            projectRepository.deleteProject(projectId).also {
+                createAuditLogUseCase.logDeletion(
+                    entityType = AuditLog.EntityType.PROJECT,
+                    entityId = project.id,
+                    entityName = project.name,
+                )
+            }
         }
     }
 }

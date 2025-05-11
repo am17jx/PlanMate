@@ -12,7 +12,7 @@ interface TaskStateRepository {
 
     suspend fun deleteTaskState(taskStateId: Uuid)
 
-    suspend fun getProjectTaskStates(taskStateIds: List<Uuid>): List<State>
+    suspend fun getProjectTaskStates(projectId: Uuid): List<State>
 
     suspend fun getTaskStateById(taskStateId: Uuid): State?
 }

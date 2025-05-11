@@ -13,7 +13,6 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class UpdateStateUseCase(
     private val taskStateRepository: TaskStateRepository,
-    private val projectRepository: ProjectRepository,
 ) {
     suspend operator fun invoke(
         newStateName: String,
@@ -21,23 +20,8 @@ class UpdateStateUseCase(
         projectId: Uuid,
     ) {
         checkInputValidation(newStateName)
-        val project = getProject(projectId)
-        checkStateExists(project.tasksStatesIds, stateId)
-        getProject(projectId)
-
-        taskStateRepository.updateTaskState(State(stateId, newStateName))
+        taskStateRepository.updateTaskState(State(stateId, newStateName, projectId))
     }
-
-    private fun checkStateExists(
-        states: List<Uuid>,
-        stateId: Uuid,
-    ) {
-        if (states.none { state -> state == stateId }) throw TaskStateNotFoundException()
-    }
-
-    private suspend fun getProject(projectId: Uuid): Project =
-        projectRepository.getProjectById(projectId)
-            ?: throw ProjectNotFoundException()
 
     private fun checkInputValidation(newStateName: String) {
         when {

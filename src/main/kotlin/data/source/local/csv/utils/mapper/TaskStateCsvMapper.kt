@@ -20,6 +20,8 @@ fun List<CsvLine>.toStates(): List<State> {
                     State(
                         id = parts[0].toUuid(),
                         title = parts[1],
+                        projectId = parts[2].toUuid()
+
                     )
                 } ?: throw IllegalArgumentException("CSV line doesn't have exactly 2 fields: $line")
         }
@@ -27,13 +29,14 @@ fun List<CsvLine>.toStates(): List<State> {
 
 @OptIn(ExperimentalUuidApi::class)
 fun List<State>.toCsvLines(): List<CsvLine> {
-    val header = "id,title"
+    val header = "id,title, projectId"
     val dataLines =
         this.map { state ->
             if (state.title.contains(",")) throw IllegalArgumentException("CSV fields cannot contain comma")
             listOf(
                 state.id.toHexString(),
                 state.title,
+                state.projectId.toHexString()
             ).joinToString(",")
         }
 

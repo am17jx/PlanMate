@@ -12,33 +12,16 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 fun Project.toCsvLine(): String =
-    "${id.toHexString()}," +
-        "$name," +
-        "[${tasksStatesIds.joinToString(",")}]," +
-        "[${auditLogsIds.joinToString(",")}]"
+    "${id.toHexString()}," + name
 
 fun String.toProject(): Project {
     val segments = this.parsedSegments()
 
-    if (segments.size < 4) throw IllegalArgumentException("Input string doesn't have enough segments: $this")
+    if (segments.size < 2) throw IllegalArgumentException("Input string doesn't have enough segments: $this")
 
     return Project(
         id = segments[ID_INDEX].trim().toUuid(),
         name = segments[NAME_INDEX],
-        tasksStatesIds =
-            segments[STATES_INDEX]
-                .trim('[', ']')
-                .takeIf { it.isNotBlank() }
-                ?.split(",")
-                ?.map { it.trim().toUuid() }
-                ?: emptyList(),
-        auditLogsIds =
-            segments[AUDIT_LOGS_IDS_INDEX]
-                .trim('[', ']')
-                .takeIf { it.isNotBlank() }
-                ?.split(",")
-                ?.map { Uuid.parse(it.trim()) }
-                ?: emptyList(),
     )
 }
 

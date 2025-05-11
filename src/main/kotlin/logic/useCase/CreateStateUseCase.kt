@@ -12,25 +12,19 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class CreateStateUseCase(
     private val taskStateRepository: TaskStateRepository,
-    private val projectRepository: ProjectRepository,
 ) {
     suspend operator fun invoke(
         projectId: Uuid,
         stateName: String,
-    ) {
+    ): State{
         checkInputValidation(stateName)
-        val project = getProject(projectId)
-        val newState = State(title = stateName)
-
-        taskStateRepository.createTaskState(newState)
-        projectRepository.updateProject(project.copy(tasksStatesIds = project.tasksStatesIds + newState.id))
-    }
-
-    private suspend fun getProject(projectId: Uuid): Project =
-        (
-            projectRepository.getProjectById(projectId)
-                ?: throw ProjectNotFoundException()
+        return taskStateRepository.createTaskState(
+            State(
+                title = stateName,
+                projectId = projectId
+            )
         )
+    }
 
     private fun checkInputValidation(stateName: String) {
         when {

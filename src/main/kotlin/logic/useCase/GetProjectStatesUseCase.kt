@@ -8,11 +8,9 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class GetProjectStatesUseCase(
-    private val getProjectByIdUseCase: GetProjectByIdUseCase,
     private val taskStateRepository: TaskStateRepository,
 ) {
     suspend operator fun invoke(projectId: Uuid): List<State> {
-        val project: Project = getProjectByIdUseCase(projectId)
-        return taskStateRepository.getProjectTaskStates(project.tasksStatesIds)
+        return taskStateRepository.getProjectTaskStates(projectId)
     }
 }

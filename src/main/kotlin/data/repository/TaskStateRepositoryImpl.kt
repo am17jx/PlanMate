@@ -12,18 +12,16 @@ class TaskStateRepositoryImpl(
 ) : TaskStateRepository {
     override suspend fun createTaskState(taskState: State): State = remoteTaskStateDataSource.createTaskState(taskState)
 
-    override suspend fun updateTaskState(updatedTaskState: State): State = remoteTaskStateDataSource.updateTaskState(updatedTaskState)
+    override suspend fun updateTaskState(updatedTaskState: State): State =
+        remoteTaskStateDataSource.updateTaskState(updatedTaskState)
 
     override suspend fun deleteTaskState(taskStateId: Uuid) {
         remoteTaskStateDataSource.deleteTaskState(taskStateId.toHexString())
     }
 
-    override suspend fun getProjectTaskStates(taskStateIds: List<Uuid>): List<State> =
-        remoteTaskStateDataSource.getProjectTaskStates(
-            taskStateIds.map {
-                it.toHexString()
-            },
-        )
+    override suspend fun getProjectTaskStates(projectId: Uuid): List<State> =
+        remoteTaskStateDataSource.getProjectTaskStates(projectId.toHexString())
 
-    override suspend fun getTaskStateById(taskStateId: Uuid): State? = remoteTaskStateDataSource.getTaskStateById(taskStateId.toHexString())
+    override suspend fun getTaskStateById(taskStateId: Uuid): State? =
+        remoteTaskStateDataSource.getTaskStateById(taskStateId.toHexString())
 }

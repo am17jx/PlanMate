@@ -15,32 +15,33 @@ class UpdateTaskUseCase(
     private val createAuditLogUseCase: CreateAuditLogUseCase,
 ) {
     suspend operator fun invoke(
-        taskId: Uuid,
         updatedTask: Task,
     ): Task {
-        val existingTask = getExistingTaskOrThrow(taskId)
+        val existingTask = getExistingTaskOrThrow(updatedTask.id)
         ensureTaskIsChanged(existingTask, updatedTask)
-        return updateAndLogTask(existingTask, updatedTask)
+        return taskRepository.updateTask(updatedTask).also {
+            createLogs(
+                oldTask = existingTask, updatedTask = updatedTask
+            )
+        }
     }
 
-    private suspend fun updateAndLogTask(
+    private suspend fun createLogs(
         oldTask: Task,
         updatedTask: Task,
-    ): Task {
-        val logsIds =
-            updatedTask.detectChanges(oldTask).map { change ->
-                createAuditLogUseCase
-                    .logUpdate(
-                        entityType = AuditLog.EntityType.TASK,
-                        entityId = oldTask.id,
-                        entityName = updatedTask.name,
-                        fieldChange = change,
-                    ).id
-            }
-        return taskRepository.updateTask(updatedTask.copy(auditLogsIds = oldTask.auditLogsIds.plus(logsIds)))
+    ) {
+        updatedTask.detectChanges(oldTask).map { change ->
+            createAuditLogUseCase.logUpdate(
+                entityType = AuditLog.EntityType.TASK,
+                entityId = oldTask.id,
+                entityName = updatedTask.name,
+                fieldChange = change,
+            ).id
+        }
     }
 
-    private suspend fun getExistingTaskOrThrow(taskId: Uuid): Task = taskRepository.getTaskById(taskId) ?: throw TaskNotFoundException()
+    private suspend fun getExistingTaskOrThrow(taskId: Uuid): Task =
+        taskRepository.getTaskById(taskId) ?: throw TaskNotFoundException()
 
     private fun ensureTaskIsChanged(
         oldTask: Task,

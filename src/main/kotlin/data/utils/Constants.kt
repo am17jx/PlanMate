@@ -25,6 +25,7 @@ object Constants {
     const val DATABASE_NAME: String = "PlanMateDatabase"
     const val MONGODB_URI:String="MONGODB_URI"
     const val ID:String = "id"
+    const val PROJECT_ID:String = "projectId"
     const val ENTITY_ID = "entityId"
     const val ENTITY_TYPE = "entityType"
 

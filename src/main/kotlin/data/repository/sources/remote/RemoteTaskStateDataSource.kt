@@ -10,7 +10,7 @@ interface RemoteTaskStateDataSource {
 
     suspend fun deleteTaskState(taskStateId: String)
 
-    suspend fun getProjectTaskStates(taskStateIds:List<String>): List<State>
+    suspend fun getProjectTaskStates(projectId: String): List<State>
 
     suspend fun getTaskStateById(taskStateId: String): State?
 }

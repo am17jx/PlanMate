@@ -26,8 +26,8 @@ fun List<CsvLine>.toTasks(): List<Task> {
                         name = parts[1],
                         stateId = parts[2].toUuid(),
                         stateName = parts[3],
-                        addedBy = parts[4],
-                        auditLogsIds = if (parts[5].isBlank()) emptyList() else parts[5].split("|").map { Uuid.parse(it) },
+                        addedById = parts[4].trim().toUuid(),
+                        addedByName = parts[5],
                         projectId = parts[6].toUuid(),
                     )
                 } ?: throw IllegalArgumentException("CSV line doesn't have enough fields: $line")
@@ -35,7 +35,7 @@ fun List<CsvLine>.toTasks(): List<Task> {
 }
 
 fun List<Task>.toCsvLines(): List<CsvLine> {
-    val header = "id,name,stateId, stateName, addedBy,auditLogsIds,projectId"
+    val header = "id,name,stateId, stateName, addedById, addedByName, projectId"
     val dataLines =
         this.map { task ->
             if (task.name.contains(",")) throw IllegalArgumentException("CSV fields cannot contain comma")
@@ -44,8 +44,8 @@ fun List<Task>.toCsvLines(): List<CsvLine> {
                 task.name,
                 task.stateId,
                 task.stateName,
-                task.addedBy,
-                task.auditLogsIds.joinToString("|"),
+                task.addedById.toHexString(),
+                task.addedByName,
                 task.projectId,
             ).joinToString(",")
         }

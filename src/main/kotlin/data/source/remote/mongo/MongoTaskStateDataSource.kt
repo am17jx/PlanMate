@@ -9,6 +9,7 @@ import org.example.data.source.remote.models.StateDTO
 import org.example.data.source.remote.mongo.utils.mapper.toState
 import org.example.data.source.remote.mongo.utils.mapper.toStateDTO
 import org.example.data.utils.Constants.ID
+import org.example.data.utils.Constants.PROJECT_ID
 import org.example.logic.models.State
 import org.example.logic.utils.TaskCreationFailedException
 import org.example.logic.utils.TaskDeletionFailedException
@@ -54,10 +55,10 @@ class MongoTaskStateDataSource(
         }
     }
 
-    override suspend fun getProjectTaskStates(taskStateIds: List<String>): List<State> =
+    override suspend fun getProjectTaskStates(projectId: String): List<State> =
         try {
             mongoClient
-                .find(Filters.`in`(ID, taskStateIds))
+                .find(Filters.eq(PROJECT_ID, projectId))
                 .toList()
                 .map { it.toState() }
         } catch (e: Exception) {

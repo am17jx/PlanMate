@@ -14,7 +14,6 @@ class GetStateNameUseCase(
     suspend operator fun invoke(taskId: Uuid): String {
         val task: Task = getTaskByIdUseCase(taskId)
         taskStateRepository.getTaskStateById(task.stateId)
-        return taskStateRepository.getTaskStateById(task.stateId)?.title
-            ?: throw TaskStateNotFoundException()
+        return taskStateRepository.getTaskStateById(task.stateId)?.title ?: throw TaskStateNotFoundException()
     }
 }
