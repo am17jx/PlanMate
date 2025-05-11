@@ -7,14 +7,13 @@ import org.example.data.utils.Constants.ProjectParsingKeys.ID_INDEX
 import org.example.data.utils.Constants.ProjectParsingKeys.NAME_INDEX
 import org.example.data.utils.Constants.ProjectParsingKeys.STATES_INDEX
 import org.example.logic.models.Project
-import org.example.logic.models.State
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 fun Project.toCsvLine(): String =
     "$id," +
         "$name," +
-        "[${tasksStatesIds.joinToString(",")}]," +
+        "[${projectStateIds.joinToString(",")}]," +
         "[${auditLogsIds.joinToString(",")}]"
 
 fun String.toProject(): Project {
@@ -25,7 +24,7 @@ fun String.toProject(): Project {
     return Project(
         id = segments[ID_INDEX],
         name = segments[NAME_INDEX],
-        tasksStatesIds =
+        projectStateIds =
             segments[STATES_INDEX]
                 .trim('[', ']')
                 .takeIf { it.isNotBlank() }
