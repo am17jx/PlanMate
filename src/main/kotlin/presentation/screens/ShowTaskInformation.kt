@@ -1,11 +1,9 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
-import org.example.logic.models.Project
 import org.example.logic.models.AuditLog
 import org.example.logic.models.State
 import org.example.logic.models.Task
-import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.*
 import org.example.logic.utils.*
 import org.koin.java.KoinJavaComponent.getKoin
@@ -117,14 +115,14 @@ class ShowTaskInformation(
 
             viewer.display("Select a new state index:")
             val index = reader.readInt()
-            val newStateId = if (index == null || index !in 1..stateIds.size) {
+            val newState = if (index == null || index !in 1..stateIds.size) {
                 viewer.display("Invalid index, keeping old state.")
-                task.stateId
+                State(id = task.stateId, title = task.stateName)
             } else {
-                stateIds[index - 1]
+                State(id = stateIds[index - 1], title = stateNames[index - 1])
             }
 
-            val updatedTask = task.copy(name = newName, stateId = newStateId)
+            val updatedTask = task.copy(name = newName, stateId = newState.id, stateName = newState.title)
             updateTaskUseCase(task.id, updatedTask)
             viewer.display("Task updated successfully.")
         } catch (e: TaskNotFoundException) {
