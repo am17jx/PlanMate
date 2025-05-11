@@ -24,7 +24,7 @@ class TaskRepositoryImpl(
 
     override suspend fun deleteTask(taskId: Uuid) =
         mapExceptionsToDomainException(TaskDeletionFailedException()) {
-            remoteTaskDataSource.deleteTask(taskId.toHexString())
+            remoteTaskDataSource.deleteTask(taskId)
         }
 
     override suspend fun getAllTasks(): List<Task> =
@@ -34,13 +34,13 @@ class TaskRepositoryImpl(
 
     override suspend fun getTaskById(taskId: Uuid): Task? =
         mapExceptionsToDomainException(NoTaskFoundException()) {
-            remoteTaskDataSource.getTaskById(taskId.toHexString())
+            remoteTaskDataSource.getTaskById(taskId)
         }
 
     override suspend fun deleteTasksByStateId(
         stateId: Uuid,
         projectId: Uuid,
     ) = mapExceptionsToDomainException(TaskStateNotFoundException()) {
-        remoteTaskDataSource.deleteTasksByStateId(stateId.toHexString(), projectId.toHexString())
+        remoteTaskDataSource.deleteTasksByStateId(stateId, projectId)
     }
 }

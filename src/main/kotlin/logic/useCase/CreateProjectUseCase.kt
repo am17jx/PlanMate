@@ -42,9 +42,9 @@ class CreateProjectUseCase(
 
     private suspend fun getDefaultStates() =
         listOf(
-            projectStateRepository.createProjectState(State(Uuid.random(), DEFAULT_TO_DO_STATE_NAME)),
-            projectStateRepository.createProjectState(State(Uuid.random(), DEFAULT_IN_PROGRESS_STATE_NAME)),
-            projectStateRepository.createProjectState(State(Uuid.random(), DEFAULT_DONE_STATE_NAME)),
+            projectStateRepository.createProjectState(State(title = DEFAULT_TO_DO_STATE_NAME)),
+            projectStateRepository.createProjectState(State(title = DEFAULT_IN_PROGRESS_STATE_NAME)),
+            projectStateRepository.createProjectState(State(title = DEFAULT_DONE_STATE_NAME)),
         ).map { it.id }
 
     private fun checkInputValidation(projectName: String) {

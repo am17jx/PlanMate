@@ -7,6 +7,7 @@ import org.example.logic.models.State
 import toCsvLines
 import toStates
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class CsvTaskStateDataSource(
@@ -39,14 +40,14 @@ class CsvTaskStateDataSource(
         return updatedTaskState
     }
 
-    override fun deleteTaskState(taskStateId: String) {
-        states.removeIf { it.id.toHexString() == taskStateId }
+    override fun deleteTaskState(taskStateId: Uuid) {
+        states.removeIf { it.id == taskStateId }
         writeCsvStates()
     }
 
     override fun getAllTaskStates(): List<State> = states
 
-    override fun getTaskStateById(taskStateId: String): State? = states.firstOrNull { it.id.toHexString() == taskStateId }
+    override fun getTaskStateById(taskStateId: Uuid): State? = states.firstOrNull { it.id == taskStateId }
 
     private fun readCsvStates() {
         csvReader.readLines().toStates().let { updatedStates ->

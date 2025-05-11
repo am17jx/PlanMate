@@ -12,6 +12,7 @@ import org.example.data.source.remote.mongo.utils.mapper.toProjectDTO
 import org.example.data.utils.Constants.ID
 import org.example.logic.models.Project
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class MongoProjectDataSource(
@@ -29,9 +30,9 @@ class MongoProjectDataSource(
             updatedProject
         }
 
-    override suspend fun deleteProject(projectId: String) {
+    override suspend fun deleteProject(projectId: Uuid) {
         executeMongoOperation {
-            projectCollection.deleteOne(Filters.eq(ID, projectId))
+            projectCollection.deleteOne(Filters.eq(ID, projectId.toHexString()))
         }
     }
 
@@ -40,8 +41,8 @@ class MongoProjectDataSource(
             projectCollection.find().toList().map { it.toProject() }
         }
 
-    override suspend fun getProjectById(projectId: String): Project? =
+    override suspend fun getProjectById(projectId: Uuid): Project? =
         executeMongoOperation {
-            projectCollection.find(Filters.eq(ID, projectId)).firstOrNull()?.toProject()
+            projectCollection.find(Filters.eq(ID, projectId.toHexString())).firstOrNull()?.toProject()
         }
 }

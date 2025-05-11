@@ -29,7 +29,7 @@ class ProjectRepositoryImpl(
 
     override suspend fun deleteProject(projectId: Uuid) =
         mapExceptionsToDomainException(ProjectDeletionFailedException()) {
-            roleValidationInterceptor.validateRole { remoteProjectDataSource.deleteProject(projectId.toHexString()) }
+            roleValidationInterceptor.validateRole { remoteProjectDataSource.deleteProject(projectId) }
         }
 
     override suspend fun getAllProjects(): List<Project> =
@@ -39,6 +39,6 @@ class ProjectRepositoryImpl(
 
     override suspend fun getProjectById(projectId: Uuid): Project? =
         mapExceptionsToDomainException(NoProjectsFoundException()) {
-            remoteProjectDataSource.getProjectById(projectId.toHexString())
+            remoteProjectDataSource.getProjectById(projectId)
         }
 }
