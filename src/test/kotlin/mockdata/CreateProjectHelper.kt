@@ -11,7 +11,7 @@ fun createProject(
 ) = Project(
     id = id,
     name = name,
-    tasksStatesIds = states,
+    projectStateIds = states,
     auditLogsIds = auditLogsIds
 )
 
