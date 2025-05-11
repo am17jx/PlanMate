@@ -20,7 +20,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class ShowProjectTasksUI(
+class ProjectTasksUI(
     private val projectId: Uuid,
     private val onNavigateToTaskDetails: (taskId: Uuid) -> Unit,
     private val onNavigateBack: () -> Unit,
@@ -40,17 +40,16 @@ class ShowProjectTasksUI(
         loadProject()
     }
 
-    private fun loadProject() =
-        runBlocking {
-            viewer.display("Loading...")
-            try {
-                project = getProjectByIdUseCase(projectId)
-                projectStates = getProjectStatesUseCase(projectId)
-                loadTasks()
-            } catch (e: Exception) {
-                handleError(e)
-            }
+    private fun loadProject() = runBlocking{
+        viewer.display("Loading...")
+        try {
+            project = getProjectByIdUseCase(projectId)
+            projectStates = getProjectStatesUseCase(projectId)
+            loadTasks()
+        } catch (e: Exception) {
+            handleError(e)
         }
+    }
 
     private fun loadTasks() =
         runBlocking {
@@ -71,11 +70,10 @@ class ShowProjectTasksUI(
     }
 
     private suspend fun getTableHeadersAndColumns(): Pair<List<String>, List<List<String>>> {
-        val groupedTasksByState =
-            getProjectStatesUseCase(projectId).map { state ->
-                val tasksForState = projectTasks.filter { it.stateId == state.id }
-                state to tasksForState
-            }
+        val groupedTasksByState = getProjectStatesUseCase(projectId).map { state ->
+            val tasksForState = projectTasks.filter { it.stateId == state.id }
+            state to tasksForState
+        }
         val statesHeaders = groupedTasksByState.map { it.first.title }
         val tasksColumns = groupedTasksByState.map { it.second.map { task -> task.name } }
         return statesHeaders to tasksColumns
@@ -216,8 +214,8 @@ class ShowProjectTasksUI(
             projectId: Uuid,
             onNavigateToTaskDetails: (taskId: Uuid) -> Unit,
             onNavigateBack: () -> Unit,
-        ): ShowProjectTasksUI =
-            ShowProjectTasksUI(
+        ): ProjectTasksUI =
+            ProjectTasksUI(
                 projectId = projectId,
                 onNavigateToTaskDetails = onNavigateToTaskDetails,
                 onNavigateBack = onNavigateBack,

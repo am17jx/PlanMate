@@ -3,7 +3,7 @@ package org.example.logic.useCase
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskStateNotFoundException
@@ -11,8 +11,8 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class UpdateStateUseCase(
-    private val taskStateRepository: TaskStateRepository,
+class UpdateProjectStateUseCase(
+    private val projectStateRepository: ProjectStateRepository,
     private val projectRepository: ProjectRepository,
 ) {
     suspend operator fun invoke(
@@ -22,10 +22,10 @@ class UpdateStateUseCase(
     ) {
         checkInputValidation(newStateName)
         val project = getProject(projectId)
-        checkStateExists(project.tasksStatesIds, stateId)
+        checkStateExists(project.projectStateIds, stateId)
         getProject(projectId)
 
-        taskStateRepository.updateTaskState(State(stateId, newStateName))
+        projectStateRepository.updateProjectState(State(stateId, newStateName))
     }
 
     private fun checkStateExists(

@@ -6,7 +6,6 @@ import org.example.data.source.local.csv.utils.mapper.toCsvLines
 import org.example.data.source.local.csv.utils.mapper.toProject
 import org.example.data.source.local.csv.utils.mapper.toProjectList
 import org.example.logic.models.Project
-import org.example.logic.models.State
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -19,7 +18,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "1",
                 name = "Test Project",
-                tasksStatesIds =
+                projectStateIds =
                     listOf("1", "2", "3"),
                 auditLogsIds = listOf("100", "101", "102"),
             )
@@ -40,7 +39,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "1",
                 name = "Test Project",
-                tasksStatesIds =
+                projectStateIds =
                     listOf("1", "2", "3"),
                 auditLogsIds = listOf("100", "101", "102"),
             )
@@ -53,7 +52,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "2",
                 name = "Empty Project",
-                tasksStatesIds = emptyList(),
+                projectStateIds = emptyList(),
                 auditLogsIds = emptyList(),
             )
 
@@ -71,14 +70,14 @@ class ProjectCsvMapperTest {
                 Project(
                     id = "1",
                     name = "Project 1",
-                    tasksStatesIds = listOf("1", "2", "3"),
+                    projectStateIds = listOf("1", "2", "3"),
 
                     auditLogsIds = listOf("100"),
                 ),
                 Project(
                     id = "2",
                     name = "Project 2",
-                    tasksStatesIds =  listOf("1", "2", "3"),
+                    projectStateIds =  listOf("1", "2", "3"),
                     auditLogsIds = listOf("200"),
                 ),
             )
@@ -115,7 +114,7 @@ class ProjectCsvMapperTest {
             Project(
                 id = "4",
                 name = "Complex Project",
-                tasksStatesIds =
+                projectStateIds =
                     listOf("1", "2", "3"),
                 auditLogsIds = listOf("300", "301"),
             )
@@ -126,8 +125,8 @@ class ProjectCsvMapperTest {
         assertThat(csvLine).isEqualTo("4,Complex Project,[1:To Do,2:In Progress,3:Ready for Review],[300,301]")
         assertThat(convertedProject.id).isEqualTo("4")
         assertThat(convertedProject.name).isEqualTo("Complex Project")
-        assertThat(convertedProject.tasksStatesIds).hasSize(3)
-        assertThat(convertedProject.tasksStatesIds[2]).isEqualTo("3")
+        assertThat(convertedProject.projectStateIds).hasSize(3)
+        assertThat(convertedProject.projectStateIds[2]).isEqualTo("3")
         assertThat(convertedProject.auditLogsIds).containsExactly("300", "301").inOrder()
     }
 

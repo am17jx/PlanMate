@@ -14,7 +14,7 @@ import kotlin.uuid.Uuid
 fun Project.toCsvLine(): String =
     "${id.toHexString()}," +
         "$name," +
-        "[${tasksStatesIds.joinToString(",")}]," +
+        "[${projectStateIds.joinToString(",")}]," +
         "[${auditLogsIds.joinToString(",")}]"
 
 fun String.toProject(): Project {
@@ -25,7 +25,7 @@ fun String.toProject(): Project {
     return Project(
         id = segments[ID_INDEX].trim().toUuid(),
         name = segments[NAME_INDEX],
-        tasksStatesIds =
+        projectStateIds =
             segments[STATES_INDEX]
                 .trim('[', ']')
                 .takeIf { it.isNotBlank() }
