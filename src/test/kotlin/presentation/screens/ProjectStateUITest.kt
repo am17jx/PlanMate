@@ -7,14 +7,14 @@ import org.example.logic.useCase.CreateStateUseCase
 import org.example.logic.useCase.DeleteStateUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.UpdateStateUseCase
-import org.example.presentation.screens.ProjectStatusUI
+import org.example.presentation.screens.ProjectStateUI
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
-class ProjectStatusUITest {
+class ProjectStateUITest {
 
     private lateinit var createStateUseCase: CreateStateUseCase
     private lateinit var updateStateUseCase: UpdateStateUseCase
@@ -42,8 +42,8 @@ class ProjectStatusUITest {
         viewer = mockk(relaxed = true)
     }
 
-    private fun createUI(): ProjectStatusUI {
-        return ProjectStatusUI(
+    private fun createUI(): ProjectStateUI {
+        return ProjectStateUI(
            tablePrinter = tablePrinter,
             getProjectByIdUseCase =  getProjectByIdUseCase,
             createStateUseCase = createStateUseCase,

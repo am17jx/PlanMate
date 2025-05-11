@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import org.example.logic.useCase.*
 import org.example.logic.useCase.CreateStateUseCase
 import org.example.logic.useCase.DeleteStateUseCase
-import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.UpdateStateUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidInputException
@@ -18,11 +17,11 @@ import presentation.utils.red
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
-class ProjectStatusUI(
+class ProjectStateUI(
     private val createStateUseCase: CreateStateUseCase,
     private val updateStateUseCase: UpdateStateUseCase,
     private val deleteStateUseCase: DeleteStateUseCase,
-    private val getProjectStatesUseCase: GetProjectStatesUseCase,
+    private val getProjectStateUseCase: GetProjectStateUseCase,
     private val projectId: String,
     private val viewer: Viewer,
     private val reader: Reader,
@@ -65,7 +64,7 @@ class ProjectStatusUI(
 
     private fun showProjectStates() = runBlocking {
         try {
-            val projectStates = getProjectStatesUseCase(projectId)
+            val projectStates = getProjectStateUseCase(projectId)
             viewer.display("\n========== Project States ==========".cyan())
 
             val indexList = projectStates.indices.map { (it + 1).toString() }
@@ -102,7 +101,7 @@ class ProjectStatusUI(
 
     private fun updateProjectState() = runBlocking {
         try {
-            val projectStates = getProjectStatesUseCase(projectId)
+            val projectStates = getProjectStateUseCase(projectId)
 
             viewer.display("Enter the index of the state to update:".cyan())
             val input = reader.readString()
@@ -133,7 +132,7 @@ class ProjectStatusUI(
 
     private fun deleteProjectState() = runBlocking {
         try {
-            val projectStates = getProjectStatesUseCase(projectId)
+            val projectStates = getProjectStateUseCase(projectId)
 
             viewer.display("Enter the index of the state to delete:".cyan())
             val input = reader.readString()
@@ -161,14 +160,14 @@ class ProjectStatusUI(
         fun create(
             projectId: String,
             onNavigateBack: () -> Unit
-        ): ProjectStatusUI {
-            return ProjectStatusUI(
+        ): ProjectStateUI {
+            return ProjectStateUI(
                 projectId = projectId,
                 onNavigateBack = onNavigateBack,
                 createStateUseCase = getKoin().get(),
                 updateStateUseCase = getKoin().get(),
                 deleteStateUseCase = getKoin().get(),
-                getProjectStatesUseCase = getKoin().get(),
+                getProjectStateUseCase = getKoin().get(),
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get()
