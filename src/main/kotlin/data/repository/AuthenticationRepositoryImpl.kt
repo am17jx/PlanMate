@@ -18,7 +18,7 @@ class AuthenticationRepositoryImpl(
     override suspend fun getCurrentUser(): User? = remoteAuthenticationDataSource.getCurrentUser()
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun createMate(username: String, password: String): User {
+    override suspend fun createUser(username: String, password: String): User {
         return mapExceptionsToDomainException(UserCreationFailedException()) {
             val hashedPassword = hashWithMD5(password)
             val user = User(Uuid.random().getCroppedId(), username, hashedPassword, UserRole.USER)
