@@ -2,7 +2,6 @@ package presentation.screens
 
 import io.mockk.*
 import org.example.logic.models.Project
-import org.example.logic.models.State
 import org.example.logic.useCase.CreateProjectStateUseCase
 import org.example.logic.useCase.DeleteProjectStateUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
@@ -28,7 +27,7 @@ class ProjectStateUITest {
     private val sampleProject = Project(
         id = "1",
         name = "Test Project",
-        states = listOf(State("1", "To Do")),
+        states = listOf(ProjectState("1", "To Do")),
         auditLogsIds = listOf()
     )
 

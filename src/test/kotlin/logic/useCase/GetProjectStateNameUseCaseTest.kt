@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class GetStateNameUseCaseTest {
+class GetProjectStateNameUseCaseTest {
     private lateinit var getTaskByIdUseCase: GetTaskByIdUseCase
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
     private lateinit var getStateNameUseCase: GetStateNameUseCase

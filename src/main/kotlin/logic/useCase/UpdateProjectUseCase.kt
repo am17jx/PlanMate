@@ -7,6 +7,7 @@ import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.Validation
 import org.example.logic.utils.ProjectNotChangedException
 import org.example.logic.utils.ProjectNotFoundException
+import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
@@ -19,14 +20,17 @@ class UpdateProjectUseCase(
         validation.validateInputNotBlankOrThrow(updatedProject.name)
         val originalProject = currentOriginalProject(updatedProject)
         detectChanges(updatedProject, originalProject)
-        return saveUpdatedProject(originalProject, updatedProject)
+        return projectRepository.updateProject(updatedProject).also {
+            createLogs(
+                originalProject = originalProject, newProject = updatedProject
+            )
+        }
     }
 
-    private suspend fun saveUpdatedProject(
-        originalProject: Project,
-        newProject: Project
-    ): Project {
-        val logsIds = newProject.detectChanges(originalProject).map { change ->
+    private suspend fun createLogs(
+        originalProject: Project, newProject: Project
+    ) {
+        newProject.detectChanges(originalProject).map { change ->
             createAuditLogUseCase.logUpdate(
                 entityId = newProject.id,
                 entityName = newProject.name,
@@ -34,14 +38,11 @@ class UpdateProjectUseCase(
                 fieldChange = change
             ).id
         }
-        projectRepository.updateProject(newProject.copy(auditLogsIds = newProject.auditLogsIds.plus(logsIds)))
-        return newProject
     }
 
 
-
     private fun detectChanges(originalProject: Project, newProject: Project) {
-        if ((originalProject.name == newProject.name) && (originalProject.projectStateIds.toSet() == newProject.projectStateIds.toSet())) throw ProjectNotChangedException()
+        if (originalProject.name == newProject.name) throw ProjectNotChangedException()
     }
 
     private suspend fun currentOriginalProject(

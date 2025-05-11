@@ -13,12 +13,13 @@ class DeleteTaskUseCase(
 ) {
     suspend operator fun invoke(taskId: Uuid) {
         getTaskByIdUseCase(taskId).let { task ->
-            createAuditLogUseCase.logDeletion(
-                entityType = AuditLog.EntityType.PROJECT,
-                entityId = task.id,
-                entityName = task.name,
-            )
-            taskRepository.deleteTask(taskId)
+            taskRepository.deleteTask(taskId).also {
+                createAuditLogUseCase.logDeletion(
+                    entityType = AuditLog.EntityType.PROJECT,
+                    entityId = task.id,
+                    entityName = task.name,
+                )
+            }
         }
     }
 }

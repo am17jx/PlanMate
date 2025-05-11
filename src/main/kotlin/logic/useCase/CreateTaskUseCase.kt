@@ -1,7 +1,6 @@
 package logic.useCase
 
 import org.example.logic.models.*
-import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
@@ -14,7 +13,6 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class CreateTaskUseCase(
     private val taskRepository: TaskRepository,
-    private val projectRepository: ProjectRepository,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
     private val projectStateRepository: ProjectStateRepository,
@@ -26,45 +24,30 @@ class CreateTaskUseCase(
         stateId: Uuid,
     ): Task {
         validation.validateInputNotBlankOrThrow(name)
-        val state = verifyProjectAndStateExist(projectId, stateId)
-        return createAndLogTask(name, projectId, stateId, state.title, getCurrentUserUseCase())
-    }
-
-    private suspend fun createAndLogTask(
-        taskName: String,
-        projectId: Uuid,
-        stateId: Uuid,
-        stateName: String,
-        loggedInUser: User,
-    ): Task {
-        val taskId = Uuid.random()
-        val taskAuditLog =
+        val state = getState(stateId)
+        val currentUser = getCurrentUserUseCase()
+        return taskRepository.createTask(
+            Task(
+                name = name,
+                stateId = stateId,
+                stateName = state.title,
+                projectId = projectId,
+                addedById = currentUser.id,
+                addedByName = currentUser.username
+            )
+        ).also { task ->
             createAuditLogUseCase.logCreation(
-                entityId = taskId,
-                entityName = taskName,
+                entityId = task.id,
+                entityName = task.name,
                 entityType = AuditLog.EntityType.TASK,
             )
-        val newTask =
-            Task(
-                id = taskId,
-                name = taskName,
-                stateId = stateId,
-                stateName = stateName,
-                projectId = projectId,
-                addedBy = loggedInUser.username,
-                auditLogsIds = listOf(taskAuditLog.id),
-            )
-        taskRepository.createTask(newTask)
-        return newTask
+        }
     }
 
-    private suspend fun verifyProjectAndStateExist(
-        projectId: Uuid,
+    private suspend fun getState(
         stateId: Uuid,
-    ): State =
-        projectRepository.getProjectById(projectId)?.let { project ->
-            if (project.projectStateIds.none { it == stateId }) throw TaskStateNotFoundException()
-            projectStateRepository.getProjectStateById(stateId)
-        } ?: throw ProjectNotFoundException()
+    ): ProjectState = projectStateRepository.getProjectStateById(stateId).takeIf {
+            it != null
+        } ?: throw TaskStateNotFoundException()
 
 }

@@ -3,7 +3,7 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectStatesUseCase
@@ -33,7 +33,7 @@ class ProjectTasksUI(
     private val tablePrinter: TablePrinter,
 ) {
     private lateinit var project: Project
-    private lateinit var projectStates: List<State>
+    private lateinit var projectStates: List<ProjectState>
     private lateinit var projectTasks: List<Task>
 
     init {

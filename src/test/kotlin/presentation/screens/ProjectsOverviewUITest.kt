@@ -36,8 +36,8 @@ class ProjectsOverviewUITest {
 
     private val sampleProjects =
         listOf(
-            Project("1", "Project Alpha", states = listOf(State("1", "State Alpha")), auditLogsIds = listOf()),
-            Project("2", "Project Beta", states = listOf(State("1", "State Alpha")), auditLogsIds = listOf()),
+            Project("1", "Project Alpha", states = listOf(ProjectState("1", "State Alpha")), auditLogsIds = listOf()),
+            Project("2", "Project Beta", states = listOf(ProjectState("1", "State Alpha")), auditLogsIds = listOf()),
         )
 
     private fun launchUI() {

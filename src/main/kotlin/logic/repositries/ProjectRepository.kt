@@ -8,7 +8,7 @@ import kotlin.uuid.Uuid
 interface ProjectRepository {
     suspend fun createProject(project: Project): Project
 
-    suspend fun updateProject(updatedProject: Project): Project?
+    suspend fun updateProject(updatedProject: Project): Project
 
     suspend fun deleteProject(projectId: Uuid)
 

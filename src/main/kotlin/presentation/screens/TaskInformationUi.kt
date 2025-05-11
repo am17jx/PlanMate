@@ -2,7 +2,7 @@ package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLog
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.models.Task
 import org.example.logic.useCase.*
 import org.example.logic.utils.*
@@ -81,7 +81,7 @@ class TaskInformationUi(
         val rows =
             listOf(
                 listOf("Name", task.name),
-                listOf("Added By", task.addedBy),
+                listOf("Added By", task.addedByName),
                 listOf("State", stateName),
             )
 
@@ -103,7 +103,7 @@ class TaskInformationUi(
 
     private fun updateTask(
         task: Task,
-        projectState: List<State>,
+        projectState: List<ProjectState>,
     ) = runBlocking {
         try {
             viewer.display("Enter new task name:")
@@ -126,13 +126,13 @@ class TaskInformationUi(
             val newState  =
                 if (index == null || index !in 1..stateIds.size) {
                     viewer.display("Invalid index, keeping old state.")
-                    State(id = task.stateId, title = task.stateName)
+                    ProjectState(id = task.stateId, title = task.stateName, projectId = task.projectId)
                 } else {
-                    State(id = stateIds[index - 1], title = stateNames[index - 1])
+                    ProjectState(id = stateIds[index - 1], title = stateNames[index - 1], projectId = task.projectId)
                 }
 
             val updatedTask = task.copy(name = newName, stateId = newState.id, stateName = newState.title)
-            updateTaskUseCase(task.id, updatedTask)
+            updateTaskUseCase(updatedTask)
             viewer.display("Task updated successfully.")
         } catch (e: TaskNotFoundException) {
             viewer.display("Error Task with id ${task.id} not found")

@@ -5,11 +5,12 @@ import com.mongodb.kotlin.client.coroutine.MongoCollection
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.example.data.source.remote.contract.RemoteProjectStateDataSource
-import org.example.data.source.remote.models.StateDTO
+import org.example.data.source.remote.models.ProjectStateDTO
 import org.example.data.source.remote.mongo.utils.mapper.toState
 import org.example.data.source.remote.mongo.utils.mapper.toStateDTO
 import org.example.data.utils.Constants.ID
-import org.example.logic.models.State
+import org.example.data.utils.Constants.PROJECT_ID
+import org.example.logic.models.ProjectState
 import org.example.logic.utils.TaskCreationFailedException
 import org.example.logic.utils.TaskDeletionFailedException
 import org.example.logic.utils.TaskNotChangedException
@@ -18,10 +19,11 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class MongoProjectProjectDataSource(
-    private val mongoClient: MongoCollection<StateDTO>,
+class MongoProjectStateDataSource(
+    private val mongoClient: MongoCollection<ProjectStateDTO>
 ) : RemoteProjectStateDataSource {
-    override suspend fun createProjectState(projectState: State): State {
+
+    override suspend fun createProjectState(projectState: ProjectState): ProjectState {
         try {
             mongoClient.insertOne(projectState.toStateDTO())
             return projectState
@@ -30,10 +32,10 @@ class MongoProjectProjectDataSource(
         }
     }
 
-    override suspend fun updateProjectState(updatedProjectState: State): State {
+    override suspend fun updateProjectState(updatedProjectProjectState: ProjectState): ProjectState {
         try {
-            mongoClient.replaceOne(Filters.eq(ID, updatedProjectState.id.toHexString()), updatedProjectState.toStateDTO())
-            return updatedProjectState
+            mongoClient.replaceOne(Filters.eq(ID, updatedProjectProjectState.id.toHexString()), updatedProjectProjectState.toStateDTO())
+            return updatedProjectProjectState
         } catch (e: Exception) {
             throw TaskNotChangedException()
         }
@@ -47,7 +49,7 @@ class MongoProjectProjectDataSource(
         }
     }
 
-    override suspend fun getProjectStateById(projectStateId: Uuid): State? {
+    override suspend fun getProjectStateById(projectStateId: Uuid): ProjectState? {
         try {
             return mongoClient.find(Filters.eq(ID, projectStateId.toHexString())).firstOrNull()?.toState()
         } catch (e: Exception) {
@@ -55,10 +57,10 @@ class MongoProjectProjectDataSource(
         }
     }
 
-    override suspend fun getProjectStates(projectStatesIds: List<Uuid>): List<State> =
+    override suspend fun getProjectStates(projectId: Uuid): List<ProjectState> =
         try {
             mongoClient
-                .find(Filters.`in`(ID, projectStatesIds.map { it.toHexString() }))
+                .find(Filters.eq(PROJECT_ID, projectId.toHexString()))
                 .toList()
                 .map { it.toState() }
         } catch (e: Exception) {

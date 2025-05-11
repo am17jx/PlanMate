@@ -1,6 +1,8 @@
 package org.example.logic.useCase
 
-import org.example.logic.models.*
+import org.example.logic.models.AuditLog
+import org.example.logic.models.Project
+import org.example.logic.models.ProjectState
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.ProjectStateRepository
 import kotlin.uuid.ExperimentalUuidApi
@@ -15,35 +17,29 @@ class CreateProjectUseCase(
     ){
     suspend operator fun invoke(projectName: String): Project {
         validation.validateProjectNameOrThrow(projectName)
-
-        return createAndLogProject(projectName)
-    }
-
-    private suspend fun createAndLogProject(projectName: String): Project {
-        val projectId = Uuid.random()
-        val audit =
-            createAuditLogUseCase.logCreation(
-                entityId = projectId,
-                entityName = projectName,
-                entityType = AuditLog.EntityType.PROJECT,
-            )
-        val newProject =
+        return projectRepository.createProject(
             Project(
-                id = projectId,
-                name = projectName,
-                projectStateIds = getDefaultStates(),
-                auditLogsIds = listOf(audit.id),
+                name = projectName
             )
-
-        projectRepository.createProject(newProject)
-        return newProject
+        ).also { project ->
+            createLog(project.id, projectName)
+            createDefaultStates(project.id)
+        }
     }
 
-    private suspend fun getDefaultStates() =
+    private suspend fun createLog(projectId: Uuid, projectName: String) {
+        createAuditLogUseCase.logCreation(
+            entityId = projectId,
+            entityName = projectName,
+            entityType = AuditLog.EntityType.PROJECT,
+        )
+    }
+
+    private suspend fun createDefaultStates(projectId: Uuid) =
         listOf(
-            projectStateRepository.createProjectState(State(title = DEFAULT_TO_DO_STATE_NAME)),
-            projectStateRepository.createProjectState(State(title = DEFAULT_IN_PROGRESS_STATE_NAME)),
-            projectStateRepository.createProjectState(State(title = DEFAULT_DONE_STATE_NAME)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_TO_DO_STATE_NAME, projectId = projectId)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_IN_PROGRESS_STATE_NAME, projectId = projectId)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_DONE_STATE_NAME, projectId = projectId)),
         ).map { it.id }
 
     companion object {

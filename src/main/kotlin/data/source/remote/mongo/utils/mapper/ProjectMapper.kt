@@ -12,9 +12,7 @@ import kotlin.uuid.Uuid
 fun ProjectDTO.toProject(): Project =
     Project(
         id = id.toUuid(),
-        name = name,
-        projectStateIds = statesIds.map { it.toUuid() },
-        auditLogsIds = auditLogsIds.map { Uuid.parse(it) }
+        name = name
     )
 
 @OptIn(ExperimentalUuidApi::class)
@@ -22,6 +20,4 @@ fun Project.toProjectDTO(): ProjectDTO =
     ProjectDTO(
         id = id.toHexString(),
         name = name,
-        statesIds = projectStateIds.map { it.toHexString() },
-        auditLogsIds = auditLogsIds.map { it.toHexString() }
     )

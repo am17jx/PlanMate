@@ -7,6 +7,4 @@ import kotlin.uuid.Uuid
 data class Project(
     val id: Uuid = Uuid.random(),
     val name: String,
-    val projectStateIds: List<Uuid>,
-    val auditLogsIds: List<Uuid>
 )

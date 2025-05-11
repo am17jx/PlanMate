@@ -9,7 +9,7 @@ data class Task(
     val name: String,
     val stateId: Uuid,
     val stateName: String,
-    val addedBy: String,
-    val auditLogsIds: List<Uuid>,
-    val projectId: Uuid,
+    val addedById: Uuid,
+    val addedByName: String,
+    val projectId: Uuid
 )

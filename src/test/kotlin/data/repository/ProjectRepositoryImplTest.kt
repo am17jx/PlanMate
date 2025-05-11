@@ -7,7 +7,7 @@ import org.example.data.repository.ProjectRepositoryImpl
 import org.example.data.source.remote.RoleValidationInterceptor
 import org.example.data.repository.sources.remote.RemoteProjectDataSource
 import org.example.logic.models.Project
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -90,7 +90,7 @@ class ProjectRepositoryImplTest {
         coEvery { roleValidationInterceptor.validateRole<Project>(any(),any()) } returns Project(
             id = "1",
             name = "Project 1",
-            states = listOf(State(id = "1", title = "To Do")),
+            states = listOf(ProjectState(id = "1", title = "To Do")),
             auditLogsIds = listOf("100"),
         )
 
