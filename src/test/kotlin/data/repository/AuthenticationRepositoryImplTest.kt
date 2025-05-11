@@ -58,7 +58,7 @@ class AuthenticationRepositoryImplTest {
         runTest {
             coEvery { remoteAuthenticationDataSource.saveUser(any()) } returns Unit
 
-            val createdUser = authenticationRepository.createMate(testUsername, testPassword)
+            val createdUser = authenticationRepository.createUser(testUsername, testPassword)
 
             coVerify { remoteAuthenticationDataSource.saveUser(any()) }
             assertThat(createdUser.username).isEqualTo(testUsername)

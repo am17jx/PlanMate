@@ -16,10 +16,13 @@ import presentation.utils.TablePrinter
 import presentation.utils.cyan
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-class ShowProjectTasksUI(
-    private val projectId: String,
-    private val onNavigateToTaskDetails: (taskId: String) -> Unit,
+@OptIn(ExperimentalUuidApi::class)
+class ProjectTasksUI(
+    private val projectId: Uuid,
+    private val onNavigateToTaskDetails: (taskId: Uuid) -> Unit,
     private val onNavigateBack: () -> Unit,
     private val getProjectTasksUseCase: GetProjectTasksUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
@@ -27,7 +30,7 @@ class ShowProjectTasksUI(
     private val createTaskUseCase: CreateTaskUseCase,
     private val reader: Reader,
     private val viewer: Viewer,
-    private val tablePrinter: TablePrinter
+    private val tablePrinter: TablePrinter,
 ) {
     private lateinit var project: Project
     private lateinit var projectStates: List<State>
@@ -48,14 +51,15 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun loadTasks() = runBlocking{
-        try {
-            projectTasks = getProjectTasksUseCase(projectId)
-            getUserSelectedOption()
-        } catch (e: Exception) {
-            handleError(e)
+    private fun loadTasks() =
+        runBlocking {
+            try {
+                projectTasks = getProjectTasksUseCase(projectId)
+                getUserSelectedOption()
+            } catch (e: Exception) {
+                handleError(e)
+            }
         }
-    }
 
     private suspend fun displaySwimLanesTasksTable() {
         val (statesHeaders, tasksColumns) = getTableHeadersAndColumns()
@@ -74,7 +78,6 @@ class ShowProjectTasksUI(
         val tasksColumns = groupedTasksByState.map { it.second.map { task -> task.name } }
         return statesHeaders to tasksColumns
     }
-
 
     private suspend fun getUserSelectedOption() {
         while (true) {
@@ -109,14 +112,13 @@ class ShowProjectTasksUI(
         viewer.display("Select an option:")
     }
 
-    private fun showViewTaskDetails(){
+    private fun showViewTaskDetails() {
         viewer.display("2- View Task Details")
     }
 
     private fun showCreateTaskOption() {
         viewer.display("1- Create New Task")
     }
-
 
     private fun getSelectedTaskId() {
         viewer.display("========== Select a Task by Index ==========".cyan())
@@ -137,17 +139,17 @@ class ShowProjectTasksUI(
         }
     }
 
-
-    private fun startCreateTaskFlow() = runBlocking{
-        val taskName = readTaskName()
-        val stateId = readSelectedState()
-        try {
-            createTaskUseCase(taskName, projectId, stateId)
-            loadTasks()
-        } catch (e: Exception) {
-            handleError(e)
+    private fun startCreateTaskFlow() =
+        runBlocking {
+            val taskName = readTaskName()
+            val stateId = readSelectedState()
+            try {
+                createTaskUseCase(taskName, projectId, stateId)
+                loadTasks()
+            } catch (e: Exception) {
+                handleError(e)
+            }
         }
-    }
 
     private fun readTaskName(): String {
         while (true) {
@@ -163,7 +165,7 @@ class ShowProjectTasksUI(
         }
     }
 
-    private fun readSelectedState(): String {
+    private fun readSelectedState(): Uuid {
         viewer.display("Select a state from the following table:")
 
         val indices = projectStates.indices.map { (it + 1).toString() }
@@ -171,7 +173,7 @@ class ShowProjectTasksUI(
 
         tablePrinter.printTable(
             headers = listOf("Index", "State Name"),
-            columnValues = listOf(indices, titles)
+            columnValues = listOf(indices, titles),
         )
 
         while (true) {
@@ -209,9 +211,11 @@ class ShowProjectTasksUI(
 
     companion object {
         fun create(
-            projectId: String, onNavigateToTaskDetails: (taskId: String) -> Unit, onNavigateBack: () -> Unit
-        ): ShowProjectTasksUI {
-            return ShowProjectTasksUI(
+            projectId: Uuid,
+            onNavigateToTaskDetails: (taskId: Uuid) -> Unit,
+            onNavigateBack: () -> Unit,
+        ): ProjectTasksUI =
+            ProjectTasksUI(
                 projectId = projectId,
                 onNavigateToTaskDetails = onNavigateToTaskDetails,
                 onNavigateBack = onNavigateBack,
@@ -223,6 +227,5 @@ class ShowProjectTasksUI(
                 tablePrinter = getKoin().get(),
                 getProjectStatesUseCase = getKoin().get(),
             )
-        }
     }
 }

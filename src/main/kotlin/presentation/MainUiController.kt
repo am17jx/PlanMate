@@ -12,7 +12,9 @@ import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 import kotlin.system.exitProcess
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class MainUiController(
     private val navigationController: NavigationController,
     private val viewer: Viewer,
@@ -76,7 +78,7 @@ class MainUiController(
             }
 
             is Route.ShowProjectTasksRoute -> {
-                ShowProjectTasksUI.create(
+                ProjectTasksUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
                     onNavigateToTaskDetails = {
@@ -87,7 +89,7 @@ class MainUiController(
 
             is Route.CreateUserRoute -> {
                 CreateUserUi(
-                    createMateUseCase = getKoin().get(),
+                    createUserUseCase = getKoin().get(),
                     reader = reader,
                     viewer = viewer,
                     onBack = { navigationController.popBackStack() },
@@ -95,14 +97,14 @@ class MainUiController(
             }
 
             is Route.ProjectStatusRoute -> {
-                ProjectStatusUI.create(
+                ProjectStateUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
                 )
             }
 
             is Route.TaskDetailsRoute -> {
-                ShowTaskInformation.create(
+                TaskInformationUi.create(
                     onNavigateBack = navigationController::popBackStack
 
                 ).showTaskInformation(taskId = route.taskId)

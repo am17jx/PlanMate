@@ -7,7 +7,6 @@ import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvLines
 import org.example.logic.models.Project
-import org.example.logic.models.State
 import org.example.logic.utils.ProjectCreationFailedException
 import org.example.logic.utils.ProjectNotChangedException
 import org.junit.jupiter.api.BeforeEach
@@ -32,13 +31,13 @@ class CsvProjectDataSourceTest {
                 Project(
                     id = "1",
                     name = "Project 1",
-                    tasksStatesIds =listOf("6","4"),
+                    projectStateIds =listOf("6","4"),
                     auditLogsIds = listOf("100"),
                 ),
                 Project(
                     id = "2",
                     name = "Project 2",
-                    tasksStatesIds = listOf("6","4"),
+                    projectStateIds = listOf("6","4"),
                     auditLogsIds = listOf("200"),
                 ),
             )
@@ -66,7 +65,7 @@ class CsvProjectDataSourceTest {
             Project(
                 id = "3",
                 name = "Project 3",
-                tasksStatesIds =listOf("6","4"),
+                projectStateIds =listOf("6","4"),
                 auditLogsIds = listOf("300"),
             )
 
@@ -85,7 +84,7 @@ class CsvProjectDataSourceTest {
             Project(
                 id = "3",
                 name = "Project 3",
-                tasksStatesIds = emptyList(),
+                projectStateIds = emptyList(),
                 auditLogsIds = emptyList(),
             )
         every { mockCsvWriter.writeLines(any()) } throws IOException()
@@ -101,7 +100,7 @@ class CsvProjectDataSourceTest {
             Project(
                 id = "1",
                 name = "Updated Project 1",
-                tasksStatesIds = listOf("6","4"),
+                projectStateIds = listOf("6","4"),
                 auditLogsIds = listOf("100", "101"),
             )
 
@@ -119,7 +118,7 @@ class CsvProjectDataSourceTest {
             Project(
                 id = "1",
                 name = "Updated Project 1",
-                tasksStatesIds = emptyList(),
+                projectStateIds = emptyList(),
                 auditLogsIds = emptyList(),
             )
         every { mockCsvWriter.writeLines(any()) } throws IOException("Test exception")
