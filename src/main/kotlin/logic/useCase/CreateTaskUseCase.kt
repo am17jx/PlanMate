@@ -1,14 +1,11 @@
 package logic.useCase
 
-import kotlinx.datetime.*
 import org.example.logic.models.*
-import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
-import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -19,7 +16,7 @@ class CreateTaskUseCase(
     private val projectRepository: ProjectRepository,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
-    private val taskStateRepository: TaskStateRepository
+    private val projectStateRepository: ProjectStateRepository
 ) {
     suspend operator fun invoke(
         name: String,
@@ -63,8 +60,8 @@ class CreateTaskUseCase(
         stateId: String,
     ) : State{
        return  projectRepository.getProjectById(projectId)?.let { project ->
-            if (project.tasksStatesIds.none { it == stateId }) throw TaskStateNotFoundException()
-           taskStateRepository.getTaskStateById(stateId)
+            if (project.projectStateIds.none { it == stateId }) throw TaskStateNotFoundException()
+           projectStateRepository.getTaskStateById(stateId)
         } ?: throw ProjectNotFoundException()
     }
 
