@@ -1,6 +1,5 @@
 package logic.useCase
 
-import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -9,7 +8,7 @@ import mockdata.createProject
 import mockdata.createUser
 import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.UpdateStateUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
@@ -25,7 +24,7 @@ class UpdateStateUseCaseTest {
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var updateStateUseCase: UpdateStateUseCase
     private lateinit var currentUserUseCase: GetCurrentUserUseCase
-    private lateinit var taskStateRepository: TaskStateRepository
+    private lateinit var projectStateRepository: ProjectStateRepository
     private val dummyProject = createProject(
         id = "1",
         states = listOf(
@@ -41,10 +40,10 @@ class UpdateStateUseCaseTest {
     @BeforeEach
     fun setUp() {
         projectRepository = mockk()
-        taskStateRepository = mockk()
+        projectStateRepository = mockk()
         currentUserUseCase = mockk(relaxed = true)
         updateProjectUseCase = mockk()
-        updateStateUseCase = UpdateStateUseCase(taskStateRepository,projectRepository)
+        updateStateUseCase = UpdateStateUseCase(projectStateRepository,projectRepository)
     }
 
     @Test
@@ -52,7 +51,7 @@ class UpdateStateUseCaseTest {
         val updatedStates = listOf("2","3","4")
         coEvery { currentUserUseCase() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns dummyProject
-        coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(tasksStatesIds = updatedStates)
+        coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(projectStateIds = updatedStates)
 
         val updatedProject = updateStateUseCase(newTitle, stateId, dummyProject.id)
 

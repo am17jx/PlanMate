@@ -1,9 +1,8 @@
 package org.example.data.source.remote.contract
 
 import org.example.logic.models.State
-import org.example.logic.models.Task
 
-interface RemoteTaskStateDataSource {
+interface RemoteProjectStateDataSource {
     suspend fun createTaskState(taskState: State): State
 
     suspend fun updateTaskState(updatedTaskState: State): State
