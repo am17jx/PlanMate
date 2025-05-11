@@ -7,6 +7,4 @@ import kotlin.uuid.Uuid
 data class Project(
     val id: String,
     val name: String,
-    val tasksStatesIds: List<String>,
-    val auditLogsIds: List<Uuid>
 )

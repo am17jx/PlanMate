@@ -10,6 +10,5 @@ data class Task(
     val stateId: String,
     val stateName: String,
     val addedBy: String,
-    val auditLogsIds: List<Uuid>,
     val projectId: String
 )
