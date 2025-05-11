@@ -123,15 +123,15 @@ class TaskInformationUi(
 
             viewer.display("Select a new state index:")
             val index = reader.readInt()
-            val newStateId =
+            val newState  =
                 if (index == null || index !in 1..stateIds.size) {
                     viewer.display("Invalid index, keeping old state.")
-                    task.stateId
+                    ProjectState(id = task.stateId, title = task.stateName)
                 } else {
-                    stateIds[index - 1]
+                    ProjectState(id = stateIds[index - 1], title = stateNames[index - 1])
                 }
 
-            val updatedTask = task.copy(name = newName, stateId = newStateId)
+            val updatedTask = task.copy(name = newName, stateId = newState.id, stateName = newState.title)
             updateTaskUseCase(updatedTask)
             viewer.display("Task updated successfully.")
         } catch (e: TaskNotFoundException) {

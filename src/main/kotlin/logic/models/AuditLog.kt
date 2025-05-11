@@ -38,7 +38,7 @@ data class AuditLog(
                 }
 
                 if (this.stateId != oldTask.stateId) {
-                    changes.add(FieldChange("state", oldTask.stateId.toHexString(), this.stateId.toHexString()))
+                    changes.add(FieldChange("state", oldTask.stateName, this.stateName))
                 }
                 return changes
             }

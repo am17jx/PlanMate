@@ -8,25 +8,22 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class ProjectStateRepositoryImpl(
-    private val remoteProjectStateDataSource: RemoteProjectStateDataSource
+    private val remoteProjectStateDataSource: RemoteProjectStateDataSource,
 ) : ProjectStateRepository {
-    override suspend fun createProjectState(projectState: ProjectState): ProjectState {
-        return remoteProjectStateDataSource.createProjectState(projectState)
-    }
+    override suspend fun createProjectState(projectState: State): State = remoteProjectStateDataSource.createProjectState(projectState)
 
-    override suspend fun updateProjectState(updatedProjectProjectState: ProjectState): ProjectState {
-        return remoteProjectStateDataSource.updateProjectState(updatedProjectProjectState)
-    }
+    override suspend fun updateProjectState(updatedProjectState: State): State =
+        remoteProjectStateDataSource.updateProjectState(updatedProjectState)
 
     override suspend fun deleteProjectState(projectStateId: Uuid) {
-        remoteProjectStateDataSource.deleteProjectState(projectStateId.toHexString())
+        remoteProjectStateDataSource.deleteProjectState(projectStateId)
     }
 
     override suspend fun getProjectStates(projectId: Uuid): List<ProjectState> {
-        return remoteProjectStateDataSource.getProjectStates(projectId.toHexString())
+        return remoteProjectStateDataSource.getProjectStates(projectId)
     }
 
-    override suspend fun getProjectStateById(projectStateId: Uuid): ProjectState? {
-        return remoteProjectStateDataSource.getProjectStateById(projectStateId.toHexString())
+    override suspend fun getProjectStateById(projectStateId: Uuid): State? {
+        return remoteProjectStateDataSource.getProjectStateById(projectStateId)
     }
 }

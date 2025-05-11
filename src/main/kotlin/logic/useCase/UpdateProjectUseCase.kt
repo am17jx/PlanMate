@@ -4,7 +4,7 @@ import org.example.logic.models.*
 import org.example.logic.models.AuditLog.FieldChange.Companion.detectChanges
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
-import org.example.logic.utils.BlankInputException
+import org.example.logic.useCase.Validation
 import org.example.logic.utils.ProjectNotChangedException
 import org.example.logic.utils.ProjectNotFoundException
 import java.util.*
@@ -12,10 +12,12 @@ import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class UpdateProjectUseCase(
-    private val projectRepository: ProjectRepository, private val createAuditLogUseCase: CreateAuditLogUseCase
+    private val projectRepository: ProjectRepository,
+    private val createAuditLogUseCase: CreateAuditLogUseCase,
+    private val validation: Validation
 ) {
     suspend operator fun invoke(updatedProject: Project): Project {
-        if (updatedProject.name.isEmpty()) throw BlankInputException()
+        validation.validateInputNotBlankOrThrow(updatedProject.name)
         val originalProject = currentOriginalProject(updatedProject)
         detectChanges(updatedProject, originalProject)
         return projectRepository.updateProject(updatedProject).also {

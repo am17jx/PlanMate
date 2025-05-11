@@ -29,7 +29,7 @@ class AuditLogRepositoryImpl(
         entityType: AuditLog.EntityType,
     ): List<AuditLog> =
         mapExceptionsToDomainException(AuditLogNotFoundException()) {
-            remoteAuditLogDataSource.getEntityLogs(entityId.toHexString(), entityType)
+            remoteAuditLogDataSource.getEntityLogs(entityId, entityType)
         }
 
     override suspend fun getEntityLogByLogId(auditLogId: Uuid): AuditLog? =

@@ -7,6 +7,7 @@ import org.example.data.source.local.csv.utils.mapper.toCsvLines
 import org.example.data.source.local.csv.utils.mapper.toTasks
 import org.example.logic.models.Task
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class CsvTaskDataSource(
@@ -39,20 +40,20 @@ class CsvTaskDataSource(
         return updatedTask
     }
 
-    override fun deleteTask(taskId: String) {
-        tasks.removeIf { it.id.toHexString() == taskId }
+    override fun deleteTask(taskId: Uuid) {
+        tasks.removeIf { it.id == taskId }
         writeCsvTasks()
     }
 
     override fun getAllTasks(): List<Task> = tasks
 
-    override fun getTaskById(taskId: String): Task? = tasks.firstOrNull { it.id.toHexString() == taskId }
+    override fun getTaskById(taskId: Uuid): Task? = tasks.firstOrNull { it.id == taskId }
 
     override fun deleteTasksByStateId(
-        stateId: String,
-        projectId: String,
+        stateId: Uuid,
+        projectId: Uuid,
     ) {
-        tasks.removeIf { it.stateId.toHexString() == stateId && it.projectId.toHexString() == projectId }
+        tasks.removeIf { it.stateId == stateId && it.projectId == projectId }
         writeCsvTasks()
     }
 

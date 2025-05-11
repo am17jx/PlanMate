@@ -40,16 +40,17 @@ class ProjectTasksUI(
         loadProject()
     }
 
-    private fun loadProject() = runBlocking{
-        viewer.display("Loading...")
-        try {
-            project = getProjectByIdUseCase(projectId)
-            projectStates = getProjectStatesUseCase(projectId)
-            loadTasks()
-        } catch (e: Exception) {
-            handleError(e)
+    private fun loadProject() =
+        runBlocking {
+            viewer.display("Loading...")
+            try {
+                project = getProjectByIdUseCase(projectId)
+                projectStates = getProjectStatesUseCase(projectId)
+                loadTasks()
+            } catch (e: Exception) {
+                handleError(e)
+            }
         }
-    }
 
     private fun loadTasks() =
         runBlocking {
@@ -70,10 +71,11 @@ class ProjectTasksUI(
     }
 
     private suspend fun getTableHeadersAndColumns(): Pair<List<String>, List<List<String>>> {
-        val groupedTasksByState = getProjectStatesUseCase(projectId).map { state ->
-            val tasksForState = projectTasks.filter { it.stateId == state.id }
-            state to tasksForState
-        }
+        val groupedTasksByState =
+            getProjectStatesUseCase(projectId).map { state ->
+                val tasksForState = projectTasks.filter { it.stateId == state.id }
+                state to tasksForState
+            }
         val statesHeaders = groupedTasksByState.map { it.first.title }
         val tasksColumns = groupedTasksByState.map { it.second.map { task -> task.name } }
         return statesHeaders to tasksColumns

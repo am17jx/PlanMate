@@ -6,10 +6,11 @@ import org.example.logic.models.AuditLog
 import org.example.logic.models.AuditLogActionType
 import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Task
+import org.example.logic.useCase.DeleteTaskUseCase
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
+import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
-import org.example.logic.useCase.DeleteTaskUseCase
 import org.example.logic.useCase.UpdateTaskUseCase
 import org.example.presentation.screens.TaskInformationUi
 import org.junit.jupiter.api.BeforeEach

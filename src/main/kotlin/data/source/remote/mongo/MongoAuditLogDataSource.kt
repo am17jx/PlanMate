@@ -33,14 +33,14 @@ class MongoAuditLogDataSource(
     }
 
     override suspend fun getEntityLogs(
-        entityId: String,
+        entityId: Uuid,
         entityType: AuditLog.EntityType,
     ): List<AuditLog> =
         executeMongoOperation {
             auditLogCollection
                 .find(
                     Filters.and(
-                        Filters.eq(ENTITY_ID, entityId),
+                        Filters.eq(ENTITY_ID, entityId.toHexString()),
                         Filters.eq(ENTITY_TYPE, entityType.name),
                     ),
                 ).toList()
