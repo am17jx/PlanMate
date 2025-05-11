@@ -11,14 +11,14 @@ import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.useCase.GetTaskByIdUseCase
 import org.example.logic.useCase.DeleteTaskUseCase
 import org.example.logic.useCase.UpdateTaskUseCase
-import org.example.presentation.screens.ShowTaskInformation
+import org.example.presentation.screens.TaskInformationUi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
-class ShowTaskInformationTest {
+class TaskInformationUiTest {
     private lateinit var getTaskByIdUseCase: GetTaskByIdUseCase
     private lateinit var getStateNameUseCase: GetStateNameUseCase
     private lateinit var updateTaskUseCase: UpdateTaskUseCase
@@ -27,7 +27,7 @@ class ShowTaskInformationTest {
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
     private lateinit var viewer: Viewer
     private lateinit var reader: Reader
-    private lateinit var showTaskInformation: ShowTaskInformation
+    private lateinit var taskInformationUi: TaskInformationUi
     private val tablePrinter = mockk<TablePrinter>(relaxed = true)
 
     private val sampleTask =
@@ -72,7 +72,7 @@ class ShowTaskInformationTest {
         reader = mockk(relaxed = true)
 
 
-        showTaskInformation = ShowTaskInformation(
+        taskInformationUi = TaskInformationUi(
             tablePrinter = tablePrinter,
             getTaskByIdUseCase = getTaskByIdUseCase,
             getStateNameUseCase = getStateNameUseCase,
@@ -92,7 +92,7 @@ class ShowTaskInformationTest {
         coEvery { getStateNameUseCase("task-1") } returns "To Do"
         every { reader.readString() } returnsMany listOf("4")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
     }
@@ -103,7 +103,7 @@ class ShowTaskInformationTest {
         coEvery { getStateNameUseCase("task-1") } returns "To Do"
         every { reader.readString() } returnsMany listOf("1", "New Name", "New State", "4")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         val expectedUpdated = sampleTask.copy(name = "New Name", stateId = "New State")
         coVerify { updateTaskUseCase("task-1", expectedUpdated) }
@@ -116,7 +116,7 @@ class ShowTaskInformationTest {
         coEvery { getStateNameUseCase("task-1") } returns "To Do"
         every { reader.readString() } returnsMany listOf("2", "y")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         coVerify { deleteTaskUseCase("task-1") }
         verify { viewer.display(any()) }
@@ -129,7 +129,7 @@ class ShowTaskInformationTest {
         coEvery { getEntityAuditLogsUseCase("task-1", AuditLogEntityType.TASK) } returns logs
         every { reader.readString() } returnsMany listOf("3", "4")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
         logs.forEach { log ->
@@ -152,7 +152,7 @@ class ShowTaskInformationTest {
             )
         coEvery { updateTaskUseCase("task-1", any()) } throws RuntimeException("update failure")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
     }
@@ -164,7 +164,7 @@ class ShowTaskInformationTest {
         every { reader.readString() } returnsMany listOf("2", "y")
         coEvery { deleteTaskUseCase("task-1") } throws RuntimeException("delete failure")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
     }
@@ -175,7 +175,7 @@ class ShowTaskInformationTest {
         coEvery { getStateNameUseCase("task-1") } returns "To Do"
         every { reader.readString() } returnsMany listOf("2", "n")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
     }
@@ -187,7 +187,7 @@ class ShowTaskInformationTest {
         every { reader.readString() } returnsMany listOf("3", "4")
         coEvery { getEntityAuditLogsUseCase("task-1", AuditLogEntityType.TASK) } throws RuntimeException("logs failure")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
     }
@@ -198,7 +198,7 @@ class ShowTaskInformationTest {
         coEvery { getStateNameUseCase("task-1") } returns "To Do"
         every { reader.readString() } returnsMany listOf("5", "4")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
     }
@@ -210,7 +210,7 @@ class ShowTaskInformationTest {
         coEvery { getEntityAuditLogsUseCase("task-1", AuditLogEntityType.TASK) } returns emptyList()
         every { reader.readString() } returnsMany listOf("3", "4")
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         verify { viewer.display(any()) }
     }
@@ -227,7 +227,7 @@ class ShowTaskInformationTest {
                 "4",
             )
 
-        showTaskInformation.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation("task-1")
 
         val expectedTask = sampleTask.copy(name = sampleTask.name, stateId = sampleTask.stateId)
         coVerify { updateTaskUseCase("task-1", expectedTask) }

@@ -102,7 +102,7 @@ class MainUiController(
             }
 
             is Route.TaskDetailsRoute -> {
-                TaskInformation.create(
+                TaskInformationUi.create(
                     onNavigateBack = navigationController::popBackStack
 
                 ).showTaskInformation(taskId = route.taskId)

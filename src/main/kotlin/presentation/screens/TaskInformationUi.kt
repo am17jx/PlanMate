@@ -1,11 +1,9 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
-import org.example.logic.models.Project
 import org.example.logic.models.AuditLog
 import org.example.logic.models.State
 import org.example.logic.models.Task
-import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.*
 import org.example.logic.utils.*
 import org.koin.java.KoinJavaComponent.getKoin
@@ -16,14 +14,14 @@ import presentation.utils.toReadableMessage
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
-class ShowTaskInformation(
+class TaskInformationUi(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val getStateNameUseCase: GetStateNameUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
-    private val getProjectStatesUseCase: GetProjectStatesUseCase,
+    private val getProjectStateUseCase: GetProjectStateUseCase,
     private val viewer: Viewer,
     private val reader: Reader,
     private val tablePrinter: TablePrinter,
@@ -36,7 +34,7 @@ class ShowTaskInformation(
                 val task = getTaskByIdUseCase(taskId)
                 val stateName = getStateNameUseCase(taskId)
                 val project = getProjectByIdUseCase(task.projectId)
-                val projectTests = getProjectStatesUseCase(task.projectId)
+                val projectTests = getProjectStateUseCase(task.projectId)
                 displayTaskDetails(task, stateName)
                 displayMenu()
 
@@ -183,8 +181,8 @@ class ShowTaskInformation(
     companion object {
         fun create(
             onNavigateBack: () -> Unit
-        ): ShowTaskInformation {
-            return ShowTaskInformation(
+        ): TaskInformationUi {
+            return TaskInformationUi(
                 getTaskByIdUseCase = getKoin().get(),
                 onNavigateBack = onNavigateBack,
                 getStateNameUseCase = getKoin().get(),
@@ -195,7 +193,7 @@ class ShowTaskInformation(
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get(),
-                getProjectStatesUseCase =  getKoin().get(),
+                getProjectStateUseCase =  getKoin().get(),
             )
         }
     }
