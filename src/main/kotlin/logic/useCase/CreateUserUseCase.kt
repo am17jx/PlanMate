@@ -5,7 +5,7 @@ import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidUsernameException
 
-class CreateMateUseCase(
+class CreateUserUseCase(
     private val authenticationRepository: AuthenticationRepository,
 ) {
     suspend operator fun invoke(
@@ -17,7 +17,7 @@ class CreateMateUseCase(
             password.isBlank() -> throw BlankInputException()
             hasSpace(username) -> throw InvalidUsernameException()
             else -> {
-                return authenticationRepository.createMate(username, password)
+                return authenticationRepository.createUser(username, password)
             }
         }
     }

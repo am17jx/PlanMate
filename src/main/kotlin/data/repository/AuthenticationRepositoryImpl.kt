@@ -16,7 +16,7 @@ class AuthenticationRepositoryImpl(
     override suspend fun getCurrentUser(): User? = remoteAuthenticationDataSource.getCurrentUser()
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun createMate(
+    override suspend fun createUser(
         username: String,
         password: String,
     ): User =

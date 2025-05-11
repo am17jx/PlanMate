@@ -20,7 +20,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class ShowProjectTasksUI(
+class ProjectTasksUI(
     private val projectId: Uuid,
     private val onNavigateToTaskDetails: (taskId: Uuid) -> Unit,
     private val onNavigateBack: () -> Unit,
@@ -216,8 +216,8 @@ class ShowProjectTasksUI(
             projectId: Uuid,
             onNavigateToTaskDetails: (taskId: Uuid) -> Unit,
             onNavigateBack: () -> Unit,
-        ): ShowProjectTasksUI =
-            ShowProjectTasksUI(
+        ): ProjectTasksUI =
+            ProjectTasksUI(
                 projectId = projectId,
                 onNavigateToTaskDetails = onNavigateToTaskDetails,
                 onNavigateBack = onNavigateBack,

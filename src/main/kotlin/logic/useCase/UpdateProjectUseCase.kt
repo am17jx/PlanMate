@@ -1,17 +1,12 @@
 package org.example.logic.useCase.updateProject
 
-import kotlinx.datetime.Clock
 import org.example.logic.models.*
 import org.example.logic.models.AuditLog.FieldChange.Companion.detectChanges
-import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
-import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotChangedException
 import org.example.logic.utils.ProjectNotFoundException
-import org.example.logic.utils.formattedString
-import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
@@ -45,7 +40,7 @@ class UpdateProjectUseCase(
 
 
     private fun detectChanges(originalProject: Project, newProject: Project) {
-        if ((originalProject.name == newProject.name) && (originalProject.tasksStatesIds.toSet() == newProject.tasksStatesIds.toSet())) throw ProjectNotChangedException()
+        if ((originalProject.name == newProject.name) && (originalProject.projectStateIds.toSet() == newProject.projectStateIds.toSet())) throw ProjectNotChangedException()
     }
 
     private suspend fun currentOriginalProject(

@@ -1,6 +1,5 @@
 package logic.useCase
 
-import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -10,8 +9,8 @@ import mockdata.createUser
 import org.example.logic.models.State
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskStateRepository
-import org.example.logic.useCase.CreateStateUseCase
+import org.example.logic.repositries.ProjectStateRepository
+import org.example.logic.useCase.CreateProjectStateUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
@@ -19,12 +18,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class CreateStateUseCaseTest {
+class CreateProjectStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var authenticationRepository: AuthenticationRepository
-    private lateinit var createStateUseCase: CreateStateUseCase
-    private lateinit var taskStateRepository: TaskStateRepository
+    private lateinit var createProjectStateUseCase: CreateProjectStateUseCase
+    private lateinit var projectStateRepository: ProjectStateRepository
     private val dummyProject =
         createProject(
             id = "1",
@@ -40,12 +39,12 @@ class CreateStateUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        taskStateRepository = mockk(relaxed = true)
+        projectStateRepository = mockk(relaxed = true)
         projectRepository = mockk(relaxed = true)
         updateProjectUseCase = mockk(relaxed = true)
         authenticationRepository = mockk(relaxed = true)
-        createStateUseCase =
-            CreateStateUseCase(taskStateRepository, projectRepository)
+        createProjectStateUseCase =
+            CreateProjectStateUseCase(projectStateRepository, projectRepository)
     }
 
     @Test
@@ -54,9 +53,9 @@ class CreateStateUseCaseTest {
             coEvery { authenticationRepository.getCurrentUser() } returns createUser()
             coEvery { projectRepository.getProjectById(any()) } returns dummyProject
             coEvery { updateProjectUseCase(any()) } returns
-                    dummyProject.copy(tasksStatesIds = dummyProject.tasksStatesIds + "8")
+                    dummyProject.copy(projectStateIds = dummyProject.projectStateIds + "8")
 
-            val updatedProject = createStateUseCase(stateName, dummyProject.id)
+            val updatedProject = createProjectStateUseCase(stateName, dummyProject.id)
 
             coVerify { projectRepository.getProjectById(any()) }
 
@@ -68,7 +67,7 @@ class CreateStateUseCaseTest {
         coEvery { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
-            createStateUseCase(blankStateName, dummyProject.id)
+            createProjectStateUseCase(blankStateName, dummyProject.id)
         }
     }
 
@@ -78,7 +77,7 @@ class CreateStateUseCaseTest {
         coEvery { authenticationRepository.getCurrentUser() } returns createUser()
 
         assertThrows<BlankInputException> {
-            createStateUseCase(stateName, blankProjectId)
+            createProjectStateUseCase(stateName, blankProjectId)
         }
     }
 
@@ -89,7 +88,7 @@ class CreateStateUseCaseTest {
         coEvery { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
-            createStateUseCase(stateName, dummyProject.id)
+            createProjectStateUseCase(stateName, dummyProject.id)
         }
     }
 }
