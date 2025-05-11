@@ -3,7 +3,7 @@ package org.example.logic.useCase
 import org.example.logic.models.User
 import org.example.logic.repositries.AuthenticationRepository
 
-class CreateMateUseCase(
+class CreateUserUseCase(
     private val authenticationRepository: AuthenticationRepository,
     private val validation: Validation,
 ) {

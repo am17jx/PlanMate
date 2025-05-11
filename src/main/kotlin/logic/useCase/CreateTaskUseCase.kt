@@ -3,7 +3,7 @@ package logic.useCase
 import org.example.logic.models.*
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.Validation
@@ -17,9 +17,9 @@ class CreateTaskUseCase(
     private val projectRepository: ProjectRepository,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
-    private val taskStateRepository: TaskStateRepository,
+    private val projectStateRepository: ProjectStateRepository,
     private val validation: Validation,
-) {
+    ) {
     suspend operator fun invoke(
         name: String,
         projectId: Uuid,
@@ -63,8 +63,8 @@ class CreateTaskUseCase(
         stateId: Uuid,
     ): State =
         projectRepository.getProjectById(projectId)?.let { project ->
-            if (project.tasksStatesIds.none { it == stateId }) throw TaskStateNotFoundException()
-            taskStateRepository.getTaskStateById(stateId)
+            if (project.projectStateIds.none { it == stateId }) throw TaskStateNotFoundException()
+            projectStateRepository.getProjectStateById(stateId)
         } ?: throw ProjectNotFoundException()
 
 }

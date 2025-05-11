@@ -13,8 +13,8 @@ fun ProjectDTO.toProject(): Project =
     Project(
         id = id.toUuid(),
         name = name,
-        tasksStatesIds = statesIds.map { it.toUuid() },
-        auditLogsIds = auditLogsIds.map { Uuid.parse(it) },
+        projectStateIds = statesIds.map { it.toUuid() },
+        auditLogsIds = auditLogsIds.map { Uuid.parse(it) }
     )
 
 @OptIn(ExperimentalUuidApi::class)
@@ -22,6 +22,6 @@ fun Project.toProjectDTO(): ProjectDTO =
     ProjectDTO(
         id = id.toHexString(),
         name = name,
-        statesIds = tasksStatesIds.map { it.toHexString() },
-        auditLogsIds = auditLogsIds.map { it.toHexString() },
+        statesIds = projectStateIds.map { it.toHexString() },
+        auditLogsIds = auditLogsIds.map { it.toHexString() }
     )

@@ -7,7 +7,6 @@ import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.Validation
 import org.example.logic.utils.ProjectNotChangedException
 import org.example.logic.utils.ProjectNotFoundException
-import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
@@ -42,7 +41,7 @@ class UpdateProjectUseCase(
 
 
     private fun detectChanges(originalProject: Project, newProject: Project) {
-        if ((originalProject.name == newProject.name) && (originalProject.tasksStatesIds.toSet() == newProject.tasksStatesIds.toSet())) throw ProjectNotChangedException()
+        if ((originalProject.name == newProject.name) && (originalProject.projectStateIds.toSet() == newProject.projectStateIds.toSet())) throw ProjectNotChangedException()
     }
 
     private suspend fun currentOriginalProject(

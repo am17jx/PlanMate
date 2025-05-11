@@ -15,7 +15,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class ShowTaskInformation(
+class TaskInformationUi(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val getStateNameUseCase: GetStateNameUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
@@ -123,15 +123,15 @@ class ShowTaskInformation(
 
             viewer.display("Select a new state index:")
             val index = reader.readInt()
-            val newStateId =
+            val newState  =
                 if (index == null || index !in 1..stateIds.size) {
                     viewer.display("Invalid index, keeping old state.")
-                    task.stateId
+                    State(id = task.stateId, title = task.stateName)
                 } else {
-                    stateIds[index - 1]
+                    State(id = stateIds[index - 1], title = stateNames[index - 1])
                 }
 
-            val updatedTask = task.copy(name = newName, stateId = newStateId)
+            val updatedTask = task.copy(name = newName, stateId = newState.id, stateName = newState.title)
             updateTaskUseCase(task.id, updatedTask)
             viewer.display("Task updated successfully.")
         } catch (e: TaskNotFoundException) {
@@ -190,8 +190,10 @@ class ShowTaskInformation(
         }
 
     companion object {
-        fun create(onNavigateBack: () -> Unit): ShowTaskInformation =
-            ShowTaskInformation(
+        fun create(
+            onNavigateBack: () -> Unit
+        ): TaskInformationUi {
+            return TaskInformationUi(
                 getTaskByIdUseCase = getKoin().get(),
                 onNavigateBack = onNavigateBack,
                 getStateNameUseCase = getKoin().get(),
@@ -204,5 +206,6 @@ class ShowTaskInformation(
                 tablePrinter = getKoin().get(),
                 getProjectStatesUseCase = getKoin().get(),
             )
+        }
     }
 }

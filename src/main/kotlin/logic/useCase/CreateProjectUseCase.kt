@@ -2,7 +2,7 @@ package org.example.logic.useCase
 
 import org.example.logic.models.*
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -10,9 +10,9 @@ import kotlin.uuid.Uuid
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
-    private val taskStateRepository: TaskStateRepository,
+    private val projectStateRepository: ProjectStateRepository,
     private val validation: Validation,
-) {
+    ){
     suspend operator fun invoke(projectName: String): Project {
         validation.validateProjectNameOrThrow(projectName)
 
@@ -31,7 +31,7 @@ class CreateProjectUseCase(
             Project(
                 id = projectId,
                 name = projectName,
-                tasksStatesIds = getDefaultStates(),
+                projectStateIds = getDefaultStates(),
                 auditLogsIds = listOf(audit.id),
             )
 
@@ -41,9 +41,9 @@ class CreateProjectUseCase(
 
     private suspend fun getDefaultStates() =
         listOf(
-            taskStateRepository.createTaskState(State(title = DEFAULT_TO_DO_STATE_NAME)),
-            taskStateRepository.createTaskState(State(title = DEFAULT_IN_PROGRESS_STATE_NAME)),
-            taskStateRepository.createTaskState(State(title = DEFAULT_DONE_STATE_NAME)),
+            projectStateRepository.createProjectState(State(Uuid.random(), DEFAULT_TO_DO_STATE_NAME)),
+            projectStateRepository.createProjectState(State(Uuid.random(), DEFAULT_IN_PROGRESS_STATE_NAME)),
+            projectStateRepository.createProjectState(State(Uuid.random(), DEFAULT_DONE_STATE_NAME)),
         ).map { it.id }
 
     companion object {
