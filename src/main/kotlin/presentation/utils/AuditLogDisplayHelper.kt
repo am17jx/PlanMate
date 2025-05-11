@@ -16,9 +16,9 @@ fun AuditLog.toReadableMessage(): String {
                 val oldVal = fieldChange.oldValue
                 val newVal = fieldChange.newValue
 
-                "user $userName changed $entityTypeStr $entityName ${fieldChange.fieldName} " + "from $oldVal to $newVal at $formattedTime"
+                "user $userName changed $entityTypeStr ${fieldChange.fieldName} " + "from $oldVal to $newVal at $formattedTime"
             } else {
-                "user $userName updated $entityTypeStr $entityName ($entityName) at $formattedTime"
+                "user $userName updated $entityTypeStr ($entityName) at $formattedTime"
             }
         }
     }
