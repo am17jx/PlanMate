@@ -6,15 +6,15 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.example.data.source.remote.mongo.utils.mapper.toStateDTO
 import org.example.data.source.remote.models.StateDTO
-import org.example.data.source.remote.contract.RemoteTaskStateDataSource
+import org.example.data.source.remote.contract.RemoteProjectStateDataSource
 import org.example.data.source.remote.mongo.utils.mapper.toState
 import org.example.data.utils.Constants.ID
 import org.example.logic.models.State
 import org.example.logic.utils.*
 
-class MongoTaskStateDataSource(
+class MongoProjectProjectDataSource(
     private val mongoClient: MongoCollection<StateDTO>
-) : RemoteTaskStateDataSource {
+) : RemoteProjectStateDataSource {
 
     override suspend fun createTaskState(taskState: State): State {
         try {

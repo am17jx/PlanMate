@@ -13,7 +13,6 @@ import org.example.data.repository.sources.remote.RemoteProjectDataSource
 import org.example.data.source.remote.mongo.MongoProjectDataSource
 import org.example.data.utils.Constants.ID
 import org.example.logic.models.Project
-import org.example.logic.models.State
 import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,13 +32,13 @@ class MongoProjectDataSourceTest {
             Project(
                 id = "1",
                 name = "Project 1",
-                tasksStatesIds =listOf("6","4"),
+                projectStateIds =listOf("6","4"),
                 auditLogsIds = listOf("100"),
             ),
             Project(
                 id = "2",
                 name = "Project 2",
-                tasksStatesIds = listOf("8","9"),
+                projectStateIds = listOf("8","9"),
                 auditLogsIds = listOf("200"),
             ),
         )
@@ -68,7 +67,7 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf("6","4"),
+            projectStateIds = listOf("6","4"),
             auditLogsIds = listOf("300")
         )
         val projectDTO = ProjectDTO(
@@ -90,7 +89,7 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf("6","4"),
+            projectStateIds = listOf("6","4"),
             auditLogsIds = listOf("300")
         )
         val projectDTO = ProjectDTO(
@@ -112,7 +111,7 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf("46","44"),
+            projectStateIds = listOf("46","44"),
             auditLogsIds = listOf("300")
         )
         val projectDTO = ProjectDTO(
@@ -135,7 +134,7 @@ class MongoProjectDataSourceTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds = listOf("6","4"),
+            projectStateIds = listOf("6","4"),
             auditLogsIds = listOf("300")
         )
 
