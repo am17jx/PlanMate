@@ -6,6 +6,7 @@ import org.example.logic.repositries.TaskRepository
 import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
+import org.example.logic.useCase.Validation
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -17,13 +18,14 @@ class CreateTaskUseCase(
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
     private val taskStateRepository: TaskStateRepository,
+    private val validation: Validation,
 ) {
     suspend operator fun invoke(
         name: String,
         projectId: Uuid,
         stateId: Uuid,
     ): Task {
-        verifyNoBlankInputs(name)
+        validation.validateInputNotBlankOrThrow(name)
         val state = verifyProjectAndStateExist(projectId, stateId)
         return createAndLogTask(name, projectId, stateId, state.title, getCurrentUserUseCase())
     }
@@ -65,9 +67,4 @@ class CreateTaskUseCase(
             taskStateRepository.getTaskStateById(stateId)
         } ?: throw ProjectNotFoundException()
 
-    private fun verifyNoBlankInputs(name: String) {
-        when {
-            name.isBlank() -> throw BlankInputException()
-        }
-    }
 }

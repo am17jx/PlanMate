@@ -4,7 +4,6 @@ import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskStateRepository
-import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -13,12 +12,13 @@ import kotlin.uuid.Uuid
 class CreateStateUseCase(
     private val taskStateRepository: TaskStateRepository,
     private val projectRepository: ProjectRepository,
+    private val validation: Validation,
 ) {
     suspend operator fun invoke(
         projectId: Uuid,
         stateName: String,
     ) {
-        checkInputValidation(stateName)
+        validation.validateInputNotBlankOrThrow(stateName)
         val project = getProject(projectId)
         val newState = State(title = stateName)
 
@@ -31,10 +31,4 @@ class CreateStateUseCase(
             projectRepository.getProjectById(projectId)
                 ?: throw ProjectNotFoundException()
         )
-
-    private fun checkInputValidation(stateName: String) {
-        when {
-            stateName.isBlank() -> throw BlankInputException()
-        }
-    }
 }
