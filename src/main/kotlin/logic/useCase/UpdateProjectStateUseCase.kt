@@ -11,7 +11,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class UpdateStateUseCase(
+class UpdateProjectStateUseCase(
     private val projectStateRepository: ProjectStateRepository,
     private val projectRepository: ProjectRepository,
 ) {
@@ -25,7 +25,7 @@ class UpdateStateUseCase(
         checkStateExists(project.projectStateIds, stateId)
         getProject(projectId)
 
-        projectStateRepository.updateTaskState(State(stateId, newStateName))
+        projectStateRepository.updateProjectState(State(stateId, newStateName))
     }
 
     private fun checkStateExists(

@@ -16,48 +16,49 @@ import org.example.logic.utils.TaskNotChangedException
 import org.example.logic.utils.TaskNotFoundException
 import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class MongoProjectProjectDataSource(
     private val mongoClient: MongoCollection<StateDTO>
 ) : RemoteProjectStateDataSource {
 
-    override suspend fun createTaskState(taskState: State): State {
+    override suspend fun createProjectState(projectState: State): State {
         try {
-            mongoClient.insertOne(taskState.toStateDTO())
-            return taskState
+            mongoClient.insertOne(projectState.toStateDTO())
+            return projectState
         } catch (e: Exception) {
             throw TaskCreationFailedException()
         }
     }
 
-    override suspend fun updateTaskState(updatedTaskState: State): State {
+    override suspend fun updateProjectState(updatedProjectState: State): State {
         try {
-            mongoClient.replaceOne(Filters.eq(ID, updatedTaskState.id), updatedTaskState.toStateDTO())
-            return updatedTaskState
+            mongoClient.replaceOne(Filters.eq(ID, updatedProjectState.id.toHexString()), updatedProjectState.toStateDTO())
+            return updatedProjectState
         } catch (e: Exception) {
             throw TaskNotChangedException()
         }
     }
 
-    override suspend fun deleteTaskState(taskStateId: String) {
+    override suspend fun deleteProjectState(projectStateId: String) {
         try {
-            mongoClient.deleteOne(Filters.eq(ID, taskStateId))
+            mongoClient.deleteOne(Filters.eq(ID, projectStateId))
         } catch (e: Exception) {
             throw TaskDeletionFailedException()
         }
     }
 
-    override suspend fun getTaskStateById(taskStateId: String): State? {
+    override suspend fun getProjectStateById(projectStateId: String): State? {
         try {
-            return mongoClient.find(Filters.eq(ID, taskStateId)).firstOrNull()?.toState()
+            return mongoClient.find(Filters.eq(ID, projectStateId)).firstOrNull()?.toState()
         } catch (e: Exception) {
             throw TaskNotFoundException()
         }
     }
 
-    override suspend fun getProjectTaskStates(taskStateIds: List<String>): List<State> =
+    override suspend fun getProjectStates(projectStatesIds: List<String>): List<State> =
         try {
             mongoClient
-                .find(Filters.`in`(ID, taskStateIds))
+                .find(Filters.`in`(ID, projectStatesIds))
                 .toList()
                 .map { it.toState() }
         } catch (e: Exception) {

@@ -22,7 +22,7 @@ class TaskInformationUi(
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
-    private val getProjectStateUseCase: GetProjectStateUseCase,
+    private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val viewer: Viewer,
     private val reader: Reader,
     private val tablePrinter: TablePrinter,
@@ -36,7 +36,7 @@ class TaskInformationUi(
                     val task = getTaskByIdUseCase(taskId)
                     val stateName = getStateNameUseCase(taskId)
                     val project = getProjectByIdUseCase(task.projectId)
-                    val projectTests = getProjectStateUseCase(task.projectId)
+                    val projectTests = getProjectStatesUseCase(task.projectId)
                     displayTaskDetails(task, stateName)
                     displayMenu()
 
@@ -204,7 +204,8 @@ class TaskInformationUi(
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get(),
-                getProjectStateUseCase =  getKoin().get(),
+                getProjectStatesUseCase = getKoin().get(),
             )
+        }
     }
 }

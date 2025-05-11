@@ -10,7 +10,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class CreateStateUseCase(
+class CreateProjectStateUseCase(
     private val projectStateRepository: ProjectStateRepository,
     private val projectRepository: ProjectRepository,
 ) {
@@ -22,7 +22,7 @@ class CreateStateUseCase(
         val project = getProject(projectId)
         val newState = State(title = stateName)
 
-        projectStateRepository.createTaskState(newState)
+        projectStateRepository.createProjectState(newState)
         projectRepository.updateProject(project.copy(projectStateIds = project.projectStateIds + newState.id))
 
     }

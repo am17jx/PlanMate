@@ -6,10 +6,9 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 interface ProjectStateRepository {
-    suspend fun createTaskState(taskState: State): State
-
-    suspend fun updateTaskState(updatedTaskState: State): State
-    suspend fun deleteTaskState(taskStateId: Uuid)
-    suspend fun getProjectTaskStates(taskStateIds: List<Uuid>): List<State>
-    suspend fun getProjectStateById(taskStateId: Uuid): State?
+    suspend fun createProjectState(projectState: State): State
+    suspend fun updateProjectState(updatedProjectState: State): State
+    suspend fun deleteProjectState(projectStateId: Uuid)
+    suspend fun getProjectStates(projectStatesIds: List<Uuid>): List<State>
+    suspend fun getProjectStateById(projectStateId: Uuid): State?
 }

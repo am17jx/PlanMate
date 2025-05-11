@@ -13,6 +13,6 @@ class GetProjectStatesUseCase(
 ) {
     suspend operator fun invoke(projectId: Uuid): List<State> {
         val project: Project = getProjectByIdUseCase(projectId)
-        return projectStateRepository.getProjectTaskStates(project.projectStateIds)
+        return projectStateRepository.getProjectStates(project.projectStateIds)
     }
 }
