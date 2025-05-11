@@ -7,7 +7,7 @@ import org.example.logic.models.State
 import toCsvLines
 import toStates
 
-class CsvTaskStateDataSource(
+class CsvProjectStateDataSource(
     private val csvReader: CSVReader, private val csvWriter: CSVWriter
 ) : LocalTaskStateDataSource {
     private var states = mutableListOf<State>()
