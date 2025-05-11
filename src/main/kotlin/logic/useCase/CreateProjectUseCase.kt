@@ -1,13 +1,10 @@
 package org.example.logic.useCase
 
-import kotlinx.datetime.Clock
 import org.example.logic.models.*
-import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectCreationFailedException
-import org.example.logic.utils.formattedString
 import org.example.logic.utils.getCroppedId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -16,7 +13,7 @@ import kotlin.uuid.Uuid
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
-    private val taskStateRepository: TaskStateRepository,
+    private val projectStateRepository: ProjectStateRepository,
 ){
     suspend operator fun invoke(projectName: String): Project {
         checkInputValidation(projectName)
@@ -35,7 +32,7 @@ class CreateProjectUseCase(
             Project(
                 id = projectId,
                 name = projectName,
-                tasksStatesIds = getDefaultStates(),
+                projectStateIds = getDefaultStates(),
                 auditLogsIds = listOf(audit.id),
             )
 
@@ -45,9 +42,9 @@ class CreateProjectUseCase(
 
     private suspend fun getDefaultStates() =
         listOf(
-            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_TO_DO_STATE_NAME)),
-            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_IN_PROGRESS_STATE_NAME)),
-            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_DONE_STATE_NAME)),
+            projectStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_TO_DO_STATE_NAME)),
+            projectStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_IN_PROGRESS_STATE_NAME)),
+            projectStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_DONE_STATE_NAME)),
         ).map { it.id }
 
     private fun checkInputValidation(projectName: String) {
