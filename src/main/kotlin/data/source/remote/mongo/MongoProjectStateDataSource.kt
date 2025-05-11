@@ -18,7 +18,7 @@ import org.example.logic.utils.TaskNotFoundException
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
-class MongoProjectProjectDataSource(
+class MongoProjectStateDataSource(
     private val mongoClient: MongoCollection<StateDTO>
 ) : RemoteProjectStateDataSource {
 

@@ -2,7 +2,6 @@ package presentation.screens
 
 import io.mockk.*
 import org.example.logic.models.Project
-import org.example.logic.models.ProjectState
 import org.example.logic.useCase.CreateProjectStateUseCase
 import org.example.logic.useCase.DeleteProjectStateUseCase
 import org.example.logic.useCase.GetProjectByIdUseCase
@@ -14,7 +13,7 @@ import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
-class ProjectProjectStateUITest {
+class ProjectStateUITest {
 
     private lateinit var createProjectStateUseCase: CreateProjectStateUseCase
     private lateinit var updateProjectStateUseCase: UpdateProjectStateUseCase

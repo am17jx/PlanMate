@@ -78,7 +78,7 @@ val dataSourceModule = module {
     single<RemoteAuthenticationDataSource> { MongoAuthenticationDataSource(PlanMateDataBase.userDoc) }
     single<RemoteAuditLogDataSource> { MongoAuditLogDataSource(PlanMateDataBase.auditLogDoc) }
     single<RemoteTaskDataSource> { MongoTaskDataSource(PlanMateDataBase.taskDoc) }
-    single<RemoteProjectStateDataSource> { MongoProjectProjectDataSource(PlanMateDataBase.stateDoc) }
+    single<RemoteProjectStateDataSource> { MongoProjectStateDataSource(PlanMateDataBase.stateDoc) }
 
 
 }

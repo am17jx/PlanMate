@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class UpdateProjectProjectStateUseCaseTest {
+class UpdateProjectStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var updateProjectStateUseCase: UpdateProjectStateUseCase

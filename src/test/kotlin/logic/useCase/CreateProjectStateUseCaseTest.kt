@@ -18,7 +18,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class CreateProjectProjectStateUseCaseTest {
+class CreateProjectStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var authenticationRepository: AuthenticationRepository
