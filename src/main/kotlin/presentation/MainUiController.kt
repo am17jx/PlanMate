@@ -76,7 +76,7 @@ class MainUiController(
             }
 
             is Route.ShowProjectTasksRoute -> {
-                ShowProjectTasksUI.create(
+                ProjectTasksUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
                     onNavigateToTaskDetails = {
@@ -87,7 +87,7 @@ class MainUiController(
 
             is Route.CreateUserRoute -> {
                 CreateUserUi(
-                    createMateUseCase = getKoin().get(),
+                    createUserUseCase = getKoin().get(),
                     reader = reader,
                     viewer = viewer,
                     onBack = { navigationController.popBackStack() },
@@ -95,14 +95,14 @@ class MainUiController(
             }
 
             is Route.ProjectStatusRoute -> {
-                ProjectStatusUI.create(
+                ProjectStateUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
                 )
             }
 
             is Route.TaskDetailsRoute -> {
-                ShowTaskInformation.create(
+                TaskInformation.create(
                     onNavigateBack = navigationController::popBackStack
 
                 ).showTaskInformation(taskId = route.taskId)

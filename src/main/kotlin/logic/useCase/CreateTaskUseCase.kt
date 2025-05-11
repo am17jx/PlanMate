@@ -61,7 +61,7 @@ class CreateTaskUseCase(
     ) : State{
        return  projectRepository.getProjectById(projectId)?.let { project ->
             if (project.projectStateIds.none { it == stateId }) throw TaskStateNotFoundException()
-           projectStateRepository.getTaskStateById(stateId)
+           projectStateRepository.getProjectStateById(stateId)
         } ?: throw ProjectNotFoundException()
     }
 
