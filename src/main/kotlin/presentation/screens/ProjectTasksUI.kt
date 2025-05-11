@@ -6,7 +6,7 @@ import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
-import org.example.logic.useCase.GetProjectStatesUseCase
+import org.example.logic.useCase.GetProjectStateUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidInputException
@@ -17,13 +17,13 @@ import presentation.utils.cyan
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
-class ShowProjectTasksUI(
+class ProjectTasksUI(
     private val projectId: String,
     private val onNavigateToTaskDetails: (taskId: String) -> Unit,
     private val onNavigateBack: () -> Unit,
     private val getProjectTasksUseCase: GetProjectTasksUseCase,
     private val getProjectByIdUseCase: GetProjectByIdUseCase,
-    private val getProjectStatesUseCase: GetProjectStatesUseCase,
+    private val getProjectStateUseCase: GetProjectStateUseCase,
     private val createTaskUseCase: CreateTaskUseCase,
     private val reader: Reader,
     private val viewer: Viewer,
@@ -41,7 +41,7 @@ class ShowProjectTasksUI(
         viewer.display("Loading...")
         try {
             project = getProjectByIdUseCase(projectId)
-            projectStates = getProjectStatesUseCase(projectId)
+            projectStates = getProjectStateUseCase(projectId)
             loadTasks()
         } catch (e: Exception) {
             handleError(e)
@@ -66,7 +66,7 @@ class ShowProjectTasksUI(
     }
 
     private suspend fun getTableHeadersAndColumns(): Pair<List<String>, List<List<String>>> {
-        val groupedTasksByState = getProjectStatesUseCase(projectId).map { state ->
+        val groupedTasksByState = getProjectStateUseCase(projectId).map { state ->
             val tasksForState = projectTasks.filter { it.stateId == state.id }
             state to tasksForState
         }
@@ -210,8 +210,8 @@ class ShowProjectTasksUI(
     companion object {
         fun create(
             projectId: String, onNavigateToTaskDetails: (taskId: String) -> Unit, onNavigateBack: () -> Unit
-        ): ShowProjectTasksUI {
-            return ShowProjectTasksUI(
+        ): ProjectTasksUI {
+            return ProjectTasksUI(
                 projectId = projectId,
                 onNavigateToTaskDetails = onNavigateToTaskDetails,
                 onNavigateBack = onNavigateBack,
@@ -221,7 +221,7 @@ class ShowProjectTasksUI(
                 reader = getKoin().get(),
                 viewer = getKoin().get(),
                 tablePrinter = getKoin().get(),
-                getProjectStatesUseCase = getKoin().get(),
+                getProjectStateUseCase = getKoin().get(),
             )
         }
     }
