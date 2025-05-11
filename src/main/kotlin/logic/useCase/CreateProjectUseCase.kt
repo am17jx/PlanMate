@@ -2,7 +2,7 @@ package org.example.logic.useCase
 
 import org.example.logic.models.AuditLog
 import org.example.logic.models.Project
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.utils.BlankInputException
@@ -36,11 +36,11 @@ class CreateProjectUseCase(
         )
     }
 
-    private suspend fun getDefaultStates() =
+    private suspend fun createDefaultStates(projectId: Uuid) =
         listOf(
-            projectStateRepository.createProjectState(State(title = DEFAULT_TO_DO_STATE_NAME)),
-            projectStateRepository.createProjectState(State(title = DEFAULT_IN_PROGRESS_STATE_NAME)),
-            projectStateRepository.createProjectState(State(title = DEFAULT_DONE_STATE_NAME)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_TO_DO_STATE_NAME, projectId = projectId)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_IN_PROGRESS_STATE_NAME, projectId = projectId)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_DONE_STATE_NAME, projectId = projectId)),
         ).map { it.id }
 
     private fun checkInputValidation(projectName: String) {

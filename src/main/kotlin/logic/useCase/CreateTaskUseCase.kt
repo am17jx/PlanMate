@@ -1,7 +1,6 @@
 package logic.useCase
 
 import org.example.logic.models.*
-import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
@@ -47,7 +46,7 @@ class CreateTaskUseCase(
 
     private suspend fun getState(
         stateId: Uuid,
-    ): State = projectStateRepository.getProjectStateById(stateId).takeIf {
+    ): ProjectState = projectStateRepository.getProjectStateById(stateId).takeIf {
             it != null
         } ?: throw TaskStateNotFoundException()
 

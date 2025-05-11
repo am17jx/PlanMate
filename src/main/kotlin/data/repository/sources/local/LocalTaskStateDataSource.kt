@@ -1,10 +1,10 @@
 package org.example.data.source.local.contract
 
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 interface LocalTaskStateDataSource {
-    fun createTaskState(state: State): State
-    fun updateTaskState(updatedTaskState: State): State
+    fun createTaskState(projectState: ProjectState): ProjectState
+    fun updateTaskState(updatedTaskProjectState: ProjectState): ProjectState
     fun deleteTaskState(taskStateId: String)
-    fun getAllTaskStates(): List<State>
-    fun getTaskStateById(taskStateId: String): State?
+    fun getAllTaskStates(): List<ProjectState>
+    fun getTaskStateById(taskStateId: String): ProjectState?
 }

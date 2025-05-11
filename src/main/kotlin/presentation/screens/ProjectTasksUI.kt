@@ -3,7 +3,7 @@ package org.example.presentation.screens
 import kotlinx.coroutines.runBlocking
 import logic.useCase.CreateTaskUseCase
 import org.example.logic.models.Project
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.models.Task
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectStatesUseCase
@@ -33,7 +33,7 @@ class ProjectTasksUI(
     private val tablePrinter: TablePrinter,
 ) {
     private lateinit var project: Project
-    private lateinit var projectStates: List<State>
+    private lateinit var projectProjectStates: List<ProjectState>
     private lateinit var projectTasks: List<Task>
 
     init {
@@ -44,7 +44,7 @@ class ProjectTasksUI(
         viewer.display("Loading...")
         try {
             project = getProjectByIdUseCase(projectId)
-            projectStates = getProjectStatesUseCase(projectId)
+            projectProjectStates = getProjectStatesUseCase(projectId)
             loadTasks()
         } catch (e: Exception) {
             handleError(e)
@@ -168,8 +168,8 @@ class ProjectTasksUI(
     private fun readSelectedState(): Uuid {
         viewer.display("Select a state from the following table:")
 
-        val indices = projectStates.indices.map { (it + 1).toString() }
-        val titles = projectStates.map { it.title }
+        val indices = projectProjectStates.indices.map { (it + 1).toString() }
+        val titles = projectProjectStates.map { it.title }
 
         tablePrinter.printTable(
             headers = listOf("Index", "State Name"),
@@ -181,10 +181,10 @@ class ProjectTasksUI(
             val input = reader.readString()
             val index = input.toIntOrNull()?.minus(1)
 
-            if (index == null || index !in projectStates.indices) {
+            if (index == null || index !in projectProjectStates.indices) {
                 viewer.display("Invalid index! Please, try again.")
             } else {
-                return projectStates[index].id
+                return projectProjectStates[index].id
             }
         }
     }

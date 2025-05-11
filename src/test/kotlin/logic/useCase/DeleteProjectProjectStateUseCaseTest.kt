@@ -6,7 +6,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createUser
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.repositries.ProjectStateRepository
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class DeleteProjectStateUseCaseTest {
+class DeleteProjectProjectStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var deleteProjectStateUseCase: DeleteProjectStateUseCase
@@ -28,10 +28,10 @@ class DeleteProjectStateUseCaseTest {
     private lateinit var taskRepository: TaskRepository
     private val dummyProject = createProject(
         id = "1",
-        states = listOf(
-            State(id = "2", title = "StateTest"),
-            State(id = "3", title = "StateTest2"),
-            State(id = "4", title = "StateTest3"),
+        projectStates = listOf(
+            ProjectState(id = "2", title = "StateTest"),
+            ProjectState(id = "3", title = "StateTest2"),
+            ProjectState(id = "4", title = "StateTest3"),
         ),
         auditLogsIds = listOf("5", "6", "7"),
     )

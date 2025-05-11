@@ -3,7 +3,7 @@ package org.example.data.source.local.csv
 import org.example.data.source.local.contract.LocalTaskStateDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import toCsvLines
 import toStates
 import kotlin.uuid.ExperimentalUuidApi
@@ -13,50 +13,50 @@ class CsvTaskStateDataSource(
     private val csvReader: CSVReader,
     private val csvWriter: CSVWriter,
 ) : LocalTaskStateDataSource {
-    private var states = mutableListOf<State>()
+    private var projectStates = mutableListOf<ProjectState>()
 
     init {
         readCsvStates()
     }
 
-    override fun createTaskState(state: State): State {
-        states.add(state)
+    override fun createTaskState(projectState: ProjectState): ProjectState {
+        projectStates.add(projectState)
         writeCsvStates()
-        return state
+        return projectState
     }
 
-    override fun updateTaskState(updatedTaskState: State): State {
-        states =
-            states
+    override fun updateTaskState(updatedTaskProjectState: ProjectState): ProjectState {
+        projectStates =
+            projectStates
                 .map { task ->
-                    if (task.id == updatedTaskState.id) {
-                        updatedTaskState
+                    if (task.id == updatedTaskProjectState.id) {
+                        updatedTaskProjectState
                     } else {
                         task
                     }
                 }.toMutableList()
         writeCsvStates()
-        return updatedTaskState
+        return updatedTaskProjectState
     }
 
     override fun deleteTaskState(taskStateId: String) {
-        states.removeIf { it.id.toHexString() == taskStateId }
+        projectStates.removeIf { it.id.toHexString() == taskStateId }
         writeCsvStates()
     }
 
-    override fun getAllTaskStates(): List<State> = states
+    override fun getAllTaskStates(): List<ProjectState> = projectStates
 
-    override fun getTaskStateById(taskStateId: String): State? = states.firstOrNull { it.id.toHexString() == taskStateId }
+    override fun getTaskStateById(taskStateId: String): ProjectState? = projectStates.firstOrNull { it.id.toHexString() == taskStateId }
 
     private fun readCsvStates() {
         csvReader.readLines().toStates().let { updatedStates ->
-            states = updatedStates.toMutableList()
+            projectStates = updatedStates.toMutableList()
         }
     }
 
     private fun writeCsvStates() {
         csvWriter.writeLines(
-            states.toCsvLines(),
+            projectStates.toCsvLines(),
         )
         readCsvStates()
     }

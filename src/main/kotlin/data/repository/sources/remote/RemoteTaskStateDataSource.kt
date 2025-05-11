@@ -1,16 +1,15 @@
 package org.example.data.source.remote.contract
 
-import org.example.logic.models.State
-import org.example.logic.models.Task
+import org.example.logic.models.ProjectState
 
 interface RemoteTaskStateDataSource {
-    suspend fun createTaskState(taskState: State): State
+    suspend fun createTaskState(taskProjectState: ProjectState): ProjectState
 
-    suspend fun updateTaskState(updatedTaskState: State): State
+    suspend fun updateTaskState(updatedTaskProjectState: ProjectState): ProjectState
 
     suspend fun deleteTaskState(taskStateId: String)
 
-    suspend fun getProjectTaskStates(projectId: String): List<State>
+    suspend fun getProjectTaskStates(projectId: String): List<ProjectState>
 
-    suspend fun getTaskStateById(taskStateId: String): State?
+    suspend fun getTaskStateById(taskStateId: String): ProjectState?
 }

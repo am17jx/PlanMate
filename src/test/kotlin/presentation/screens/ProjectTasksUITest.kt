@@ -5,7 +5,7 @@ import io.mockk.*
 import logic.useCase.CreateTaskUseCase
 import mockdata.createProject
 import mockdata.createTask
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.ProjectNotFoundException
@@ -28,7 +28,7 @@ class ProjectTasksUITest {
     private var navigatedTaskId: String? = null
 
     private val project =
-        createProject(id = "1", name = "Test Project", states = listOf(State(id = "1", title = "State 1")))
+        createProject(id = "1", name = "Test Project", projectStates = listOf(ProjectState(id = "1", title = "State 1")))
     private val projectTasks = listOf(
         createTask(id = "1", name = "Task 1", projectId = "1", stateId = "1"),
         createTask(id = "2", name = "Task 2", projectId = "1", stateId = "1")
@@ -282,7 +282,7 @@ class ProjectTasksUITest {
 
     @Test
     fun `should display empty states message when project has no states`() {
-        val projectWithNoStates = createProject(id = "1", name = "Test Project", states = emptyList())
+        val projectWithNoStates = createProject(id = "1", name = "Test Project", projectStates = emptyList())
         coEvery { getProjectByIdUseCase.invoke(any()) } returns projectWithNoStates
 
         projectTasksUi = ProjectTasksUI(

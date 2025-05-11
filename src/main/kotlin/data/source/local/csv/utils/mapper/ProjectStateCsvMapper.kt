@@ -1,11 +1,11 @@
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.utils.toUuid
 import kotlin.uuid.ExperimentalUuidApi
 
 typealias CsvLine = String
 
 @OptIn(ExperimentalUuidApi::class)
-fun List<CsvLine>.toStates(): List<State> {
+fun List<CsvLine>.toStates(): List<ProjectState> {
     if (this.size <= 1) return emptyList()
 
     return this
@@ -17,7 +17,7 @@ fun List<CsvLine>.toStates(): List<State> {
                 .map { it.trim() }
                 .takeIf { it.size == 2 }
                 ?.let { parts ->
-                    State(
+                    ProjectState(
                         id = parts[0].toUuid(),
                         title = parts[1],
                         projectId = parts[2].toUuid()
@@ -28,7 +28,7 @@ fun List<CsvLine>.toStates(): List<State> {
 }
 
 @OptIn(ExperimentalUuidApi::class)
-fun List<State>.toCsvLines(): List<CsvLine> {
+fun List<ProjectState>.toCsvLines(): List<CsvLine> {
     val header = "id,title, projectId"
     val dataLines =
         this.map { state ->

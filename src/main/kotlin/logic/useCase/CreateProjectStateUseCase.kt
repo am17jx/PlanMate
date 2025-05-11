@@ -1,11 +1,9 @@
 package org.example.logic.useCase
 
-import org.example.logic.models.Project
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.ProjectNotFoundException
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -17,10 +15,10 @@ class CreateProjectStateUseCase(
     suspend operator fun invoke(
         projectId: Uuid,
         stateName: String,
-    ): State{
+    ): ProjectState{
         checkInputValidation(stateName)
         return projectStateRepository.createProjectState(
-            State(
+            ProjectState(
                 title = stateName,
                 projectId = projectId
             )

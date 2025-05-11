@@ -2,7 +2,7 @@ package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
 import org.example.logic.models.AuditLog
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.models.Task
 import org.example.logic.useCase.*
 import org.example.logic.utils.*
@@ -103,7 +103,7 @@ class TaskInformationUi(
 
     private fun updateTask(
         task: Task,
-        projectState: List<State>,
+        projectState: List<ProjectState>,
     ) = runBlocking {
         try {
             viewer.display("Enter new task name:")
