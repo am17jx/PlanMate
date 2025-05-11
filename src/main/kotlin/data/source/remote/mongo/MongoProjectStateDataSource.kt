@@ -5,7 +5,7 @@ import com.mongodb.kotlin.client.coroutine.MongoCollection
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.example.data.source.remote.contract.RemoteProjectStateDataSource
-import org.example.data.source.remote.models.StateDTO
+import org.example.data.source.remote.models.ProjectStateDTO
 import org.example.data.source.remote.mongo.utils.mapper.toState
 import org.example.data.source.remote.mongo.utils.mapper.toStateDTO
 import org.example.data.utils.Constants.ID
@@ -20,7 +20,7 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class MongoProjectStateDataSource(
-    private val mongoClient: MongoCollection<StateDTO>
+    private val mongoClient: MongoCollection<ProjectStateDTO>
 ) : RemoteProjectStateDataSource {
 
     override suspend fun createProjectState(projectState: ProjectState): ProjectState {
@@ -49,7 +49,7 @@ class MongoProjectStateDataSource(
         }
     }
 
-    override suspend fun getProjectStateById(projectStateId: Uuid): State? {
+    override suspend fun getProjectStateById(projectStateId: Uuid): ProjectState? {
         try {
             return mongoClient.find(Filters.eq(ID, projectStateId.toHexString())).firstOrNull()?.toState()
         } catch (e: Exception) {
@@ -57,10 +57,10 @@ class MongoProjectStateDataSource(
         }
     }
 
-    override suspend fun getProjectStates(projectId: Uuid): List<State> =
+    override suspend fun getProjectStates(projectId: Uuid): List<ProjectState> =
         try {
             mongoClient
-                .find(Filters.eq(PROJECT_ID, projectId))
+                .find(Filters.eq(PROJECT_ID, projectId.toHexString()))
                 .toList()
                 .map { it.toState() }
         } catch (e: Exception) {

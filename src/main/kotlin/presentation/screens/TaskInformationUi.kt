@@ -126,9 +126,9 @@ class TaskInformationUi(
             val newState  =
                 if (index == null || index !in 1..stateIds.size) {
                     viewer.display("Invalid index, keeping old state.")
-                    ProjectState(id = task.stateId, title = task.stateName)
+                    ProjectState(id = task.stateId, title = task.stateName, projectId = task.projectId)
                 } else {
-                    ProjectState(id = stateIds[index - 1], title = stateNames[index - 1])
+                    ProjectState(id = stateIds[index - 1], title = stateNames[index - 1], projectId = task.projectId)
                 }
 
             val updatedTask = task.copy(name = newName, stateId = newState.id, stateName = newState.title)

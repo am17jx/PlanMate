@@ -10,9 +10,9 @@ import kotlin.uuid.Uuid
 class ProjectStateRepositoryImpl(
     private val remoteProjectStateDataSource: RemoteProjectStateDataSource,
 ) : ProjectStateRepository {
-    override suspend fun createProjectState(projectState: State): State = remoteProjectStateDataSource.createProjectState(projectState)
+    override suspend fun createProjectState(projectState: ProjectState): ProjectState = remoteProjectStateDataSource.createProjectState(projectState)
 
-    override suspend fun updateProjectState(updatedProjectState: State): State =
+    override suspend fun updateProjectState(updatedProjectState: ProjectState): ProjectState =
         remoteProjectStateDataSource.updateProjectState(updatedProjectState)
 
     override suspend fun deleteProjectState(projectStateId: Uuid) {
@@ -23,7 +23,7 @@ class ProjectStateRepositoryImpl(
         return remoteProjectStateDataSource.getProjectStates(projectId)
     }
 
-    override suspend fun getProjectStateById(projectStateId: Uuid): State? {
+    override suspend fun getProjectStateById(projectStateId: Uuid): ProjectState? {
         return remoteProjectStateDataSource.getProjectStateById(projectStateId)
     }
 }

@@ -24,6 +24,6 @@ object PlanMateDataBase {
     val taskDoc = database.getCollection<TaskDTO>(collectionName = TASKS_DOCUMENTATION)
     val userDoc = database.getCollection<UserDTO>(collectionName = USERS_DOCUMENTATION)
     val auditLogDoc = database.getCollection<AuditLogDTO>(collectionName = AUDIT_LOGS_DOCUMENTATION)
-    val stateDoc = database.getCollection<StateDTO>(collectionName = STATE_DOCUMENTATION)
+    val stateDoc = database.getCollection<ProjectStateDTO>(collectionName = STATE_DOCUMENTATION)
 
 }

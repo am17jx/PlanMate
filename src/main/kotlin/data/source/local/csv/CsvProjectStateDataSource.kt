@@ -20,13 +20,13 @@ class CsvTaskStateDataSource(
         readCsvStates()
     }
 
-    override fun createTaskState(projectState: ProjectState): ProjectState {
+    override fun createProjectState(projectState: ProjectState): ProjectState {
         projectStates.add(projectState)
         writeCsvStates()
         return projectState
     }
 
-    override fun updateTaskState(updatedTaskProjectState: ProjectState): ProjectState {
+    override fun updateProjectState(updatedTaskProjectState: ProjectState): ProjectState {
         projectStates =
             projectStates
                 .map { task ->
@@ -40,14 +40,16 @@ class CsvTaskStateDataSource(
         return updatedTaskProjectState
     }
 
-    override fun deleteTaskState(taskStateId: String) {
-        projectStates.removeIf { it.id.toHexString() == taskStateId }
+    override fun deleteProjectState(taskStateId: Uuid) {
+        projectStates.removeIf { it.id == taskStateId }
         writeCsvStates()
     }
 
-    override fun getAllTaskStates(): List<ProjectState> = projectStates
+    override fun getProjectStates(projectId: Uuid): List<ProjectState> {
+        return projectStates.filter { it.projectId == projectId }
+    }
 
-    override fun getTaskStateById(taskStateId: String): ProjectState? = projectStates.firstOrNull { it.id.toHexString() == taskStateId }
+    override fun getProjectStateById(projectStateId: Uuid): ProjectState? = projectStates.firstOrNull { it.id == projectStateId }
 
     private fun readCsvStates() {
         csvReader.readLines().toStates().let { updatedStates ->
