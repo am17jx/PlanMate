@@ -1,6 +1,5 @@
 package logic.useCase
 
-import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -10,7 +9,7 @@ import mockdata.createUser
 import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.DeleteStateUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
@@ -25,7 +24,7 @@ class DeleteStateUseCaseTest {
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var deleteStateUseCase: DeleteStateUseCase
     private lateinit var currentUserUseCase: GetCurrentUserUseCase
-    private lateinit var taskStateRepository: TaskStateRepository
+    private lateinit var projectStateRepository: ProjectStateRepository
     private lateinit var taskRepository: TaskRepository
     private val dummyProject = createProject(
         id = "1",
@@ -41,11 +40,11 @@ class DeleteStateUseCaseTest {
     @BeforeEach
     fun setUp() {
         taskRepository = mockk()
-        taskStateRepository = mockk()
+        projectStateRepository = mockk()
         projectRepository = mockk()
         currentUserUseCase = mockk()
         updateProjectUseCase = mockk()
-        deleteStateUseCase = DeleteStateUseCase(taskStateRepository, projectRepository, taskRepository)
+        deleteStateUseCase = DeleteStateUseCase(projectStateRepository, projectRepository, taskRepository)
 
     }
 
@@ -53,7 +52,7 @@ class DeleteStateUseCaseTest {
     fun `should return updated project with deleted state when state id is valid and user is admin`() = runTest {
         coEvery { projectRepository.getProjectById(any()) } returns dummyProject
         coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(
-            tasksStatesIds = dummyProject.tasksStatesIds - "2"
+            projectStateIds = dummyProject.projectStateIds - "2"
         )
 
         deleteStateUseCase(stateId, dummyProject.id)
