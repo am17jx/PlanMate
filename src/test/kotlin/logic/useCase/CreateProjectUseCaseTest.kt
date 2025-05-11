@@ -66,7 +66,7 @@ class CreateProjectUseCaseTest {
 
             coVerify { projectRepository.createProject(any()) }
             coVerify { auditLogRepository.createAuditLog(any()) }
-            assertThat(createdProject.tasksStatesIds).hasSize(3)
+            assertThat(createdProject.projectStateIds).hasSize(3)
         }
 
     @Test

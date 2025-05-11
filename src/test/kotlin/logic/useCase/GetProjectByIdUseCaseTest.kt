@@ -5,7 +5,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.logic.models.Project
-import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.utils.BlankInputException
@@ -20,7 +19,7 @@ class GetProjectByIdUseCaseTest {
     private val project = Project(
         id = "123456",
         name = "spacecraft work",
-        tasksStatesIds =listOf(
+        projectStateIds =listOf(
             "state-001", "state-002",
         ),
         auditLogsIds = listOf(

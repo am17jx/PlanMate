@@ -2,13 +2,15 @@ package org.example.logic.useCase
 
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
+import org.example.logic.utils.ProjectNotFoundException
+import org.example.logic.utils.TaskDeletionFailedException
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class DeleteStateUseCase(
-    private val taskStateRepository: TaskStateRepository,
+class DeleteProjectStateUseCase(
+    private val projectStateRepository: ProjectStateRepository,
     private val taskRepository: TaskRepository,
     private val getProjectTasksUseCase: GetProjectTasksUseCase
 ) {
@@ -21,7 +23,7 @@ class DeleteStateUseCase(
             .forEach { task ->
                 taskRepository.deleteTask(task.id)
             }.also {
-                taskStateRepository.deleteTaskState(stateId)
+                projectStateRepository.deleteProjectState(stateId)
             }
     }
 

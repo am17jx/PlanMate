@@ -4,7 +4,7 @@ import org.example.logic.models.AuditLog
 import org.example.logic.models.Project
 import org.example.logic.models.State
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskStateRepository
+import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectCreationFailedException
 import kotlin.uuid.ExperimentalUuidApi
@@ -14,8 +14,8 @@ import kotlin.uuid.Uuid
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
-    private val taskStateRepository: TaskStateRepository,
-) {
+    private val projectStateRepository: ProjectStateRepository,
+){
     suspend operator fun invoke(projectName: String): Project {
         checkInputValidation(projectName)
         return projectRepository.createProject(
@@ -36,11 +36,12 @@ class CreateProjectUseCase(
         )
     }
 
-    private suspend fun createDefaultStates(projectId: Uuid) {
-        taskStateRepository.createTaskState(State(title = DEFAULT_TO_DO_STATE_NAME, projectId = projectId))
-        taskStateRepository.createTaskState(State(title = DEFAULT_IN_PROGRESS_STATE_NAME, projectId = projectId))
-        taskStateRepository.createTaskState(State(title = DEFAULT_DONE_STATE_NAME, projectId = projectId))
-    }
+    private suspend fun getDefaultStates() =
+        listOf(
+            projectStateRepository.createProjectState(State(title = DEFAULT_TO_DO_STATE_NAME)),
+            projectStateRepository.createProjectState(State(title = DEFAULT_IN_PROGRESS_STATE_NAME)),
+            projectStateRepository.createProjectState(State(title = DEFAULT_DONE_STATE_NAME)),
+        ).map { it.id }
 
     private fun checkInputValidation(projectName: String) {
         when {
