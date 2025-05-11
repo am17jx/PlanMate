@@ -5,7 +5,6 @@ import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectCreationFailedException
-import org.example.logic.utils.getCroppedId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -22,12 +21,13 @@ class CreateProjectUseCase(
     }
 
     private suspend fun createAndLogProject(projectName: String): Project {
-        val projectId = Uuid.random().getCroppedId()
-        val audit = createAuditLogUseCase.logCreation(
-            entityId = projectId,
-            entityName = projectName,
-            entityType = AuditLog.EntityType.PROJECT
-        )
+        val projectId = Uuid.random()
+        val audit =
+            createAuditLogUseCase.logCreation(
+                entityId = projectId,
+                entityName = projectName,
+                entityType = AuditLog.EntityType.PROJECT,
+            )
         val newProject =
             Project(
                 id = projectId,

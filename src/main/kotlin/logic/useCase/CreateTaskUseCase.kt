@@ -20,27 +20,28 @@ class CreateTaskUseCase(
 ) {
     suspend operator fun invoke(
         name: String,
-        projectId: String,
-        stateId: String,
+        projectId: Uuid,
+        stateId: Uuid,
     ): Task {
-        verifyNoBlankInputs(name, projectId, stateId)
+        verifyNoBlankInputs(name)
         val state = verifyProjectAndStateExist(projectId, stateId)
         return createAndLogTask(name, projectId, stateId, state.title, getCurrentUserUseCase())
     }
 
     private suspend fun createAndLogTask(
         taskName: String,
-        projectId: String,
-        stateId: String,
+        projectId: Uuid,
+        stateId: Uuid,
         stateName: String,
         loggedInUser: User,
     ): Task {
-        val taskId = Uuid.random().getCroppedId()
-        val taskAuditLog = createAuditLogUseCase.logCreation(
-            entityId = taskId,
-            entityName = taskName,
-            entityType = AuditLog.EntityType.TASK
-        )
+        val taskId = Uuid.random()
+        val taskAuditLog =
+            createAuditLogUseCase.logCreation(
+                entityId = taskId,
+                entityName = taskName,
+                entityType = AuditLog.EntityType.TASK,
+            )
         val newTask =
             Task(
                 id = taskId,
@@ -48,7 +49,7 @@ class CreateTaskUseCase(
                 stateId = stateId,
                 stateName = stateName,
                 projectId = projectId,
-                addedBy = loggedInUser.id,
+                addedBy = loggedInUser.username,
                 auditLogsIds = listOf(taskAuditLog.id),
             )
         taskRepository.createTask(newTask)
@@ -56,26 +57,17 @@ class CreateTaskUseCase(
     }
 
     private suspend fun verifyProjectAndStateExist(
-        projectId: String,
-        stateId: String,
-    ) : State{
-       return  projectRepository.getProjectById(projectId)?.let { project ->
+        projectId: Uuid,
+        stateId: Uuid,
+    ): State =
+        projectRepository.getProjectById(projectId)?.let { project ->
             if (project.projectStateIds.none { it == stateId }) throw TaskStateNotFoundException()
-           projectStateRepository.getProjectStateById(stateId)
+            projectStateRepository.getProjectStateById(stateId)
         } ?: throw ProjectNotFoundException()
-    }
 
-    private fun verifyNoBlankInputs(
-        name: String,
-        projectId: String,
-        stateId: String,
-    ) {
+    private fun verifyNoBlankInputs(name: String) {
         when {
             name.isBlank() -> throw BlankInputException()
-            projectId.isBlank() -> throw BlankInputException()
-            stateId.isBlank() -> throw BlankInputException()
         }
     }
-
-
 }
