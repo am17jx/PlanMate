@@ -13,7 +13,7 @@ val useCaseModule =
     module {
         singleOf(::DeleteProjectUseCase)
         singleOf(::DeleteTaskUseCase)
-        singleOf(::CreateMateUseCase)
+        singleOf(::CreateUserUseCase)
         singleOf(::CreateProjectUseCase)
         singleOf(::CreateStateUseCase)
         singleOf(::CreateTaskUseCase)
@@ -30,6 +30,6 @@ val useCaseModule =
         singleOf(::UpdateProjectUseCase)
         singleOf(::UpdateStateUseCase)
         singleOf(::UpdateTaskUseCase)
-        singleOf(::GetProjectStatesUseCase)
+        singleOf(::GetProjectStateUseCase)
         singleOf(::CreateAuditLogUseCase)
     }

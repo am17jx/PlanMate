@@ -1,6 +1,6 @@
 package di
 
-import org.example.logic.useCase.CreateMateUseCase
+import org.example.logic.useCase.CreateUserUseCase
 import org.example.presentation.MainUiController
 import org.example.presentation.navigation.NavigationController
 import org.example.presentation.navigation.Route
@@ -22,5 +22,5 @@ val uiModule =
         singleOf(::TablePrinter)
         single<Viewer> { ConsoleViewer() }
         single<Reader> { ConsoleReader() }
-        single { CreateMateUseCase(authenticationRepository = get()) }
+        single { CreateUserUseCase(authenticationRepository = get()) }
     }
