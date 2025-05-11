@@ -49,7 +49,7 @@ class TaskInformationUi(
 
                         "3" -> showTaskLogs(taskId)
                         "4" -> {
-                            onNavigateBack
+                            onNavigateBack()
                         }
 
                         else -> viewer.display("Invalid choice. Please try again.")
@@ -123,7 +123,7 @@ class TaskInformationUi(
 
             viewer.display("Select a new state index:")
             val index = reader.readInt()
-            val newState  =
+            val newState =
                 if (index == null || index !in 1..stateIds.size) {
                     viewer.display("Invalid index, keeping old state.")
                     ProjectState(id = task.stateId, title = task.stateName, projectId = task.projectId)
@@ -190,10 +190,8 @@ class TaskInformationUi(
         }
 
     companion object {
-        fun create(
-            onNavigateBack: () -> Unit
-        ): TaskInformationUi {
-            return TaskInformationUi(
+        fun create(onNavigateBack: () -> Unit): TaskInformationUi =
+            TaskInformationUi(
                 getTaskByIdUseCase = getKoin().get(),
                 onNavigateBack = onNavigateBack,
                 getStateNameUseCase = getKoin().get(),
@@ -206,6 +204,5 @@ class TaskInformationUi(
                 tablePrinter = getKoin().get(),
                 getProjectStatesUseCase = getKoin().get(),
             )
-        }
     }
 }
