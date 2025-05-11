@@ -6,7 +6,7 @@ import org.example.logic.utils.toUuid
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
-fun StateDTO.toState(): State = State(id = id.toUuid(), title = title)
+fun StateDTO.toState(): State = State(id = id.toUuid(), title = title, projectId = projectId.toUuid())
 
 @OptIn(ExperimentalUuidApi::class)
-fun State.toStateDTO(): StateDTO = StateDTO(id = id.toHexString(), title = title)
+fun State.toStateDTO(): StateDTO = StateDTO(id = id.toHexString(), title = title, projectId = projectId.toHexString())

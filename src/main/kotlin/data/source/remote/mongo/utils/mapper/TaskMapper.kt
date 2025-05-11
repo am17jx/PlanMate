@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalUuidApi::class)
+@file:OptIn(ExperimentalUuidApi::class, ExperimentalUuidApi::class)
 
 package org.example.data.source.remote.mongo.utils.mapper
 
@@ -14,8 +14,8 @@ fun TaskDTO.toTask(): Task =
         name = name,
         stateId = stateId.toUuid(),
         stateName = stateName,
-        addedBy = addedBy,
-        auditLogsIds = auditLogsIds.map { Uuid.parse(it) },
+        addedById = addedById.toUuid(),
+        addedByName = addedByName,
         projectId = projectId.toUuid(),
     )
 
@@ -25,7 +25,7 @@ fun Task.toTaskDTO(): TaskDTO =
         name = name,
         stateId = stateId.toHexString(),
         stateName = stateName,
-        addedBy = addedBy,
-        auditLogsIds = auditLogsIds.map { it.toHexString() },
+        addedById = addedById.toHexString(),
+        addedByName = addedByName,
         projectId = projectId.toHexString(),
     )

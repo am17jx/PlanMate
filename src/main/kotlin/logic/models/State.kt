@@ -7,6 +7,5 @@ import kotlin.uuid.Uuid
 data class State(
     val id: Uuid = Uuid.random(),
     val title: String,
-    val projectId: String,
-
+    val projectId: Uuid,
     )
