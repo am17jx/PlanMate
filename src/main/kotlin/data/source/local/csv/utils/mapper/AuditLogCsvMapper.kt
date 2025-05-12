@@ -29,7 +29,7 @@ fun List<String>.toAuditLogs(): List<AuditLog> {
     if (this.isEmpty()) return emptyList()
 
     return this.filter { it.isNotBlank() }.map { line ->
-        line.split(",").map { it.trim() }.takeIf { it.size == 7 }?.let { parts ->
+        line.split(",").map { it.trim() }.takeIf { it.size == 11 }?.let { parts ->
             AuditLog(
                 id = Uuid.parse(parts[0]),
                 userId = parts[1].toUuid(),

@@ -21,9 +21,10 @@ class CsvAuthenticationDataSourceTest {
     private lateinit var expectedFile: File
     private lateinit var dataSource: CsvAuthenticationDataSource
 
-    private val user = User(Uuid.random(), "testUsername", UserRole.USER, User.AuthenticationMethod.Password("password"))
-    private val testUsername = "testUsername"
-    private val testHashedPassword = "fed3b61b26081849378080b34e693d2e"
+    private val testUsername = "username"
+    private val testPassword = "password"
+    private val userId = Uuid.random()
+    private val user = User(userId, testUsername, UserRole.USER, User.AuthenticationMethod.Password(testPassword))
 
     @BeforeEach
     fun setup() {
@@ -40,16 +41,16 @@ class CsvAuthenticationDataSourceTest {
 
     @Test
     fun `saveUser should write user to file when user not exists`() {
-        expectedFile.writeText("id,username,password,USER")
+        expectedFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
 
-        dataSource.saveUser(User(Uuid.random(), "username", UserRole.USER, User.AuthenticationMethod.Password("password")))
+        dataSource.saveUser(User(userId, "username", UserRole.USER, User.AuthenticationMethod.Password("password")))
 
         Truth.assertThat(testFile.readText()).isEqualTo(expectedFile.readText())
     }
 
     @Test
     fun `saveUser should throw exception with type UserAlreadyExistsException when user enter username is exists before`() {
-        testFile.writeText("id,testUsername,password,USER")
+        testFile.writeText("${userId.toHexString()},testUsername,USER,PASSWORD,password")
 
         assertThrows<UserAlreadyExistsException> {
             dataSource.saveUser(
@@ -65,8 +66,8 @@ class CsvAuthenticationDataSourceTest {
 
     @Test
     fun `getAllUsers should return all users from file`() {
-        testFile.writeText("id,username,password,USER")
-        val expectedUser = User(Uuid.random(), "username", UserRole.USER, User.AuthenticationMethod.Password("password"))
+        testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
+        val expectedUser = User(userId, "username", UserRole.USER, User.AuthenticationMethod.Password("password"))
 
         val users = dataSource.getAllUsers()
 
@@ -75,17 +76,17 @@ class CsvAuthenticationDataSourceTest {
 
     @Test
     fun `login should return user data when user enter username and password that exists in users data`() {
-        testFile.writeText("testId,testUsername,fed3b61b26081849378080b34e693d2e,USER")
+        testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
 
-        val result = dataSource.loginWithPassword(testUsername, testHashedPassword)
+        val result = dataSource.loginWithPassword(testUsername, testPassword)
 
         Truth.assertThat(user).isEqualTo(result)
     }
 
     @Test
     fun `getCurrentUser should return logged in user when user is logged in`() {
-        testFile.writeText("testId,testUsername,fed3b61b26081849378080b34e693d2e,USER")
-        dataSource.loginWithPassword(testUsername, testHashedPassword)
+        testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
+        dataSource.loginWithPassword(testUsername, testPassword)
 
         val result = dataSource.getCurrentUser()
 

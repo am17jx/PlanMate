@@ -28,7 +28,7 @@ class ProjectCsvMapperTest {
 
         val csvLine = project.toCsvLine()
 
-        val expectedCsvLine = "${id1.toHexString()},Test Project,[${id1.toHexString()},${id1.toHexString()},${id1.toHexString()},],[${id1.toHexString()},${id1.toHexString()},${id1.toHexString()},]"
+        val expectedCsvLine = "${id1.toHexString()},Test Project"
         assertThat(csvLine).isEqualTo(expectedCsvLine)
     }
 
@@ -57,7 +57,7 @@ class ProjectCsvMapperTest {
         val csvLine = project.toCsvLine()
         val convertedProject = csvLine.toProject()
 
-        assertThat(csvLine).isEqualTo("${id1.toHexString()},Empty Project,[],[]")
+        assertThat(csvLine).isEqualTo("${id1.toHexString()},Empty Project")
         assertThat(convertedProject).isEqualTo(project)
     }
 
@@ -78,16 +78,16 @@ class ProjectCsvMapperTest {
         val csvLines = projects.toCsvLines()
 
         assertThat(csvLines).hasSize(2)
-        assertThat(csvLines[0]).isEqualTo("${id1.toHexString()},Project 1,[${id1.toHexString()}],[${id1.toHexString()}]")
-        assertThat(csvLines[1]).isEqualTo("${id2.toHexString()},Project 2,[${id2.toHexString()}],[${id2.toHexString()}]")
+        assertThat(csvLines[0]).isEqualTo("${id1.toHexString()},Project 1")
+        assertThat(csvLines[1]).isEqualTo("${id2.toHexString()},Project 2")
     }
 
     @Test
     fun `should map list of CSV lines to list of projects`() {
         val csvLines =
             listOf(
-                "${id1.toHexString()},Project 1,[${id1.toHexString()}],[${id1.toHexString()}]",
-                "${id2.toHexString()},Project 2,[${id2.toHexString()}],[${id2.toHexString()}]",
+                "${id1.toHexString()},Project 1",
+                "${id2.toHexString()},Project 2",
             )
 
         val projects = csvLines.toProjectList()
@@ -105,15 +105,15 @@ class ProjectCsvMapperTest {
     fun `should convert from and to the same Project`() {
         val project =
             Project(
-                id = Uuid.random(),
+                id = id1,
                 name = "Complex Project"
             )
 
         val csvLine = project.toCsvLine()
         val convertedProject = csvLine.toProject()
 
-        assertThat(csvLine).isEqualTo("4,Complex Project,[1:To Do,2:In Progress,3:Ready for Review],[300,301]")
-        assertThat(convertedProject.id).isEqualTo("4")
+        assertThat(csvLine).isEqualTo("${id1.toHexString()},Complex Project")
+        assertThat(convertedProject.id).isEqualTo(id1)
         assertThat(convertedProject.name).isEqualTo("Complex Project")
     }
 
