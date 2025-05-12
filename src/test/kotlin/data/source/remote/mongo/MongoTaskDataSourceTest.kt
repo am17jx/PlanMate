@@ -13,6 +13,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.test.runTest
+import mockdata.createTask
 import org.example.data.source.remote.models.TaskDTO
 import org.example.data.source.remote.mongo.MongoTaskDataSource
 import org.example.data.source.remote.mongo.utils.mapper.toTaskDTO
@@ -29,20 +30,23 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class MongoTaskDataSourceTest {
     private lateinit var mongoTaskDataSource: MongoTaskDataSource
     private lateinit var mongoClient: MongoCollection<TaskDTO>
     private lateinit var testTasks: List<Task>
     private lateinit var testTaskDTOs: List<TaskDTO>
-
+    private val ids = List(6) { Uuid.random() }
     @BeforeEach
     fun setUp() {
         mongoClient = mockk(relaxed = true)
         mongoTaskDataSource = MongoTaskDataSource(mongoClient)
         testTasks = listOf(
-            Task("3", "Updated Task", "in_progress", "user3", listOf("audit4"), "proj3"),
-            Task("5", "remove Task", "in review", "user3", listOf("audit4"), "proj3"),
+            createTask(ids[0], "Updated Task", ids[3], "in-progress", ids[5]),
+            createTask(ids[1], "remove Task", ids[4], "todo", ids[5]),
         )
         testTaskDTOs = testTasks.map { it.toTaskDTO() }
     }
@@ -78,19 +82,19 @@ class MongoTaskDataSourceTest {
 
             val replaceResult = mockk<UpdateResult>(relaxed = true)
             coEvery {
-                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id.toHexString()), testTaskDTOs[0], any())
             } returns replaceResult
 
             val result = mongoTaskDataSource.updateTask(testTasks[0])
 
             assertEquals(testTasks[0], result)
-            coVerify { mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id), testTaskDTOs[0], any()) }
+            coVerify { mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id.toHexString()), testTaskDTOs[0], any()) }
         }
 
         @Test
         fun `updateTask should throw TaskNotChangedException  when update task fails`() = runTest {
             coEvery {
-                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id.toHexString()), testTaskDTOs[0], any())
             } throws TaskNotChangedException()
 
             assertThrows<TaskNotChangedException> { mongoTaskDataSource.updateTask(testTasks[0]) }
@@ -106,7 +110,7 @@ class MongoTaskDataSourceTest {
             coEvery { mongoClient.find<List<TaskDTO>>(filter = any(), any()) } returns findFlow
             coEvery { findFlow.firstOrNull() } returns testTaskDTOs
 
-            val result = mongoTaskDataSource.getTaskById("5")
+            val result = mongoTaskDataSource.getTaskById(ids[1])
 
 
             coVerify(exactly = 1) { mongoClient.find(filter = any()) }
@@ -118,7 +122,7 @@ class MongoTaskDataSourceTest {
             every { mongoClient.find<TaskDTO>(filter = any()) } returns findFlow
             coEvery { findFlow.firstOrNull() } returns testTaskDTOs[0]
 
-            val result = mongoTaskDataSource.getTaskById("3")
+            val result = mongoTaskDataSource.getTaskById(ids[2])
 
             coVerify(exactly = 1) { mongoClient.find(filter = any()) }
 
@@ -129,7 +133,7 @@ class MongoTaskDataSourceTest {
 
             coEvery { mongoClient.find(Filters.eq(ID, "10")).firstOrNull() } returns null
 
-            val result = mongoTaskDataSource.getTaskById("10")
+            val result = mongoTaskDataSource.getTaskById(ids[1])
 
             assertNull(result)
             coVerify(exactly = 1) { mongoClient.find(filter = any()) }
@@ -152,7 +156,7 @@ class MongoTaskDataSourceTest {
                 mongoClient.find(filter = any())
             } throws TaskNotFoundException()
 
-            assertThrows<TaskNotFoundException> { mongoTaskDataSource.getTaskById("1") }
+            assertThrows<TaskNotFoundException> { mongoTaskDataSource.getTaskById(ids[1]) }
         }
 
     }
@@ -162,14 +166,14 @@ class MongoTaskDataSourceTest {
 
         @Test
         fun `deleteTask should delete task when it exist`() = runTest {
-            val taskId = "4"
+            val taskId = ids[2]
             val deleteResult = mockk<DeleteResult>(relaxed = true)
 
-            coEvery { mongoClient.deleteOne(Filters.eq(ID, taskId), any()) } returns deleteResult
+            coEvery { mongoClient.deleteOne(Filters.eq(ID, taskId.toHexString()), any()) } returns deleteResult
 
             mongoTaskDataSource.deleteTask(taskId)
 
-            coVerify { mongoClient.deleteOne(Filters.eq(ID, taskId), any()) }
+            coVerify { mongoClient.deleteOne(Filters.eq(ID, taskId.toHexString()), any()) }
         }
 
         @Test
@@ -178,36 +182,36 @@ class MongoTaskDataSourceTest {
 
                 coEvery { mongoClient.deleteOne(filter = any(), options = any()) } throws TaskDeletionFailedException()
 
-                assertThrows<TaskDeletionFailedException> { mongoTaskDataSource.deleteTask("1") }
+                assertThrows<TaskDeletionFailedException> { mongoTaskDataSource.deleteTask(ids[1]) }
             }
+    }
 
+    @Nested
+    inner class GetTasksByProjectStateTests{
         @Test
-        fun `deleteTasksByStateId should delete when task exist`() = runTest {
-            val stateId = "open"
-            val taskId = "6"
-
-            val deleteResult = mockk<DeleteResult>(relaxed = true)
-
+        fun `getTaskByProjectState should delete when task exist`() = runTest {
+            val stateId = ids[4]
+            val findFlow = mockk<FindFlow<TaskDTO>>(relaxed = true)
             coEvery {
-                mongoClient.deleteOne(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID, taskId)), any())
-            } returns deleteResult
+                mongoClient.find(any(), any())
+            } returns findFlow
 
-            mongoTaskDataSource.deleteTasksByProjectState(stateId, taskId)
+            mongoTaskDataSource.getTasksByProjectState(stateId)
 
             coVerify {
-                mongoClient.deleteMany(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID, taskId)), any())
+                mongoClient.find(
+                    Filters.eq(STATE_ID_FIELD, stateId.toHexString())
+                )
             }
         }
 
         @Test
-        fun `deleteTasksByStateId should throw MongoTimeoutException when when happen incorrect configuration`() =
+        fun `getTaskByProjectState should throw MongoTimeoutException when when happen incorrect configuration`() =
             runTest {
-                val stateId = "open"
-                val taskId = "6"
+                val stateId = ids[1]
+                coEvery { mongoClient.find(filter = any()) } throws MongoTimeoutException("Error")
 
-                coEvery { mongoClient.deleteMany(filter = any(), options = any()) } throws MongoTimeoutException("Error")
-
-                assertThrows<MongoTimeoutException> { mongoTaskDataSource.deleteTasksByProjectState(stateId, taskId) }
+                assertThrows<MongoTimeoutException> { mongoTaskDataSource.getTasksByProjectState(stateId) }
             }
 
     }

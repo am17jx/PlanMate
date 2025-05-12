@@ -34,7 +34,7 @@ class CsvAuthenticationDataSource(
             return getAllUsers()
                 .first { it.username == username  }
                 .also { currentUser = it }
-                .let { User(it.id, it.username, it.role, authMethod = User.AuthenticationMethod.Password("")) }
+                .let { User(it.id, it.username, it.role, authMethod = User.AuthenticationMethod.Password(hashedPassword)) }
         } catch (e: NoSuchElementException) {
             throw NoSuchElementException()
         }

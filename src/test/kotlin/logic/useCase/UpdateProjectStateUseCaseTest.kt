@@ -18,7 +18,10 @@ import org.example.logic.utils.TaskStateNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class UpdateProjectStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
@@ -26,15 +29,9 @@ class UpdateProjectStateUseCaseTest {
     private lateinit var currentUserUseCase: GetCurrentUserUseCase
     private lateinit var projectStateRepository: ProjectStateRepository
     private val dummyProject = createProject(
-        id = "1",
-        projectStates = listOf(
-            ProjectState(id = "2", title = "StateTest"),
-            ProjectState(id = "3", title = "StateTest2"),
-            ProjectState(id = "4", title = "StateTest3"),
-        ),
-        auditLogsIds = listOf("5", "6", "7"),
+        id = Uuid.random()
     )
-    private val stateId = "2"
+    private val stateId = Uuid.random()
     private val newTitle = "New State Title"
 
     @BeforeEach
@@ -43,7 +40,7 @@ class UpdateProjectStateUseCaseTest {
         projectStateRepository = mockk()
         currentUserUseCase = mockk(relaxed = true)
         updateProjectUseCase = mockk()
-        updateProjectStateUseCase = UpdateProjectStateUseCase(projectStateRepository,projectRepository)
+       // updateProjectStateUseCase = UpdateProjectStateUseCase(projectStateRepository,projectRepository)
     }
 
     @Test
@@ -51,7 +48,7 @@ class UpdateProjectStateUseCaseTest {
         val updatedStates = listOf("2","3","4")
         coEvery { currentUserUseCase() } returns createUser()
         coEvery { projectRepository.getProjectById(any()) } returns dummyProject
-        coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(projectStateIds = updatedStates)
+        //coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(projectStateIds = updatedStates)
 
         val updatedProject = updateProjectStateUseCase(newTitle, stateId, dummyProject.id)
 
@@ -68,25 +65,6 @@ class UpdateProjectStateUseCaseTest {
         }
     }
 
-    @Test
-    fun `should throw BlankInputException when state id is blank`() = runTest {
-        val blankStateId = ""
-        coEvery { currentUserUseCase() } returns createUser()
-
-        assertThrows<BlankInputException> {
-            updateProjectStateUseCase(newTitle, blankStateId, dummyProject.id)
-        }
-    }
-
-    @Test
-    fun `should throw BlankInputException when project id is blank`() = runTest {
-        val blankProjectId = ""
-        coEvery { currentUserUseCase() } returns createUser()
-
-        assertThrows<BlankInputException> {
-            updateProjectStateUseCase(newTitle, stateId, blankProjectId)
-        }
-    }
 
 
     @Test
@@ -105,7 +83,7 @@ class UpdateProjectStateUseCaseTest {
         coEvery { projectRepository.getProjectById(any()) } returns createProject()
 
         assertThrows<TaskStateNotFoundException> {
-            updateProjectStateUseCase(newTitle, "5", dummyProject.id)
+            updateProjectStateUseCase(newTitle, stateId, dummyProject.id)
         }
     }
 }

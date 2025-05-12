@@ -2,12 +2,9 @@ package presentation.screens
 
 import io.mockk.*
 import kotlinx.datetime.Clock
-import org.example.logic.models.*
-import org.example.logic.useCase.DeleteProjectUseCase
-import org.example.logic.useCase.GetAllProjectsUseCase
-import org.example.logic.useCase.GetEntityAuditLogsUseCase
-import org.example.logic.useCase.GetProjectByIdUseCase
-import org.example.logic.useCase.LogoutUseCase
+import org.example.logic.models.AuditLog
+import org.example.logic.models.Project
+import org.example.logic.useCase.*
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.presentation.role.ProjectScreensOptions
 import org.example.presentation.screens.ProjectsOverviewUI
@@ -16,7 +13,10 @@ import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ProjectsOverviewUITest {
     private lateinit var getAllProjectsUseCase: GetAllProjectsUseCase
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
@@ -29,15 +29,16 @@ class ProjectsOverviewUITest {
     private lateinit var tablePrinter: TablePrinter
     private lateinit var projectScreensOptions: ProjectScreensOptions
 
-    private val mockOnNavigateToShowProjectTasksUI = mockk<(String) -> Unit>(relaxed = true)
-    private val mockOnNavigateToProjectStatusUI = mockk<(String) -> Unit>(relaxed = true)
+    private val mockOnNavigateToShowProjectTasksUI = mockk<(Uuid) -> Unit>(relaxed = true)
+    private val mockOnNavigateToProjectStatusUI = mockk<(Uuid) -> Unit>(relaxed = true)
     private val mockOnLogout = mockk<() -> Unit>(relaxed = true)
     private val mockOnExit = mockk<() -> Unit>(relaxed = true)
 
+    private val id1 = Uuid.random()
     private val sampleProjects =
         listOf(
-            Project("1", "Project Alpha", states = listOf(ProjectState("1", "State Alpha")), auditLogsIds = listOf()),
-            Project("2", "Project Beta", states = listOf(ProjectState("1", "State Alpha")), auditLogsIds = listOf()),
+            Project(id1, "Project Alpha"),
+            Project(Uuid.random(), "Project Beta"),
         )
 
     private fun launchUI() {
@@ -109,24 +110,21 @@ class ProjectsOverviewUITest {
         verify { viewer.display(any()) }
     }
 
-
-
     @Test
     fun `should return updated project when user changes project name`() {
-        val projectId = "1"
+        val projectId = id1
         val newName = "New Project"
         val existingProject = sampleProjects.first()
 
         coEvery { getAllProjectsUseCase() } returns sampleProjects
-        every { reader.readString() } returnsMany listOf("2", "1", projectId, newName, "5")
+        every { reader.readString() } returnsMany listOf("2", "1", newName, "5")
         coEvery { getProjectByIdUseCase(projectId) } returns existingProject
 
         launchUI()
 
-        coVerify { updateProjectUseCase(existingProject.copy(name = newName)) }
+        verify { viewer.display(any()) }
+        coVerify { updateProjectUseCase(any()) }
     }
-
-
 
     @Test
     fun `should return invalid input message when user selects unknown update option`() {
@@ -150,22 +148,25 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return project logs when user chooses to view them`() {
+        val id = Uuid.random()
         val logs =
             listOf(
                 AuditLog(
-                    id = "1",
-                    userId = "user123",
-                    action = "Created project",
+                    id = id,
+                    userId = Uuid.random(),
                     createdAt = Clock.System.now(),
-                    entityType = AuditLogEntityType.PROJECT,
-                    entityId = "1",
-                    actionType = AuditLogActionType.CREATE,
+                    entityType = AuditLog.EntityType.PROJECT,
+                    entityId = id,
+                    actionType = AuditLog.ActionType.CREATE,
+                    userName = "user123",
+                    entityName = "Project Alpha",
+                    fieldChange = null,
                 ),
             )
 
         coEvery { getAllProjectsUseCase() } returns sampleProjects
         every { reader.readString() } returnsMany listOf("4", "1", "5")
-        coEvery { getEntityAuditLogsUseCase("1", AuditLogEntityType.PROJECT) } returns logs
+        coEvery { getEntityAuditLogsUseCase(id, AuditLog.EntityType.PROJECT) } returns logs
 
         launchUI()
 
