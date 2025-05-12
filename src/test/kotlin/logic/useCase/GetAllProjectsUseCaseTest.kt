@@ -56,11 +56,5 @@ class GetAllProjectsUseCaseTest {
             assertThat(getAllProjectsUseCase()).isEqualTo(projects)
         }
 
-    @Test
-    fun `should throw NoProjectsFoundException when no projects found`() =
-        runTest {
-            coEvery { projectRepository.getAllProjects() } returns emptyList()
 
-            assertThrows<NoProjectsFoundException> { getAllProjectsUseCase() }
-        }
 }

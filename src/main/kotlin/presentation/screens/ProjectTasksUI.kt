@@ -123,9 +123,13 @@ class ProjectTasksUI(
     }
 
     private fun getSelectedTaskId() {
-        viewer.display("========== Select a Task by Index ==========".cyan())
-        val indexedTasks = projectTasks.mapIndexed { index, task -> "${index + 1}- ${task.name}" }
-        indexedTasks.forEach { viewer.display(it) }
+        val indices = projectTasks.indices.map { (it + 1).toString() }
+        val titles = projectTasks.map { it.name }
+
+        tablePrinter.printTable(
+            headers = listOf("Index", "Task Name"),
+            columnValues = listOf(indices, titles)
+        )
 
         while (true) {
             viewer.display("Enter task index: ")
