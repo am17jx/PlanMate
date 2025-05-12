@@ -18,7 +18,7 @@ object Constants {
     object CollectionNames {
         const val TASKS_DOCUMENTATION = "Task"
         const val PROJECTS_DOCUMENTATION = "Project"
-        const val USERS_DOCUMENTATION = "UserV"
+        const val USERS_DOCUMENTATION = "User"
         const val AUDIT_LOGS_DOCUMENTATION = "AuditLog"
         const val STATE_DOCUMENTATION = "State"
     }
@@ -32,6 +32,7 @@ object Constants {
 
     const val STATE_ID_FIELD = "stateId"
 
-    const val USERNAME = "username"
-    const val PASSWORD = "password"
+    const val USERNAME_FIELD = "username"
+    const val AUTH_TYPE_FIELD = "authMethod.type"
+    const val PASSWORD_FIELD = "authMethod.password"
 }

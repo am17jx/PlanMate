@@ -1,6 +1,6 @@
 package org.example.data.source.local.csv
 
-import org.example.data.source.local.contract.LocalTaskStateDataSource
+import org.example.data.source.local.contract.LocalProjectStateDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.logic.models.ProjectState
@@ -10,10 +10,10 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class CsvTaskStateDataSource(
+class CsvProjectStateDataSource(
     private val csvReader: CSVReader,
     private val csvWriter: CSVWriter,
-) : LocalTaskStateDataSource {
+) : LocalProjectStateDataSource {
     private var projectStates = mutableListOf<ProjectState>()
 
     init {
