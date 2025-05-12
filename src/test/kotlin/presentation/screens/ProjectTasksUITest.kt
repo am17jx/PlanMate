@@ -5,30 +5,30 @@ import io.mockk.*
 import logic.useCase.CreateTaskUseCase
 import mockdata.createProject
 import mockdata.createTask
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.ProjectNotFoundException
-import org.example.presentation.screens.ShowProjectTasksUI
+import org.example.presentation.screens.ProjectTasksUI
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
-class ShowProjectTasksUITest {
+class ProjectTasksUITest {
     private lateinit var getProjectTasksUseCase: GetProjectTasksUseCase
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
     private lateinit var createTaskUseCase: CreateTaskUseCase
     private lateinit var reader: Reader
     private lateinit var viewer: Viewer
     private lateinit var tablePrinter: TablePrinter
-    private lateinit var showProjectTasksUi: ShowProjectTasksUI
+    private lateinit var projectTasksUi: ProjectTasksUI
     private var isNavigateBackCalled: Boolean = false
     private var navigatedTaskId: String? = null
 
     private val project =
-        createProject(id = "1", name = "Test Project", states = listOf(State(id = "1", title = "State 1")))
+        createProject(id = "1", name = "Test Project", projectStates = listOf(ProjectState(id = "1", title = "State 1")))
     private val projectTasks = listOf(
         createTask(id = "1", name = "Task 1", projectId = "1", stateId = "1"),
         createTask(id = "2", name = "Task 2", projectId = "1", stateId = "1")
@@ -55,7 +55,7 @@ class ShowProjectTasksUITest {
     fun `should navigate back when option 0 is selected`() {
         every { reader.readInt() } returns 0
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -80,7 +80,7 @@ class ShowProjectTasksUITest {
         every { reader.readInt() } returns 1
         every { reader.readString() } returns "1"
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -106,7 +106,7 @@ class ShowProjectTasksUITest {
         every { reader.readInt() } returnsMany listOf(1, 0)
         every { reader.readString() } returns invalidTaskId
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -132,7 +132,7 @@ class ShowProjectTasksUITest {
         every { reader.readString() } returnsMany listOf("New Task", "1")
         coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -161,7 +161,7 @@ class ShowProjectTasksUITest {
         every { reader.readInt() } returnsMany listOf(2, 0)
         coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -187,7 +187,7 @@ class ShowProjectTasksUITest {
     fun `should handle invalid menu option when it is selected`() {
         every { reader.readInt() } returnsMany listOf(99, 0)
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -211,7 +211,7 @@ class ShowProjectTasksUITest {
     fun `should handle project not found exception`() {
         coEvery { getProjectByIdUseCase.invoke(any()) } throws ProjectNotFoundException()
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -235,7 +235,7 @@ class ShowProjectTasksUITest {
     fun `should handle generic exception when loading tasks`() {
         coEvery { getProjectTasksUseCase.invoke(any()) } throws RuntimeException("Generic error")
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -260,7 +260,7 @@ class ShowProjectTasksUITest {
         every { reader.readString() } returnsMany listOf("New Task", "1")
         coEvery { createTaskUseCase.invoke(any(), any(), any()) } throws RuntimeException("Error creating task")
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
@@ -282,10 +282,10 @@ class ShowProjectTasksUITest {
 
     @Test
     fun `should display empty states message when project has no states`() {
-        val projectWithNoStates = createProject(id = "1", name = "Test Project", states = emptyList())
+        val projectWithNoStates = createProject(id = "1", name = "Test Project", projectStates = emptyList())
         coEvery { getProjectByIdUseCase.invoke(any()) } returns projectWithNoStates
 
-        showProjectTasksUi = ShowProjectTasksUI(
+        projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,

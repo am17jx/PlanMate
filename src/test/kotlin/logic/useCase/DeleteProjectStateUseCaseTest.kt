@@ -1,17 +1,16 @@
 package logic.useCase
 
-import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import mockdata.createProject
 import mockdata.createUser
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.repositries.TaskStateRepository
-import org.example.logic.useCase.DeleteStateUseCase
+import org.example.logic.repositries.ProjectStateRepository
+import org.example.logic.useCase.DeleteProjectStateUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.updateProject.UpdateProjectUseCase
 import org.example.logic.utils.BlankInputException
@@ -20,19 +19,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class DeleteStateUseCaseTest {
+class DeleteProjectStateUseCaseTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
-    private lateinit var deleteStateUseCase: DeleteStateUseCase
+    private lateinit var deleteProjectStateUseCase: DeleteProjectStateUseCase
     private lateinit var currentUserUseCase: GetCurrentUserUseCase
-    private lateinit var taskStateRepository: TaskStateRepository
+    private lateinit var projectStateRepository: ProjectStateRepository
     private lateinit var taskRepository: TaskRepository
     private val dummyProject = createProject(
         id = "1",
-        states = listOf(
-            State(id = "2", title = "StateTest"),
-            State(id = "3", title = "StateTest2"),
-            State(id = "4", title = "StateTest3"),
+        projectStates = listOf(
+            ProjectState(id = "2", title = "StateTest"),
+            ProjectState(id = "3", title = "StateTest2"),
+            ProjectState(id = "4", title = "StateTest3"),
         ),
         auditLogsIds = listOf("5", "6", "7"),
     )
@@ -41,11 +40,11 @@ class DeleteStateUseCaseTest {
     @BeforeEach
     fun setUp() {
         taskRepository = mockk()
-        taskStateRepository = mockk()
+        projectStateRepository = mockk()
         projectRepository = mockk()
         currentUserUseCase = mockk()
         updateProjectUseCase = mockk()
-        deleteStateUseCase = DeleteStateUseCase(taskStateRepository, projectRepository, taskRepository)
+        deleteProjectStateUseCase = DeleteProjectStateUseCase(projectStateRepository, projectRepository, taskRepository)
 
     }
 
@@ -53,10 +52,10 @@ class DeleteStateUseCaseTest {
     fun `should return updated project with deleted state when state id is valid and user is admin`() = runTest {
         coEvery { projectRepository.getProjectById(any()) } returns dummyProject
         coEvery { updateProjectUseCase(any()) } returns dummyProject.copy(
-            tasksStatesIds = dummyProject.tasksStatesIds - "2"
+            projectStateIds = dummyProject.projectStateIds - "2"
         )
 
-        deleteStateUseCase(stateId, dummyProject.id)
+        deleteProjectStateUseCase(stateId, dummyProject.id)
 
         coVerify { projectRepository.getProjectById(any()) }
     }
@@ -67,7 +66,7 @@ class DeleteStateUseCaseTest {
         coEvery { currentUserUseCase() } returns createUser()
 
         assertThrows<BlankInputException> {
-            deleteStateUseCase(blankStateName, dummyProject.id)
+            deleteProjectStateUseCase(blankStateName, dummyProject.id)
         }
     }
 
@@ -77,7 +76,7 @@ class DeleteStateUseCaseTest {
         coEvery { currentUserUseCase() } returns createUser()
 
         assertThrows<BlankInputException> {
-            deleteStateUseCase(stateId, blankProjectId)
+            deleteProjectStateUseCase(stateId, blankProjectId)
         }
     }
 
@@ -88,7 +87,7 @@ class DeleteStateUseCaseTest {
         coEvery { projectRepository.getProjectById(any()) } returns null
 
         assertThrows<ProjectNotFoundException> {
-            deleteStateUseCase(stateId, dummyProject.id)
+            deleteProjectStateUseCase(stateId, dummyProject.id)
         }
     }
 }

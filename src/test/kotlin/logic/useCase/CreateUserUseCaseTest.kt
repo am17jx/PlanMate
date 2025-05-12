@@ -7,16 +7,16 @@ import kotlinx.coroutines.test.runTest
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
-import org.example.logic.useCase.CreateMateUseCase
+import org.example.logic.useCase.CreateUserUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidUsernameException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class CreateMateUseCaseTest {
+class CreateUserUseCaseTest {
     private lateinit var authenticationRepository: AuthenticationRepository
-    private lateinit var createUserUseCase: CreateMateUseCase
+    private lateinit var createUserUseCase: CreateUserUseCase
 
     private val users = listOf(
         User("testId", "testUsername", "testPassword", UserRole.USER),
@@ -26,7 +26,7 @@ class CreateMateUseCaseTest {
     @BeforeEach
     fun setUp() {
         authenticationRepository = mockk()
-        createUserUseCase = CreateMateUseCase(authenticationRepository)
+        createUserUseCase = CreateUserUseCase(authenticationRepository)
 
     }
 
@@ -34,7 +34,7 @@ class CreateMateUseCaseTest {
     fun `should return user data when user enter username and password and not exists before`() = runTest {
 
         coEvery { authenticationRepository.getAllUsers() } returns users
-        coEvery { authenticationRepository.createMate(any(), any()) } returns User("newId", "newTestUsername", "testPassword", UserRole.USER)
+        coEvery { authenticationRepository.createUserWithPassword(any(), any()) } returns User("newId", "newTestUsername", "testPassword", UserRole.USER)
 
         val result = createUserUseCase("newTestUsername", "testPassword")
 

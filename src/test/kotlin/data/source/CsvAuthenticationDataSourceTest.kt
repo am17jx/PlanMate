@@ -7,7 +7,6 @@ import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.utils.UserAlreadyExistsException
-import org.example.logic.utils.UserNotFoundException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -78,7 +77,7 @@ class CsvAuthenticationDataSourceTest {
     fun `login should return user data when user enter username and password that exists in users data`() {
         testFile.writeText("testId,testUsername,fed3b61b26081849378080b34e693d2e,USER")
 
-        val result = dataSource.login(testUsername, testHashedPassword)
+        val result = dataSource.loginWithPassword(testUsername, testHashedPassword)
 
         assertThat(user).isEqualTo(result)
     }
@@ -86,7 +85,7 @@ class CsvAuthenticationDataSourceTest {
     @Test
     fun `getCurrentUser should return logged in user when user is logged in`() {
         testFile.writeText("testId,testUsername,fed3b61b26081849378080b34e693d2e,USER")
-        dataSource.login(testUsername, testHashedPassword)
+        dataSource.loginWithPassword(testUsername, testHashedPassword)
 
         val result = dataSource.getCurrentUser()
 

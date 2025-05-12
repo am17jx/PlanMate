@@ -59,7 +59,7 @@ class CreateTaskUseCaseTest {
         coEvery{ projectRepository.getProjectById(any()) } returns
             createProject(
                 id = projectId,
-                states =
+                projectStates =
                     listOf(
                         createState(id = stateId),
                     ),
@@ -107,7 +107,7 @@ class CreateTaskUseCaseTest {
         val projectId = Uuid.random().getCroppedId()
         val stateId = "1"
         val differentStateId = "3"
-        coEvery{ projectRepository.getProjectById(any()) } returns createProject(states = listOf(createState(id = differentStateId)))
+        coEvery{ projectRepository.getProjectById(any()) } returns createProject(projectStates = listOf(createState(id = differentStateId)))
 
         assertThrows<TaskStateNotFoundException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)

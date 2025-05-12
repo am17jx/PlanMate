@@ -192,7 +192,7 @@ class MongoTaskDataSourceTest {
                 mongoClient.deleteOne(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID, taskId)), any())
             } returns deleteResult
 
-            mongoTaskDataSource.deleteTasksByStateId(stateId, taskId)
+            mongoTaskDataSource.deleteTasksByProjectState(stateId, taskId)
 
             coVerify {
                 mongoClient.deleteMany(Filters.and(Filters.eq(STATE_ID_FIELD, stateId), Filters.eq(ID, taskId)), any())
@@ -207,7 +207,7 @@ class MongoTaskDataSourceTest {
 
                 coEvery { mongoClient.deleteMany(filter = any(), options = any()) } throws MongoTimeoutException("Error")
 
-                assertThrows<MongoTimeoutException> { mongoTaskDataSource.deleteTasksByStateId(stateId, taskId) }
+                assertThrows<MongoTimeoutException> { mongoTaskDataSource.deleteTasksByProjectState(stateId, taskId) }
             }
 
     }

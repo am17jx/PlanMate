@@ -12,7 +12,6 @@ import mockdata.createState
 import mockdata.createUser
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuditLogRepository
-import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetCurrentUserUseCase
@@ -117,12 +116,12 @@ class UpdateProjectUseCaseTest {
         val originalProject = createProject(
             id = "1",
             name = "new",
-            states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
+            projectStates = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
         )
         val updatedProject = createProject(
             id = "1",
             name = "new",
-            states = listOf(createState(title = "ToDO"), createState(title = "InReview"), createState(title = "Done"))
+            projectStates = listOf(createState(title = "ToDO"), createState(title = "InReview"), createState(title = "Done"))
         )
         val currentUser = createUser(role = UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
@@ -138,8 +137,8 @@ class UpdateProjectUseCaseTest {
 
     @Test
     fun `should update project successfully when a state is added`() = runTest {
-        val originalProject = createProject(id = "1", name = "new", states = listOf())
-        val updatedProject = createProject(id = "1", name = "new", states = listOf(createState(title = "ToDO")))
+        val originalProject = createProject(id = "1", name = "new", projectStates = listOf())
+        val updatedProject = createProject(id = "1", name = "new", projectStates = listOf(createState(title = "ToDO")))
         val currentUser = createUser(role = UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)
         coEvery { currentUserUseCase() } returns currentUser
@@ -157,10 +156,10 @@ class UpdateProjectUseCaseTest {
         val originalProject = createProject(
             id = "1",
             name = "new",
-            states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
+            projectStates = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
         )
         val updatedProject = createProject(
-            id = "1", name = "new", states = listOf(createState(title = "ToDO"), createState(title = "InReview"))
+            id = "1", name = "new", projectStates = listOf(createState(title = "ToDO"), createState(title = "InReview"))
         )
         val currentUser = createUser(role = UserRole.ADMIN)
         val auditLog = createAuditLog("2", userId = currentUser.id)

@@ -44,9 +44,9 @@ class AuthenticationRepositoryImplTest {
     @Test
     fun `login should set and return the current user when user is logged in`() =
         runTest {
-            coEvery { remoteAuthenticationDataSource.login(any(), any()) } returns users.first()
+            coEvery { remoteAuthenticationDataSource.loginWithPassword(any(), any()) } returns users.first()
 
-            val loggedInUser = authenticationRepository.login(testUsername, testPassword)
+            val loggedInUser = authenticationRepository.loginWithPassword(testUsername, testPassword)
 
             assertThat(loggedInUser.username).isEqualTo(testUsername)
             assertThat(loggedInUser.password).isEqualTo(testPassword)
@@ -58,7 +58,7 @@ class AuthenticationRepositoryImplTest {
         runTest {
             coEvery { remoteAuthenticationDataSource.saveUser(any()) } returns Unit
 
-            val createdUser = authenticationRepository.createMate(testUsername, testPassword)
+            val createdUser = authenticationRepository.createUserWithPassword(testUsername, testPassword)
 
             coVerify { remoteAuthenticationDataSource.saveUser(any()) }
             assertThat(createdUser.username).isEqualTo(testUsername)

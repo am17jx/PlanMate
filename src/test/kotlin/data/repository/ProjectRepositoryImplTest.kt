@@ -7,7 +7,7 @@ import org.example.data.repository.ProjectRepositoryImpl
 import org.example.data.source.remote.RoleValidationInterceptor
 import org.example.data.repository.sources.remote.RemoteProjectDataSource
 import org.example.logic.models.Project
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -26,13 +26,13 @@ class ProjectRepositoryImplTest {
             Project(
                 id = "1",
                 name = "Project 1",
-                tasksStatesIds =  listOf("6","4"),
+                projectStateIds =  listOf("6","4"),
                 auditLogsIds = listOf("100"),
             ),
             Project(
                 id = "2",
                 name = "Project 2",
-                tasksStatesIds = listOf("1","2"),
+                projectStateIds = listOf("1","2"),
                 auditLogsIds = listOf("200"),
             ),
         )
@@ -45,7 +45,7 @@ class ProjectRepositoryImplTest {
         val newProject = Project(
             id = "3",
             name = "Project 3",
-            tasksStatesIds =listOf("6","4"),
+            projectStateIds =listOf("6","4"),
             auditLogsIds = listOf("300"),
         )
         coEvery { roleValidationInterceptor.validateRole<Project>(any(),any())} returns newProject
@@ -61,7 +61,7 @@ class ProjectRepositoryImplTest {
         val updatedProject = Project(
             id = "1",
             name = "Updated Project 1",
-            tasksStatesIds =listOf("6","4"),
+            projectStateIds =listOf("6","4"),
             auditLogsIds = listOf("100", "101"),
         )
         coEvery { roleValidationInterceptor.validateRole<Project>(any(),any()) } returns updatedProject
@@ -90,7 +90,7 @@ class ProjectRepositoryImplTest {
         coEvery { roleValidationInterceptor.validateRole<Project>(any(),any()) } returns Project(
             id = "1",
             name = "Project 1",
-            states = listOf(State(id = "1", title = "To Do")),
+            states = listOf(ProjectState(id = "1", title = "To Do")),
             auditLogsIds = listOf("100"),
         )
 
@@ -105,7 +105,7 @@ class ProjectRepositoryImplTest {
         coEvery { mockRemoteDataSource.getProjectById(any()) } returns Project(
             id = "1",
             name = "Project 1",
-            tasksStatesIds =listOf("6","4"),
+            projectStateIds =listOf("6","4"),
             auditLogsIds = listOf("100"),
         )
 
