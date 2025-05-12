@@ -12,15 +12,18 @@ import org.example.data.source.remote.mongo.MongoAuthenticationDataSource
 import org.example.data.source.remote.mongo.utils.mapper.toUserDTO
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
-import org.example.logic.utils.TaskNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class MongoAuthenticationDataSourceTest {
     private lateinit var mongoCollection: MongoCollection<UserDTO>
     private lateinit var remoteAuthenticationDataSource: MongoAuthenticationDataSource
-    private val user = User("1", "test", "password", UserRole.USER)
+
+    @OptIn(ExperimentalUuidApi::class)
+    private val user = User(Uuid.random(), "test", "password", UserRole.USER)
     private val userDTO = user.toUserDTO()
 
     @BeforeEach

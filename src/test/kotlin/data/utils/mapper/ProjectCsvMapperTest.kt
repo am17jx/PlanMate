@@ -10,13 +10,19 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ProjectCsvMapperTest {
+    private val id1 = Uuid.random()
+    private val id2 = Uuid.random()
+
     @Test
     fun `should convert project to CSV line`() {
         val project =
             Project(
-                id = "1",
+                id = id1,
                 name = "Test Project",
                 projectStateIds =
                     listOf("1", "2", "3"),
@@ -25,19 +31,19 @@ class ProjectCsvMapperTest {
 
         val csvLine = project.toCsvLine()
 
-        val expectedCsvLine = "1,Test Project,[1:To Do,2:In Progress,3:Done],[100,101,102]"
+        val expectedCsvLine = "${id1.toHexString()},Test Project,[${id1.toHexString()},${id1.toHexString()},${id1.toHexString()},],[${id1.toHexString()},${id1.toHexString()},${id1.toHexString()},]"
         assertThat(csvLine).isEqualTo(expectedCsvLine)
     }
 
     @Test
     fun `should convert CSV line to project when all 4 fields are present and each field isn't empty`() {
-        val csvLine = "1,Test Project,[1:To Do,2:In Progress,3:Done],[100,101,102]"
+        val csvLine = "${id1.toHexString()},Test Project,[${id1.toHexString()},${id1.toHexString()},${id1.toHexString()},],[${id1.toHexString()},${id1.toHexString()},${id1.toHexString()},]"
 
         val project = csvLine.toProject()
 
         val expectedProject =
             Project(
-                id = "1",
+                id = id1,
                 name = "Test Project",
                 projectStateIds =
                     listOf("1", "2", "3"),
@@ -50,7 +56,7 @@ class ProjectCsvMapperTest {
     fun `should convert project to CSV line with empty states list and auditLogsIds list when they are empty`() {
         val project =
             Project(
-                id = "2",
+                id = id1,
                 name = "Empty Project",
                 projectStateIds = emptyList(),
                 auditLogsIds = emptyList(),
@@ -59,7 +65,7 @@ class ProjectCsvMapperTest {
         val csvLine = project.toCsvLine()
         val convertedProject = csvLine.toProject()
 
-        assertThat(csvLine).isEqualTo("2,Empty Project,[],[]")
+        assertThat(csvLine).isEqualTo("${id1.toHexString()},Empty Project,[],[]")
         assertThat(convertedProject).isEqualTo(project)
     }
 
@@ -68,14 +74,14 @@ class ProjectCsvMapperTest {
         val projects =
             listOf(
                 Project(
-                    id = "1",
+                    id = id1,
                     name = "Project 1",
                     projectStateIds = listOf("1", "2", "3"),
 
                     auditLogsIds = listOf("100"),
                 ),
                 Project(
-                    id = "2",
+                    id = id2,
                     name = "Project 2",
                     projectStateIds =  listOf("1", "2", "3"),
                     auditLogsIds = listOf("200"),
@@ -85,24 +91,24 @@ class ProjectCsvMapperTest {
         val csvLines = projects.toCsvLines()
 
         assertThat(csvLines).hasSize(2)
-        assertThat(csvLines[0]).isEqualTo("1,Project 1,[1:Task 1],[100]")
-        assertThat(csvLines[1]).isEqualTo("2,Project 2,[2:Task 2],[200]")
+        assertThat(csvLines[0]).isEqualTo("${id1.toHexString()},Project 1,[${id1.toHexString()}],[${id1.toHexString()}]")
+        assertThat(csvLines[1]).isEqualTo("${id2.toHexString()},Project 2,[${id2.toHexString()}],[${id2.toHexString()}]")
     }
 
     @Test
     fun `should map list of CSV lines to list of projects`() {
         val csvLines =
             listOf(
-                "1,Project 1,[1:Task 1],[100]",
-                "2,Project 2,[2:Task 2],[200]",
+                "${id1.toHexString()},Project 1,[${id1.toHexString()}],[${id1.toHexString()}]",
+                "${id2.toHexString()},Project 2,[${id2.toHexString()}],[${id2.toHexString()}]",
             )
 
         val projects = csvLines.toProjectList()
 
         val firstExpectedProject =
-            Project("1", "Project 1", listOf("1", "2", "3"), listOf("100"))
+            Project(id1, "Project 1", listOf(id1), listOf(id1))
         val secondExpectedProject =
-            Project("2", "Project 2",  listOf("1", "2", "3"), listOf("200"))
+            Project(id2, "Project 2", listOf(id2), listOf(id2))
         assertThat(projects).hasSize(2)
         assertThat(projects[0]).isEqualTo(firstExpectedProject)
         assertThat(projects[1]).isEqualTo(secondExpectedProject)

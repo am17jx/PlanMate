@@ -6,21 +6,26 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.data.repository.AuthenticationRepositoryImpl
-import org.example.data.repository.utils.hashWithMD5
 import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
+import org.example.data.repository.utils.hashWithMD5
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class AuthenticationRepositoryImplTest {
     private lateinit var remoteAuthenticationDataSource: RemoteAuthenticationDataSource
     private lateinit var authenticationRepository: AuthenticationRepositoryImpl
+    private val id1 = Uuid.random()
+    private val id2 = Uuid.random()
 
     private val users =
         listOf(
-            User("testId", "testUsername", "testPassword", UserRole.USER),
-            User("testId2", "testUsername2", "testPassword2", UserRole.USER),
+            User(id1, "testUsername", "testPassword", UserRole.USER),
+            User(id2, "testUsername2", "testPassword2", UserRole.USER),
         )
     private val testUsername = "testUsername"
     private val testPassword = "testPassword"

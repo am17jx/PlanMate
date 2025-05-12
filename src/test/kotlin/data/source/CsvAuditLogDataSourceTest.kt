@@ -10,16 +10,22 @@ import org.example.data.source.local.csv.CsvAuditLogDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.data.source.local.csv.utils.mapper.toCsvRow
-import org.example.logic.models.AuditLogActionType
-import org.example.logic.models.AuditLogEntityType
+import org.example.logic.models.AuditLog.ActionType
+import org.example.logic.models.AuditLog.EntityType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import kotlin.test.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CsvAuditLogDataSourceTest {
     private lateinit var csvReader: CSVReader
     private lateinit var csvWriter: CSVWriter
     private lateinit var csvAuditLogDataSource: CsvAuditLogDataSource
+    private val id1 = Uuid.random()
+    private val id2 = Uuid.random()
+    private val id3 = Uuid.random()
 
     @BeforeEach
     fun setup() {
@@ -36,16 +42,16 @@ class CsvAuditLogDataSourceTest {
             val currentTime = Clock.System.now()
             val newLog =
                 createAuditLog(
-                    id = "asd2-qwe2-asdw-wer1",
-                    userId = "1",
+                    id = id1,
+                    userId = id2,
                     action = "user abc changed task XYZ-001 from InProgress to InDevReview",
                     createdAt = currentTime,
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "2",
-                    actionType = AuditLogActionType.UPDATE,
+                    entityType = EntityType.TASK,
+                    entityId = id3,
+                    actionType = ActionType.UPDATE,
                 )
             val newLogCsvRow =
-                "asd2-qwe2-asdw-wer1,1,user abc changed task XYZ-001 from InProgress to InDevReview,${currentTime.toEpochMilliseconds()},TASK,2,UPDATE"
+                "${id1.toHexString()},${id2.toHexString()},user abc changed task XYZ-001 from InProgress to InDevReview,${currentTime.toEpochMilliseconds()},TASK,${id3.toHexString()},UPDATE"
             val result = csvAuditLogDataSource.saveAuditLog(newLog)
 
             assertThat(result).isEqualTo(newLog)
@@ -59,16 +65,16 @@ class CsvAuditLogDataSourceTest {
         @Test
         fun `should return logs  when it is available`() {
             val newLogCsvRow =
-                "asd2-qwe2-asdw-wewe,1,user abc changed task XYZ-001 from InProgress to InDevReview,0,TASK,2,UPDATE"
+                "${id1.toHexString()},${id1.toHexString()},user abc changed task XYZ-001 from InProgress to InDevReview,123456789,TASK,${id1.toHexString()},UPDATE"
             val newLog2CsvRow =
-                "asd2-qwe2-asdw-wer1,1,user abc changed task XYZ-001 from InDevReview to InProgress,0,TASK,2,UPDATE"
+                "${id2.toHexString()},${id2.toHexString()},user abc changed task XYZ-001 from InDevReview to InProgress,123456789,TASK,${id2.toHexString()},UPDATE"
             val newLog3CsvRow =
-                "asd2-qwe2-sain-wer1,1,user abc changed task XYZ-001 from InDevReview to InProgress,0,PROJECT,2,UPDATE"
+                "${id3.toHexString()},${id3.toHexString()},user abc changed task XYZ-001 from InDevReview to InProgress,123456789,PROJECT,${id3.toHexString()},UPDATE"
             every { csvReader.readLines() } returns listOf(newLog2CsvRow, newLogCsvRow, newLog3CsvRow)
 
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
 
-            val log = csvAuditLogDataSource.getEntityLogs("2", AuditLogEntityType.TASK)
+            val log = csvAuditLogDataSource.getEntityLogs(id2, EntityType.TASK)
 
             assertThat(log).isNotNull()
             assertThat(log.size).isEqualTo(2)
@@ -77,7 +83,7 @@ class CsvAuditLogDataSourceTest {
         @Test
         fun `should return null when entity not found `() {
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
-            val log = csvAuditLogDataSource.getEntityLogs("2", AuditLogEntityType.TASK)
+            val log = csvAuditLogDataSource.getEntityLogs(id2, EntityType.TASK)
             assertThat(log).isEmpty()
         }
     }
@@ -87,23 +93,23 @@ class CsvAuditLogDataSourceTest {
         @Test
         fun `should return logs by ID when they are available`() {
             val newLogCsvRow =
-                "asd2-qwe2-asdw-wewe,1,user abc changed task XYZ-001 from InProgress to InDevReview,0,TASK,2,UPDATE"
+                "${id1.toHexString()},${id1.toHexString()},user abc changed task XYZ-001 from InProgress to InDevReview,123456789,TASK,${id1.toHexString()},UPDATE"
             val newLog2CsvRow =
-                "asd2-qwe2-asdw-wer1,1,user abc changed task XYZ-001 from InDevReview to InProgress,0,TASK,2,UPDATE"
+                "${id2.toHexString()},${id2.toHexString()},user abc changed task XYZ-001 from InDevReview to InProgress,123456789,TASK,${id2.toHexString()},UPDATE"
             val newLog3CsvRow =
-                "asd2-qwe2-sain-wer1,1,user abc changed task XYZ-001 from InDevReview to InProgress,0,PROJECT,2,UPDATE"
+                "${id3.toHexString()},${id3.toHexString()},user abc changed task XYZ-001 from InDevReview to InProgress,123456789,PROJECT,${id3.toHexString()},UPDATE"
             every { csvReader.readLines() } returns listOf(newLog2CsvRow, newLogCsvRow, newLog3CsvRow)
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
-            val log = csvAuditLogDataSource.getEntityLogByLogId("asd2-qwe2-asdw-wewe")
+            val log = csvAuditLogDataSource.getEntityLogByLogId(id1)
 
             assertThat(log).isNotNull()
-            assertThat(log?.id).isEqualTo("asd2-qwe2-asdw-wewe")
+            assertThat(log?.id).isEqualTo(id1)
         }
 
         @Test
         fun `should return null when entity not found `() {
             csvAuditLogDataSource = CsvAuditLogDataSource(csvReader, csvWriter)
-            val log = csvAuditLogDataSource.getEntityLogByLogId("2")
+            val log = csvAuditLogDataSource.getEntityLogByLogId(id2)
             assertThat(log).isNull()
         }
     }
@@ -112,15 +118,15 @@ class CsvAuditLogDataSourceTest {
     inner class DeleteAuditLogTests {
         @Test
         fun `should do nothing when entity not found`() {
-            val existingLogCsv = "log-id-1,1,action,1234567890,TASK,100,CREATE"
+            val existingLogCsv = "${id1.toHexString()},${id1.toHexString()},action,1234567890,TASK,${id1.toHexString()},CREATE"
             val auditLogToDelete =
                 createAuditLog(
-                    id = "non-existent-id",
-                    userId = "1",
+                    id = id2,
+                    userId = id2,
                     action = "some action",
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "100",
-                    actionType = AuditLogActionType.CREATE,
+                    entityType = EntityType.TASK,
+                    entityId = id3,
+                    actionType = ActionType.CREATE,
                 )
 
             every { csvReader.readLines() } returns listOf(existingLogCsv)
@@ -135,24 +141,24 @@ class CsvAuditLogDataSourceTest {
         fun `should remove the log from file when the log found`() {
             val logToDelete =
                 createAuditLog(
-                    id = "log-id-123",
-                    userId = "1",
+                    id = id1,
+                    userId = id3,
                     action = "user abc deleted task XYZ-001",
                     createdAt = Clock.System.now(),
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "2",
-                    actionType = AuditLogActionType.DELETE,
+                    entityType = EntityType.TASK,
+                    entityId = id2,
+                    actionType = ActionType.DELETE,
                 )
             val matchingCsvRow = logToDelete.toCsvRow()
             val otherLogCsvRow =
                 createAuditLog(
-                    id = "log-id-999",
-                    userId = "2",
+                    id = id3,
+                    userId = id2,
                     action = "user def updated task XYZ-002",
                     createdAt = Clock.System.now(),
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "3",
-                    actionType = AuditLogActionType.UPDATE,
+                    entityType = EntityType.TASK,
+                    entityId = id3,
+                    actionType = ActionType.UPDATE,
                 ).toCsvRow()
 
             every { csvReader.readLines() } returns listOf(matchingCsvRow, otherLogCsvRow)
