@@ -21,9 +21,9 @@ class GetProjectTasksUseCaseTest {
     private lateinit var getProjectTasksUseCase: GetProjectTasksUseCase
     private val ids = List(6) { Uuid.random() }
     private val dummyTasks = listOf(
-        createTask(ids[1], "TaskName"),
-        createTask(ids[2], "TaskName"),
-        createTask(ids[3], "TaskName"),
+        createTask(ids[1], "TaskName", projectId = ids[0]),
+        createTask(ids[2], "TaskName", projectId = ids[0]),
+        createTask(ids[3], "TaskName", projectId = ids[0]),
     )
 
     @BeforeEach
@@ -32,18 +32,9 @@ class GetProjectTasksUseCaseTest {
         getProjectTasksUseCase = GetProjectTasksUseCase(taskRepository)
     }
 
-    @Test
-    fun `should throw BlankInputException when given blank project id`() = runTest {
-        val projectId = ids[2]
-        coEvery { taskRepository.getAllTasks() } returns dummyTasks
-
-        assertThrows<BlankInputException> {
-            getProjectTasksUseCase(projectId)
-        }
-    }
 
     @Test
-    fun `should return a list of tasks for the given project id`() = runTest {
+    fun `should return a list of tasks for the given project id when they exist`() = runTest {
         val projectId = ids[0]
         coEvery { taskRepository.getAllTasks() } returns dummyTasks
 

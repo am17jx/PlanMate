@@ -103,7 +103,7 @@ class MongoProjectDataSourceTest {
 
         val createProject = remoteProjectDataSource.updateProject(newProject)
 
-        coVerify(exactly = 1) { mongoClientCollection.replaceOne(Filters.eq(ID, newProject.id), projectDTO, any()) }
+        coVerify(exactly = 1) { mongoClientCollection.replaceOne(Filters.eq(ID, newProject.id.toHexString()), projectDTO, any()) }
 
         assertThat(createProject).isEqualTo(newProject)
     }
@@ -120,7 +120,7 @@ class MongoProjectDataSourceTest {
 
         coEvery {
             mongoClientCollection.replaceOne(
-                Filters.eq(ID, newProject.id),
+                Filters.eq(ID, newProject.id.toHexString()),
                 projectDTO,
                 any()
             )

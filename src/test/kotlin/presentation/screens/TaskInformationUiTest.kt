@@ -3,6 +3,7 @@ package presentation.screens
 import io.mockk.*
 import kotlinx.datetime.Clock
 import mockdata.createAuditLog
+import mockdata.createProject
 import mockdata.createTask
 import org.example.logic.models.AuditLog
 import org.example.logic.models.Task
@@ -36,6 +37,9 @@ class TaskInformationUiTest {
             name = "Old Name",
             stateId = ids[3],
         )
+    private val sampleProject = createProject(
+        id = ids[4]
+    )
     val logs =
         listOf(
             createAuditLog(
@@ -56,6 +60,8 @@ class TaskInformationUiTest {
         updateTaskUseCase = mockk(relaxed = true)
         deleteTaskUseCase = mockk(relaxed = true)
         getEntityAuditLogsUseCase = mockk(relaxed = true)
+        getProjectStatesUseCase = mockk(relaxed = true)
+        getProjectByIdUseCase = mockk(relaxed = true)
         viewer = mockk(relaxed = true)
         reader = mockk(relaxed = true)
 
@@ -115,7 +121,7 @@ class TaskInformationUiTest {
     fun `should return logs flow when choice is 3`() {
         coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
         coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
-        coEvery { getEntityAuditLogsUseCase(ids[6], AuditLog.EntityType.TASK) } returns logs
+        coEvery { getEntityAuditLogsUseCase(ids[0], AuditLog.EntityType.TASK) } returns logs
         every { reader.readString() } returnsMany listOf("3", "4")
 
         taskInformationUi.showTaskInformation(ids[0])
@@ -182,13 +188,17 @@ class TaskInformationUiTest {
     }
 
     @Test
-    fun `should display invalide option when user enter wrong option`() {
-        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
-        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
+    fun `should display invalid option when user enter wrong option`() {
+        val taskId = ids[0]
+        coEvery { getTaskByIdUseCase(taskId) } returns sampleTask
+        coEvery { getStateNameUseCase(taskId) } returns "To Do"
+        coEvery { getProjectByIdUseCase(any()) } returns sampleProject
+        coEvery { getProjectStatesUseCase(any()) } returns listOf()
         every { reader.readString() } returnsMany listOf("5", "4")
 
-        taskInformationUi.showTaskInformation(ids[0])
+        taskInformationUi.showTaskInformation(taskId)
 
+        verify { viewer.display("Invalid choice. Please try again.") }
         verify { viewer.display(any()) }
     }
 

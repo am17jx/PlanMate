@@ -24,7 +24,6 @@ import kotlin.uuid.Uuid
 class GetEntityAuditLogsUseCaseTest {
     private lateinit var auditLogRepository: AuditLogRepository
     private lateinit var getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase
-    private val ids = List(5) { Uuid.random() }
 
     @BeforeEach
     fun setUp() {
@@ -35,15 +34,18 @@ class GetEntityAuditLogsUseCaseTest {
     @ParameterizedTest
     @MethodSource("provideExistingEntitiesScenarios")
     fun `should return list of audit logs when entity exists`(
-        entityId: String, entityType: AuditLog.EntityType
+        entityId: String,
+        entityType: String
     ) = runTest {
+        val entityTypeEnum = AuditLog.EntityType.valueOf(entityType)
+        val entityUuid = Uuid.parse(entityId)
         coEvery { auditLogRepository.getEntityLogs(any(), any()) } returns listOf(
             createAuditLog(
-                entityId = ids[1], entityType = entityType
+                entityId = entityUuid, entityType = entityTypeEnum
             )
         )
 
-        val result = getEntityAuditLogsUseCase(ids[1], entityType)
+        val result = getEntityAuditLogsUseCase(entityUuid, entityTypeEnum)
 
         assertThat(result).isNotEmpty()
     }
@@ -72,11 +74,11 @@ class GetEntityAuditLogsUseCaseTest {
 
         @JvmStatic
         fun provideExistingEntitiesScenarios(): Stream<Arguments> = Stream.of(
-            Arguments.argumentSet(
-                "existing task", Uuid.random(), AuditLog.EntityType.TASK
+            Arguments.of(
+                Uuid.random().toHexString(), AuditLog.EntityType.TASK.name
             ),
-            Arguments.argumentSet(
-                "existing project", Uuid.random(), AuditLog.EntityType.PROJECT
+            Arguments.of(
+                Uuid.random().toHexString(), AuditLog.EntityType.PROJECT.name
             ),
         )
     }
