@@ -1,6 +1,6 @@
-package data.source
+package data.source.local
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import org.example.data.source.local.csv.CsvAuthenticationDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
@@ -17,7 +17,6 @@ class CsvAuthenticationDataSourceTest {
     private lateinit var testFile: File
     private lateinit var expectedFile: File
     private lateinit var dataSource: CsvAuthenticationDataSource
-
 
     private val user = User("testId", "testUsername", "fed3b61b26081849378080b34e693d2e", UserRole.USER)
     private val testUsername = "testUsername"
@@ -42,12 +41,11 @@ class CsvAuthenticationDataSourceTest {
 
         dataSource.saveUser(User("id", "username", "password", UserRole.USER))
 
-        assertThat(testFile.readText()).isEqualTo(expectedFile.readText())
+        Truth.assertThat(testFile.readText()).isEqualTo(expectedFile.readText())
     }
 
     @Test
     fun `saveUser should throw exception with type UserAlreadyExistsException when user enter username is exists before`() {
-
         testFile.writeText("id,testUsername,password,USER")
 
         assertThrows<UserAlreadyExistsException> {
@@ -56,12 +54,11 @@ class CsvAuthenticationDataSourceTest {
                     "testId",
                     "testUsername",
                     "password",
-                    UserRole.USER
-                )
+                    UserRole.USER,
+                ),
             )
         }
     }
-
 
     @Test
     fun `getAllUsers should return all users from file`() {
@@ -70,7 +67,7 @@ class CsvAuthenticationDataSourceTest {
 
         val users = dataSource.getAllUsers()
 
-        assertThat(users[0]).isEqualTo(expectedUser)
+        Truth.assertThat(users[0]).isEqualTo(expectedUser)
     }
 
     @Test
@@ -79,7 +76,7 @@ class CsvAuthenticationDataSourceTest {
 
         val result = dataSource.loginWithPassword(testUsername, testHashedPassword)
 
-        assertThat(user).isEqualTo(result)
+        Truth.assertThat(user).isEqualTo(result)
     }
 
     @Test
@@ -89,14 +86,13 @@ class CsvAuthenticationDataSourceTest {
 
         val result = dataSource.getCurrentUser()
 
-        assertThat(result).isEqualTo(user)
+        Truth.assertThat(result).isEqualTo(user)
     }
 
     @Test
     fun `getCurrentUser should return null when user is not logged in`() {
         val result = dataSource.getCurrentUser()
 
-        assertThat(result).isNull()
+        Truth.assertThat(result).isNull()
     }
-
 }
