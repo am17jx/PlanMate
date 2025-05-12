@@ -19,18 +19,16 @@ import kotlin.uuid.Uuid
 class MongoTaskDataSource(
     private val mongoClient: MongoCollection<TaskDTO>,
 ) : RemoteTaskDataSource {
-    override suspend fun createTask(task: Task): Task =
-        executeMongoOperation {
-            mongoClient.insertOne(task.toTaskDTO())
-            task
-        }
+    override suspend fun createTask(task: Task): Task = executeMongoOperation {
+        mongoClient.insertOne(task.toTaskDTO())
+        task
+    }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun updateTask(updatedTask: Task): Task =
-        executeMongoOperation {
-            mongoClient.replaceOne(Filters.eq(ID, updatedTask.id.toHexString()), updatedTask.toTaskDTO())
-            updatedTask
-        }
+    override suspend fun updateTask(updatedTask: Task): Task = executeMongoOperation {
+        mongoClient.replaceOne(Filters.eq(ID, updatedTask.id.toHexString()), updatedTask.toTaskDTO())
+        updatedTask
+    }
 
     override suspend fun deleteTask(taskId: Uuid) {
         executeMongoOperation {
@@ -38,27 +36,17 @@ class MongoTaskDataSource(
         }
     }
 
-    override suspend fun getAllTasks(): List<Task> =
-        executeMongoOperation {
-            mongoClient.find().toList().map { it.toTask() }
-        }
+    override suspend fun getAllTasks(): List<Task> = executeMongoOperation {
+        mongoClient.find().toList().map { it.toTask() }
+    }
 
-    override suspend fun getTaskById(taskId: Uuid): Task? =
-        executeMongoOperation {
-            mongoClient.find(Filters.eq(ID, taskId.toHexString())).firstOrNull()?.toTask()
-        }
+    override suspend fun getTaskById(taskId: Uuid): Task? = executeMongoOperation {
+        mongoClient.find(Filters.eq(ID, taskId.toHexString())).firstOrNull()?.toTask()
+    }
 
-    override suspend fun deleteTasksByStateId(
-        stateId: Uuid,
-        taskId: Uuid,
-    ) {
-        executeMongoOperation {
-            mongoClient.deleteMany(
-                Filters.and(
-                    Filters.eq(STATE_ID_FIELD, stateId.toHexString()),
-                    (Filters.eq(ID, taskId.toHexString())),
-                ),
-            )
-        }
+    override suspend fun getTasksByProjectState(stateId: Uuid): List<Task> = executeMongoOperation {
+        mongoClient.find(
+            Filters.eq(STATE_ID_FIELD, stateId.toHexString())
+        ).toList().map { it.toTask() }
     }
 }

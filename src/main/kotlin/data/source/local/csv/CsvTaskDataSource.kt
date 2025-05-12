@@ -48,13 +48,8 @@ class CsvTaskDataSource(
     override fun getAllTasks(): List<Task> = tasks
 
     override fun getTaskById(taskId: Uuid): Task? = tasks.firstOrNull { it.id == taskId }
-
-    override fun deleteTasksByStateId(
-        stateId: Uuid,
-        projectId: Uuid,
-    ) {
-        tasks.removeIf { it.stateId == stateId && it.projectId == projectId }
-        writeCsvTasks()
+    override suspend fun getTasksByProjectState(stateId: Uuid): List<Task> {
+        return tasks.filter { it.stateId == stateId }
     }
 
     private fun readCsvTasks() {
