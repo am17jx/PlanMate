@@ -12,7 +12,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class LoginUITest {
     private lateinit var loginUserUseCase: LoginUserUseCase
     private lateinit var readerMock: Reader
@@ -34,7 +37,13 @@ class LoginUITest {
         val username = "admin"
         val password = "admin"
 
-        val user = User(id = "1", username = username, password = password, role = UserRole.ADMIN)
+        val user =
+            User(
+                id = Uuid.random(),
+                username = username,
+                role = UserRole.ADMIN,
+                authMethod = User.AuthenticationMethod.Password(password),
+            )
 
         every { readerMock.readString() } returns username andThen password
         coEvery { loginUserUseCase(username, password) } returns user
@@ -48,7 +57,7 @@ class LoginUITest {
         )
 
         verify { onNavigateToAdminHomeMock() }
-        verify (exactly = 5){ viewerMock.display(any()) }
+        verify(exactly = 5) { viewerMock.display(any()) }
     }
 
     @Test
@@ -57,7 +66,8 @@ class LoginUITest {
         val password = "userPassword"
 
         // Create a mock User object directly with the role set to USER
-        val user = User(id = "2", username = username, password = password, role = UserRole.USER)
+        val user =
+            User(id = Uuid.random(), username = username, role = UserRole.USER, authMethod = User.AuthenticationMethod.Password(password))
 
         every { readerMock.readString() } returns username andThen password
         coEvery { loginUserUseCase(username, password) } returns user
@@ -71,7 +81,7 @@ class LoginUITest {
         )
 
         verify { onNavigateToShowAllProjectsMock(UserRole.USER) }
-        verify (exactly = 5){ viewerMock.display(any()) }
+        verify(exactly = 5) { viewerMock.display(any()) }
     }
 
     @Test
@@ -88,6 +98,6 @@ class LoginUITest {
             viewerMock,
         )
 
-        verify (exactly = 1){ viewerMock.display("Error: $exceptionMessage") }
+        verify(exactly = 1) { viewerMock.display("Error: $exceptionMessage") }
     }
 }

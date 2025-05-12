@@ -7,7 +7,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.data.repository.AuthenticationRepositoryImpl
 import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
-import org.example.data.repository.utils.hashWithMD5
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.BeforeEach
@@ -24,8 +23,8 @@ class AuthenticationRepositoryImplTest {
 
     private val users =
         listOf(
-            User(id1, "testUsername", "testPassword", UserRole.USER),
-            User(id2, "testUsername2", "testPassword2", UserRole.USER),
+            User(id1, "testUsername", UserRole.USER, User.AuthenticationMethod.Password("testPassword")),
+            User(id2, "testUsername2", UserRole.USER, User.AuthenticationMethod.Password("testPassword2")),
         )
     private val testUsername = "testUsername"
     private val testPassword = "testPassword"
@@ -54,7 +53,6 @@ class AuthenticationRepositoryImplTest {
             val loggedInUser = authenticationRepository.loginWithPassword(testUsername, testPassword)
 
             assertThat(loggedInUser.username).isEqualTo(testUsername)
-            assertThat(loggedInUser.password).isEqualTo(testPassword)
             assertThat(loggedInUser.role).isEqualTo(UserRole.USER)
         }
 
@@ -67,7 +65,6 @@ class AuthenticationRepositoryImplTest {
 
             coVerify { remoteAuthenticationDataSource.saveUser(any()) }
             assertThat(createdUser.username).isEqualTo(testUsername)
-            assertThat(createdUser.password).isEqualTo(hashWithMD5(testPassword))
             assertThat(createdUser.role).isEqualTo(UserRole.USER)
         }
 

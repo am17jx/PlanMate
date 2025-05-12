@@ -13,9 +13,11 @@ import org.example.logic.utils.UserAlreadyExistsException
 import org.junit.Test
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CreateUserUiTest {
-
     private val createUserUseCase: CreateUserUseCase = mockk()
     private val readerMock: Reader = mockk()
     private val viewerMock: Viewer = mockk()
@@ -25,7 +27,13 @@ class CreateUserUiTest {
     fun `should return success message when user is created successfully`() {
         val username = "newUser"
         val password = "password123"
-        val user = User(id = "123", username = username, password = password, role = UserRole.USER)
+        val user =
+            User(
+                id = Uuid.random(),
+                username = username,
+                role = UserRole.USER,
+                authMethod = User.AuthenticationMethod.Password(password),
+            )
         every { readerMock.readString() } returns username andThen password
         coEvery { createUserUseCase(username, password) } returns user
 
