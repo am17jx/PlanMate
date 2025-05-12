@@ -7,6 +7,7 @@ import org.example.logic.models.ProjectState
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 fun createProject(
     id: Uuid = Uuid.random(),
     name: String = ""
