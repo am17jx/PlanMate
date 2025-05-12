@@ -12,13 +12,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CsvAuthenticationDataSourceTest {
     private lateinit var testFile: File
     private lateinit var expectedFile: File
     private lateinit var dataSource: CsvAuthenticationDataSource
 
-    private val user = User("testId", "testUsername", "fed3b61b26081849378080b34e693d2e", UserRole.USER)
+    private val user = User(Uuid.random(), "testUsername", UserRole.USER, User.AuthenticationMethod.Password("password"))
     private val testUsername = "testUsername"
     private val testHashedPassword = "fed3b61b26081849378080b34e693d2e"
 
@@ -39,7 +42,7 @@ class CsvAuthenticationDataSourceTest {
     fun `saveUser should write user to file when user not exists`() {
         expectedFile.writeText("id,username,password,USER")
 
-        dataSource.saveUser(User("id", "username", "password", UserRole.USER))
+        dataSource.saveUser(User(Uuid.random(), "username", UserRole.USER, User.AuthenticationMethod.Password("password")))
 
         Truth.assertThat(testFile.readText()).isEqualTo(expectedFile.readText())
     }
@@ -51,10 +54,10 @@ class CsvAuthenticationDataSourceTest {
         assertThrows<UserAlreadyExistsException> {
             dataSource.saveUser(
                 User(
-                    "testId",
+                    Uuid.random(),
                     "testUsername",
-                    "password",
                     UserRole.USER,
+                    User.AuthenticationMethod.Password("password")
                 ),
             )
         }
@@ -63,7 +66,7 @@ class CsvAuthenticationDataSourceTest {
     @Test
     fun `getAllUsers should return all users from file`() {
         testFile.writeText("id,username,password,USER")
-        val expectedUser = User("id", "username", "password", UserRole.USER)
+        val expectedUser = User(Uuid.random(), "username", UserRole.USER, User.AuthenticationMethod.Password("password"))
 
         val users = dataSource.getAllUsers()
 

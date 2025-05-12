@@ -9,7 +9,10 @@ import org.example.presentation.screens.CreateNewProjectUi
 import org.junit.Test
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CreateNewProjectUiTest {
 
     private val createProjectUseCase: CreateProjectUseCase = mockk()
@@ -21,7 +24,7 @@ class CreateNewProjectUiTest {
     fun `should return success message when project is created successfully`() {
         val projectName = "New Project"
         val project = Project(
-            id = "1", name = projectName, projectStateIds = emptyList(), auditLogsIds = emptyList()
+            id = Uuid.random(), name = projectName
         )
         coEvery { createProjectUseCase(projectName) } returns project
 

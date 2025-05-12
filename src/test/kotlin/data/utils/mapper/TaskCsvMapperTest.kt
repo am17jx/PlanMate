@@ -8,7 +8,10 @@ import org.example.logic.models.Task
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class TaskCsvMapperTest {
     @Nested
     inner class ToTasksTests {
@@ -43,21 +46,23 @@ class TaskCsvMapperTest {
             assertThat(tasks).hasSize(2)
 
             val expectedTask1 = Task(
-                id = "task-1",
+                id = Uuid.random(),
                 name = "First Task",
-                stateId = "active",
-                addedBy = "user-1",
-                auditLogsIds = listOf("audit-1", "audit-2"),
-                projectId = "project-1"
+                stateId = Uuid.random(),
+                stateName = "stateName",
+                addedById = Uuid.random(),
+                addedByName = "user-1",
+                projectId = Uuid.random()
             )
 
             val expectedTask2 = Task(
-                id = "task-2",
+                id = Uuid.random(),
                 name = "Second Task",
-                stateId = "pending",
-                addedBy = "user-2",
-                auditLogsIds = listOf(),
-                projectId = "project-2"
+                stateId = Uuid.random(),
+                stateName = "stateName",
+                addedById = Uuid.random(),
+                addedByName = "user-2",
+                projectId = Uuid.random()
             )
             assertThat(expectedTask1).isEqualTo(tasks[0])
             assertThat(expectedTask2).isEqualTo(tasks[1])
@@ -90,19 +95,21 @@ class TaskCsvMapperTest {
         fun `should convert tasks to CSV lines when they are correct and available`() {
             val tasks = listOf(
                 Task(
-                    id = "task-1",
+                    id = Uuid.random(),
                     name = "First Task",
-                    stateId = "active",
-                    addedBy = "user-1",
-                    auditLogsIds = listOf("audit-1", "audit-2"),
-                    projectId = "project-1"
+                    stateId = Uuid.random(),
+                    stateName = "stateName",
+                    addedById = Uuid.random(),
+                    addedByName = "user-1",
+                    projectId = Uuid.random()
                 ), Task(
-                    id = "task-2",
+                    id = Uuid.random(),
                     name = "Second Task",
-                    stateId = "pending",
-                    addedBy = "user-2",
-                    auditLogsIds = emptyList(),
-                    projectId = "project-2"
+                    stateId = Uuid.random(),
+                    stateName = "stateName",
+                    addedById = Uuid.random(),
+                    addedByName = "user-2",
+                    projectId = Uuid.random()
                 )
             )
 
@@ -118,17 +125,18 @@ class TaskCsvMapperTest {
         fun `should throw IllegalArgumentException when task name contains comma`() {
             val tasks = listOf(
                 Task(
-                    id = "task-1",
-                    name = "Task, with comma",
-                    stateId = "active",
-                    addedBy = "user-1",
-                    auditLogsIds = listOf("audit-1"),
-                    projectId = "project-1"
+                    id = Uuid.random(),
+                    name = "First Task",
+                    stateId = Uuid.random(),
+                    stateName = "stateName",
+                    addedById = Uuid.random(),
+                    addedByName = "user-1",
+                    projectId = Uuid.random()
                 )
             )
 
             assertThrows<IllegalArgumentException> {
-                val csvLines = tasks.toCsvLines()
+                tasks.toCsvLines()
             }
         }
     }

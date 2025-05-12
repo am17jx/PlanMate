@@ -26,7 +26,6 @@ class AuditLogCsvMapperKtTest {
             createAuditLog(
                 id = audiLogID,
                 userId = id1,
-                action = "user abc changed task XYZ-001 from InProgress to InDevReview",
                 createdAt = currentTime,
                 entityType = EntityType.TASK,
                 entityId = id1,
@@ -50,7 +49,6 @@ class AuditLogCsvMapperKtTest {
                 createAuditLog(
                     id = audiLogID,
                     userId = Uuid.random(),
-                    action = "user abc changed task XYZ-001 from InProgress to InDevReview",
                     createdAt = currentTime,
                     entityType = EntityType.TASK,
                     entityId = Uuid.random(),
@@ -59,7 +57,6 @@ class AuditLogCsvMapperKtTest {
                 createAuditLog(
                     id = Uuid.random(),
                     userId = Uuid.random(),
-                    action = "user mno changed task XYZ-001 from InDevReview to InProgress",
                     createdAt = currentTime,
                     entityType = EntityType.TASK,
                     entityId = Uuid.random(),
@@ -88,7 +85,6 @@ class AuditLogCsvMapperKtTest {
                 createAuditLog(
                     id = Uuid.random(),
                     userId = Uuid.random(),
-                    action = "user abc changed task XYZ-001 from InProgress to InDevReview",
                     createdAt = 123456789L.toInstant(),
                     entityType = EntityType.TASK,
                     entityId = Uuid.random(),
@@ -97,7 +93,6 @@ class AuditLogCsvMapperKtTest {
                 createAuditLog(
                     id = Uuid.random(),
                     userId = Uuid.random(),
-                    action = "user mno changed task XYZ-001 from InDevReview to InProgress",
                     createdAt = 123456789L.toInstant(),
                     entityType = EntityType.TASK,
                     entityId = Uuid.random(),
