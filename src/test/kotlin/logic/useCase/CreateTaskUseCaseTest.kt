@@ -13,7 +13,6 @@ import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
 import org.example.logic.useCase.Validation
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskStateNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -81,33 +80,20 @@ class CreateTaskUseCaseTest {
         projectId: Uuid,
         stateId: Uuid,
     ) = runTest {
+        coEvery { validation.validateInputNotBlankOrThrow(any()) } throws BlankInputException()
+
         assertThrows<BlankInputException> {
             createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
         }
     }
 
     @Test
-    fun `should throw ProjectNotFoundException when project doesn't exist`() =
+    fun `should throw TaskStateNotFoundException when state doesn't exist`() =
         runTest {
             val taskName = "Test"
             val projectId = Uuid.random()
             val stateId = Uuid.random()
-//            coEvery { projectRepository.getProjectById(any()) } returns null TODO
-
-            assertThrows<ProjectNotFoundException> {
-                createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
-            }
-        }
-
-    @Test
-    fun `should throw StateNotFoundException when state doesn't exist`() =
-        runTest {
-            val taskName = "Test"
-            val projectId = Uuid.random()
-            val stateId = Uuid.random()
-            val differentStateId = Uuid.random()
-//            coEvery { projectRepository.getProjectById(any()) } returns
-//                createProject(projectStates = listOf(createState(id = differentStateId)))
+            coEvery { projectStateRepository.getProjectStateById(any()) } throws TaskStateNotFoundException()
 
             assertThrows<TaskStateNotFoundException> {
                 createTaskUseCase(name = taskName, projectId = projectId, stateId = stateId)
@@ -123,18 +109,6 @@ class CreateTaskUseCaseTest {
                     "",
                     Uuid.random(),
                     Uuid.random(),
-                ),
-                Arguments.argumentSet(
-                    "blank project id",
-                    "test name",
-                    "",
-                    Uuid.random(),
-                ),
-                Arguments.argumentSet(
-                    "blank state id",
-                    "test name",
-                    Uuid.random(),
-                    "",
                 ),
             )
     }

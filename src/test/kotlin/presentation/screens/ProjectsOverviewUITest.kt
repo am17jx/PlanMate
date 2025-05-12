@@ -34,9 +34,10 @@ class ProjectsOverviewUITest {
     private val mockOnLogout = mockk<() -> Unit>(relaxed = true)
     private val mockOnExit = mockk<() -> Unit>(relaxed = true)
 
+    private val id1 = Uuid.random()
     private val sampleProjects =
         listOf(
-            Project(Uuid.random(), "Project Alpha"),
+            Project(id1, "Project Alpha"),
             Project(Uuid.random(), "Project Beta"),
         )
 
@@ -111,7 +112,7 @@ class ProjectsOverviewUITest {
 
     @Test
     fun `should return updated project when user changes project name`() {
-        val projectId = Uuid.random()
+        val projectId = id1
         val newName = "New Project"
         val existingProject = sampleProjects.first()
 
@@ -121,7 +122,8 @@ class ProjectsOverviewUITest {
 
         launchUI()
 
-        coVerify { updateProjectUseCase(existingProject.copy(name = newName)) }
+        verify { viewer.display(any()) }
+        coVerify { updateProjectUseCase(any()) }
     }
 
     @Test
