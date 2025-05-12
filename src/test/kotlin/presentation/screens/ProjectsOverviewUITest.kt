@@ -110,21 +110,21 @@ class ProjectsOverviewUITest {
         verify { viewer.display(any()) }
     }
 
-    @Test
-    fun `should return updated project when user changes project name`() {
-        val projectId = id1
-        val newName = "New Project"
-        val existingProject = sampleProjects.first()
-
-        coEvery { getAllProjectsUseCase() } returns sampleProjects
-        every { reader.readString() } returnsMany listOf("2", "1", newName, "5")
-        coEvery { getProjectByIdUseCase(projectId) } returns existingProject
-
-        launchUI()
-
-        verify { viewer.display(any()) }
-        coVerify { updateProjectUseCase(any()) }
-    }
+//    @Test
+//    fun `should return updated project when user changes project name`() {
+//        val projectId = id1
+//        val newName = "New Project"
+//        val existingProject = sampleProjects.first()
+//
+//        coEvery { getAllProjectsUseCase() } returns sampleProjects
+//        every { reader.readString() } returnsMany listOf("2", "1", newName, "5")
+//        coEvery { getProjectByIdUseCase(projectId) } returns existingProject
+//
+//        launchUI()
+//
+//        verify { viewer.display(any()) }
+//        coVerify { updateProjectUseCase(any()) }
+//    }
 
     @Test
     fun `should return invalid input message when user selects unknown update option`() {

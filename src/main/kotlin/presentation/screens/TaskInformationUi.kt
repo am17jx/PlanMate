@@ -37,7 +37,7 @@ class TaskInformationUi(
                     val stateName = getStateNameUseCase(taskId)
                     val project = getProjectByIdUseCase(task.projectId)
                     val projectTests = getProjectStatesUseCase(task.projectId)
-                    displayTaskDetails(task, stateName)
+                    displayTaskDetails(task, task.stateName)
                     displayMenu()
 
                     when (reader.readString().trim()) {
