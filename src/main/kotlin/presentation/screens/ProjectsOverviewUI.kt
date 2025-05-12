@@ -62,6 +62,38 @@ class ProjectsOverviewUI(
             }
         }
 
+    private fun showMainMenu() {
+        while (true) {
+            val projects = showAllProjects()
+
+            viewer.display("\n========== Project Menu ==========".cyan())
+            val sortedOptions = options.toSortedMap()
+            sortedOptions.forEach { option ->
+                viewer.display(option.value)
+            }
+
+            viewer.display("Select an option:")
+            val input = reader.readString()
+            val selectedOption = MainMenuOption.fromKey(input)
+
+            when (selectedOption) {
+                MainMenuOption.SHOW_DETAILS -> showProjectDetails(projects)
+                MainMenuOption.UPDATE_PROJECT -> manageProject(projects)
+                MainMenuOption.DELETE_PROJECT -> deleteProject(projects)
+                MainMenuOption.SHOW_PROJECT_LOGS -> showProjectLogsInTable(projects)
+                MainMenuOption.LOGOUT -> {
+                    logout()
+                    return
+                }
+                MainMenuOption.EXIT ->{
+                    onExit()
+                    return
+                }
+                null -> viewer.display("Invalid input. Please try again.".red())
+            }
+        }
+    }
+
     private fun displayNoProjectsMessage() {
         viewer.display("No projects found.")
     }
@@ -92,39 +124,6 @@ class ProjectsOverviewUI(
         viewer.display("Failed to load projects: ${e.message}".red())
     }
 
-    private fun showMainMenu() {
-        while (true) {
-            val projects = showAllProjects()
-            if (projects.isEmpty()) return
-
-            viewer.display("\n========== Project Menu ==========".cyan())
-            val sortedOptions = options.toSortedMap()
-            sortedOptions.forEach { option ->
-                option.value.let {
-                    viewer.display(it)
-                }
-            }
-
-            viewer.display("Select an option:")
-            val input = reader.readString()
-            val selectedOption = MainMenuOption.fromKey(input)
-
-            when (selectedOption) {
-                MainMenuOption.SHOW_DETAILS -> showProjectDetails(projects)
-                MainMenuOption.UPDATE_PROJECT -> manageProject(projects)
-                MainMenuOption.DELETE_PROJECT -> deleteProject(projects)
-                MainMenuOption.SHOW_PROJECT_LOGS -> showProjectLogsInTable(projects)
-                MainMenuOption.LOGOUT -> {
-                    logout()
-                    return
-                }
-
-                MainMenuOption.EXIT -> onExit()
-
-                null -> viewer.display("Invalid input. Please try again.".red())
-            }
-        }
-    }
 
     private fun showProjectDetails(projects: List<Project>) {
         val project = getProjectByUserIndexSelection(projects) ?: return
@@ -187,6 +186,7 @@ class ProjectsOverviewUI(
         logoutUseCase()
             onLogout()
         }
+
 
     private fun updateProjectName(projects: List<Project>) = runBlocking {
         try {
