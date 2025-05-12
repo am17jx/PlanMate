@@ -9,7 +9,6 @@ import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.useCase.LoginUserUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.UserNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -34,7 +33,7 @@ class LoginUserUseCaseTest {
     fun `should return user data when user enter username and password that exists in users data`() = runTest {
 
         coEvery { authenticationRepository.getAllUsers() } returns users
-        coEvery { authenticationRepository.login(any(), any()) } returns users[0]
+        coEvery { authenticationRepository.loginWithPassword(any(), any()) } returns users[0]
 
         val result = loginUserUseCase("testUsername", "testPassword")
 
