@@ -23,10 +23,7 @@ class ProjectCsvMapperTest {
         val project =
             Project(
                 id = id1,
-                name = "Test Project",
-                projectStateIds =
-                    listOf("1", "2", "3"),
-                auditLogsIds = listOf("100", "101", "102"),
+                name = "Test Project"
             )
 
         val csvLine = project.toCsvLine()
@@ -44,10 +41,7 @@ class ProjectCsvMapperTest {
         val expectedProject =
             Project(
                 id = id1,
-                name = "Test Project",
-                projectStateIds =
-                    listOf("1", "2", "3"),
-                auditLogsIds = listOf("100", "101", "102"),
+                name = "Test Project"
             )
         assertThat(project).isEqualTo(expectedProject)
     }
@@ -57,9 +51,7 @@ class ProjectCsvMapperTest {
         val project =
             Project(
                 id = id1,
-                name = "Empty Project",
-                projectStateIds = emptyList(),
-                auditLogsIds = emptyList(),
+                name = "Empty Project"
             )
 
         val csvLine = project.toCsvLine()
@@ -75,16 +67,11 @@ class ProjectCsvMapperTest {
             listOf(
                 Project(
                     id = id1,
-                    name = "Project 1",
-                    projectStateIds = listOf("1", "2", "3"),
-
-                    auditLogsIds = listOf("100"),
+                    name = "Project 1"
                 ),
                 Project(
                     id = id2,
-                    name = "Project 2",
-                    projectStateIds =  listOf("1", "2", "3"),
-                    auditLogsIds = listOf("200"),
+                    name = "Project 2"
                 ),
             )
 
@@ -106,9 +93,9 @@ class ProjectCsvMapperTest {
         val projects = csvLines.toProjectList()
 
         val firstExpectedProject =
-            Project(id1, "Project 1", listOf(id1), listOf(id1))
+            Project(id1, "Project 1")
         val secondExpectedProject =
-            Project(id2, "Project 2", listOf(id2), listOf(id2))
+            Project(id2, "Project 2")
         assertThat(projects).hasSize(2)
         assertThat(projects[0]).isEqualTo(firstExpectedProject)
         assertThat(projects[1]).isEqualTo(secondExpectedProject)
@@ -118,11 +105,8 @@ class ProjectCsvMapperTest {
     fun `should convert from and to the same Project`() {
         val project =
             Project(
-                id = "4",
-                name = "Complex Project",
-                projectStateIds =
-                    listOf("1", "2", "3"),
-                auditLogsIds = listOf("300", "301"),
+                id = Uuid.random(),
+                name = "Complex Project"
             )
 
         val csvLine = project.toCsvLine()
@@ -131,9 +115,6 @@ class ProjectCsvMapperTest {
         assertThat(csvLine).isEqualTo("4,Complex Project,[1:To Do,2:In Progress,3:Ready for Review],[300,301]")
         assertThat(convertedProject.id).isEqualTo("4")
         assertThat(convertedProject.name).isEqualTo("Complex Project")
-        assertThat(convertedProject.projectStateIds).hasSize(3)
-        assertThat(convertedProject.projectStateIds[2]).isEqualTo("3")
-        assertThat(convertedProject.auditLogsIds).containsExactly("300", "301").inOrder()
     }
 
     @ParameterizedTest

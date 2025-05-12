@@ -43,7 +43,6 @@ class CsvAuditLogDataSourceTest {
                 createAuditLog(
                     id = id1,
                     userId = id2,
-                    action = "user abc changed task XYZ-001 from InProgress to InDevReview",
                     createdAt = currentTime,
                     entityType = AuditLog.EntityType.TASK,
                     entityId = id3,
@@ -122,7 +121,6 @@ class CsvAuditLogDataSourceTest {
                 createAuditLog(
                     id = id2,
                     userId = id2,
-                    action = "some action",
                     entityType = AuditLog.EntityType.TASK,
                     entityId = id3,
                     actionType = AuditLog.ActionType.CREATE,
@@ -142,7 +140,6 @@ class CsvAuditLogDataSourceTest {
                 createAuditLog(
                     id = id1,
                     userId = id3,
-                    action = "user abc deleted task XYZ-001",
                     createdAt = Clock.System.now(),
                     entityType = AuditLog.EntityType.TASK,
                     entityId = id2,
@@ -153,7 +150,6 @@ class CsvAuditLogDataSourceTest {
                 createAuditLog(
                     id = id3,
                     userId = id2,
-                    action = "user def updated task XYZ-002",
                     createdAt = Clock.System.now(),
                     entityType = AuditLog.EntityType.TASK,
                     entityId = id3,

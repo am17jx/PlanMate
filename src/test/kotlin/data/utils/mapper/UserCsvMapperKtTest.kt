@@ -8,12 +8,15 @@ import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class UserCsvMapperKtTest {
 
     @Test
     fun `toCsvRow should return a CSV row when given a user`() {
-        val user = User("test", "usernameTest", "passwordTest",UserRole.USER)
+        val user = User(Uuid.random(), "usernameTest",UserRole.USER, User.AuthenticationMethod.Password("passwordTest"))
         val expected = "test,usernameTest,passwordTest,USER"
 
         val result = user.toCsvRow()
@@ -25,8 +28,8 @@ class UserCsvMapperKtTest {
     @Test
     fun `toCsvRows should return a list of CSV rows when given a list of users`() {
         val listOfUsers = listOf(
-            User("test", "usernameTest", "passwordTest",UserRole.USER),
-            User("test2", "usernameTest2", "passwordTest2",UserRole.USER)
+            User(Uuid.random(), "usernameTest", UserRole.USER, User.AuthenticationMethod.Password("passwordTest")),
+            User(Uuid.random(), "usernameTest2", UserRole.USER, User.AuthenticationMethod.Password("passwordTest2"))
         )
 
         val expected = listOf(
@@ -47,8 +50,8 @@ class UserCsvMapperKtTest {
         )
 
         val expected = listOf(
-            User("test", "usernameTest", "passwordTest",UserRole.USER),
-            User("test2", "usernameTest2", "passwordTest2",UserRole.USER)
+            User(Uuid.random(), "usernameTest", UserRole.USER, User.AuthenticationMethod.Password("passwordTest")),
+            User(Uuid.random(), "usernameTest2", UserRole.USER, User.AuthenticationMethod.Password("passwordTest2"))
         )
 
         val result = listOfCsvRows.toUsers()

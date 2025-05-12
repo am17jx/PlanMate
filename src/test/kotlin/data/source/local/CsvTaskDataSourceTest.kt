@@ -38,7 +38,7 @@ class CsvTaskDataSourceTest {
     inner class CreateTaskTests {
         @Test
         fun `should add a new task when function is called`() {
-            val newTask = Task(id2, "New Task", id2, id2, listOf(id2), id2)
+            val newTask = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
             val newTaskCsvLine = "$id2,New Task,$id2,$id2,$id2,$id2"
             val result = csvTaskDataSource.createTask(newTask)
 
@@ -60,7 +60,7 @@ class CsvTaskDataSourceTest {
     inner class UpdateTaskTests {
         @Test
         fun `should update task when it exists`() {
-            val updated = Task(id1, "Updated Task", id3, id1, emptyList(), id1)
+            val updated = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
             val updatedCsvLine = "1,Updated Task,done,user1,,proj1"
             every { csvReader.readLines() } returns listOf(headerLine, updatedCsvLine)
 
@@ -81,7 +81,7 @@ class CsvTaskDataSourceTest {
 
         @Test
         fun `should do nothing when task is not created before`() {
-            val updated = Task(id2, "Updated Task", id2, id1, emptyList(), id1)
+            val updated = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
 
             csvTaskDataSource.updateTask(updated)
 

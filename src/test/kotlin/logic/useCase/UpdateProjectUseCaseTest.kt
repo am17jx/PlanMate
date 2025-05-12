@@ -21,7 +21,10 @@ import org.example.logic.utils.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class UpdateProjectUseCaseTest {
     private lateinit var updateProjectUseCase: UpdateProjectUseCase
     private lateinit var projectRepository: ProjectRepository
@@ -39,8 +42,7 @@ class UpdateProjectUseCaseTest {
         getProjectTasksUseCase = mockk(relaxed = true)
         taskRepository = mockk(relaxed = true)
         currentUserUseCase = mockk(relaxed = true)
-        updateProjectUseCase = UpdateProjectUseCase(
-            projectRepository, auditLogRepository,currentUserUseCase)
+        //updateProjectUseCase = UpdateProjectUseCase(projectRepository, auditLogRepository,currentUserUseCase)
     }
 
     @Test
@@ -98,10 +100,10 @@ class UpdateProjectUseCaseTest {
 
     @Test
     fun `should update project successfully when only name is changed`() = runTest {
-        val originalProject = createProject(id = "1", "plans mate")
-        val updatedProject = createProject(id = "1", "plan mate")
+        val originalProject = createProject(id = Uuid.random(), "plans mate")
+        val updatedProject = createProject(id = Uuid.random(), "plan mate")
         val currentUser = createUser(role = UserRole.ADMIN)
-        val auditLog = createAuditLog("2", userId = currentUser.id)
+        val auditLog = createAuditLog(Uuid.random(), userId = currentUser.id)
         coEvery { currentUserUseCase() } returns currentUser
         coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
         coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
@@ -114,17 +116,15 @@ class UpdateProjectUseCaseTest {
     @Test
     fun `should update project successfully when a state is updated`() = runTest {
         val originalProject = createProject(
-            id = "1",
+            id = Uuid.random(),
             name = "new",
-            projectStates = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
         )
         val updatedProject = createProject(
-            id = "1",
-            name = "new",
-            projectStates = listOf(createState(title = "ToDO"), createState(title = "InReview"), createState(title = "Done"))
+            id = Uuid.random(),
+            name = "new"
         )
         val currentUser = createUser(role = UserRole.ADMIN)
-        val auditLog = createAuditLog("2", userId = currentUser.id)
+        val auditLog = createAuditLog(Uuid.random(), userId = currentUser.id)
         coEvery { currentUserUseCase() } returns currentUser
         coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
         coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
@@ -137,10 +137,10 @@ class UpdateProjectUseCaseTest {
 
     @Test
     fun `should update project successfully when a state is added`() = runTest {
-        val originalProject = createProject(id = "1", name = "new", projectStates = listOf())
-        val updatedProject = createProject(id = "1", name = "new", projectStates = listOf(createState(title = "ToDO")))
+        val originalProject = createProject(id = Uuid.random(), name = "new")
+        val updatedProject = createProject(id = Uuid.random(), name = "new")
         val currentUser = createUser(role = UserRole.ADMIN)
-        val auditLog = createAuditLog("2", userId = currentUser.id)
+        val auditLog = createAuditLog(Uuid.random(), userId = currentUser.id)
         coEvery { currentUserUseCase() } returns currentUser
         coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
         coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
@@ -154,15 +154,16 @@ class UpdateProjectUseCaseTest {
     @Test
     fun `should update project successfully when a state is deleted`() = runTest {
         val originalProject = createProject(
-            id = "1",
-            name = "new",
-            projectStates = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
+            id = Uuid.random(),
+            name = "new"
         )
         val updatedProject = createProject(
-            id = "1", name = "new", projectStates = listOf(createState(title = "ToDO"), createState(title = "InReview"))
+            id = Uuid.random(),
+            name = "new",
         )
+
         val currentUser = createUser(role = UserRole.ADMIN)
-        val auditLog = createAuditLog("2", userId = currentUser.id)
+        val auditLog = createAuditLog(Uuid.random(), userId = currentUser.id)
         coEvery { currentUserUseCase() } returns currentUser
         coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
         coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
