@@ -2,23 +2,22 @@ package presentation.screens
 
 import io.mockk.*
 import kotlinx.datetime.Clock
+import mockdata.createAuditLog
+import mockdata.createProject
+import mockdata.createTask
 import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLogActionType
-import org.example.logic.models.AuditLogEntityType
 import org.example.logic.models.Task
-import org.example.logic.useCase.DeleteTaskUseCase
-import org.example.logic.useCase.GetEntityAuditLogsUseCase
-import org.example.logic.useCase.GetProjectByIdUseCase
-import org.example.logic.useCase.GetStateNameUseCase
-import org.example.logic.useCase.GetTaskByIdUseCase
-import org.example.logic.useCase.UpdateTaskUseCase
+import org.example.logic.useCase.*
 import org.example.presentation.screens.TaskInformationUi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class TaskInformationUiTest {
     private lateinit var getTaskByIdUseCase: GetTaskByIdUseCase
     private lateinit var getStateNameUseCase: GetStateNameUseCase
@@ -26,39 +25,31 @@ class TaskInformationUiTest {
     private lateinit var deleteTaskUseCase: DeleteTaskUseCase
     private lateinit var getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
+    private lateinit var getProjectStatesUseCase: GetProjectStatesUseCase
     private lateinit var viewer: Viewer
     private lateinit var reader: Reader
     private lateinit var taskInformationUi: TaskInformationUi
     private val tablePrinter = mockk<TablePrinter>(relaxed = true)
-
+    private val ids = List(6) { Uuid.random() }
     private val sampleTask =
-        Task(
-            id = "task-1",
+        createTask(
+            id = ids[0],
             name = "Old Name",
-            stateId = "state-1",
-            addedBy = "user-1",
-            auditLogsIds = emptyList(),
-            projectId = "proj-1",
+            stateId = ids[3],
         )
+    private val sampleProject = createProject(
+        id = ids[4]
+    )
     val logs =
         listOf(
-            AuditLog(
-                id = "log-1",
-                userId = "user-1",
-                action = "Created Task",
-                createdAt = Clock.System.now(),
-                entityType = AuditLogEntityType.TASK,
-                entityId = "task-1",
-                actionType = AuditLogActionType.CREATE,
+            createAuditLog(
+                id = ids[1],
             ),
-            AuditLog(
-                id = "log-2",
-                userId = "user-2",
-                action = "Updated Task",
-                createdAt = Clock.System.now(),
-                entityType = AuditLogEntityType.TASK,
-                entityId = "task-1",
-                actionType = AuditLogActionType.UPDATE,
+            createAuditLog(
+                id = ids[2],
+            ),
+            createAuditLog(
+                id = ids[3],
             ),
         )
 
@@ -69,6 +60,8 @@ class TaskInformationUiTest {
         updateTaskUseCase = mockk(relaxed = true)
         deleteTaskUseCase = mockk(relaxed = true)
         getEntityAuditLogsUseCase = mockk(relaxed = true)
+        getProjectStatesUseCase = mockk(relaxed = true)
+        getProjectByIdUseCase = mockk(relaxed = true)
         viewer = mockk(relaxed = true)
         reader = mockk(relaxed = true)
 
@@ -80,6 +73,7 @@ class TaskInformationUiTest {
             updateTaskUseCase = updateTaskUseCase,
             deleteTaskUseCase = deleteTaskUseCase,
             getEntityAuditLogsUseCase = getEntityAuditLogsUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             viewer = viewer,
             reader = reader,
             getProjectByIdUseCase = getProjectByIdUseCase,
@@ -89,48 +83,48 @@ class TaskInformationUiTest {
 
     @Test
     fun `should exit immediately when tasks are displayed and choice is 4`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany listOf("4")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should return update task flow when choice is 1`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany listOf("1", "New Name", "New State", "4")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
-        val expectedUpdated = sampleTask.copy(name = "New Name", stateId = "New State")
-        coVerify { updateTaskUseCase("task-1", expectedUpdated) }
+        val expectedUpdated = sampleTask.copy(name = "New Name",)
+        coVerify { updateTaskUseCase(expectedUpdated) }
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should return delete task flow when choice is 2 `() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany listOf("2", "y")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
-        coVerify { deleteTaskUseCase("task-1") }
+        coVerify { deleteTaskUseCase(ids[0]) }
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should return logs flow when choice is 3`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
-        coEvery { getEntityAuditLogsUseCase("task-1", AuditLogEntityType.TASK) } returns logs
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
+        coEvery { getEntityAuditLogsUseCase(ids[0], AuditLog.EntityType.TASK) } returns logs
         every { reader.readString() } returnsMany listOf("3", "4")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         verify { viewer.display(any()) }
         logs.forEach { log ->
@@ -142,8 +136,8 @@ class TaskInformationUiTest {
 
     @Test
     fun `should display error updating task when updateTaskUseCase throws`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany
             listOf(
                 "1",
@@ -151,75 +145,79 @@ class TaskInformationUiTest {
                 "new-state",
                 "4",
             )
-        coEvery { updateTaskUseCase("task-1", any()) } throws RuntimeException("update failure")
+        coEvery { updateTaskUseCase(any()) } throws RuntimeException("update failure")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should display error deleting task when deleteTaskUseCase throws`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany listOf("2", "y")
-        coEvery { deleteTaskUseCase("task-1") } throws RuntimeException("delete failure")
+        coEvery { deleteTaskUseCase(ids[0]) } throws RuntimeException("delete failure")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should display deletion cancelled task when user enter n`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany listOf("2", "n")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should display error fetching logs when getEntityAuditLogsUseCase throws`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany listOf("3", "4")
-        coEvery { getEntityAuditLogsUseCase("task-1", AuditLogEntityType.TASK) } throws RuntimeException("logs failure")
+        coEvery { getEntityAuditLogsUseCase(ids[0], AuditLog.EntityType.TASK) } throws RuntimeException("logs failure")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         verify { viewer.display(any()) }
     }
 
     @Test
-    fun `should display invalide option when user enter wrong option`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+    fun `should display invalid option when user enter wrong option`() {
+        val taskId = ids[0]
+        coEvery { getTaskByIdUseCase(taskId) } returns sampleTask
+        coEvery { getStateNameUseCase(taskId) } returns "To Do"
+        coEvery { getProjectByIdUseCase(any()) } returns sampleProject
+        coEvery { getProjectStatesUseCase(any()) } returns listOf()
         every { reader.readString() } returnsMany listOf("5", "4")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(taskId)
 
+        verify { viewer.display("Invalid choice. Please try again.") }
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should display no logs message when logs list is empty`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
-        coEvery { getEntityAuditLogsUseCase("task-1", AuditLogEntityType.TASK) } returns emptyList()
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
+        coEvery { getEntityAuditLogsUseCase(ids[0], AuditLog.EntityType.TASK) } returns emptyList()
         every { reader.readString() } returnsMany listOf("3", "4")
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         verify { viewer.display(any()) }
     }
 
     @Test
     fun `should update task with default values when new name and sate id are blank`() {
-        coEvery { getTaskByIdUseCase("task-1") } returns sampleTask
-        coEvery { getStateNameUseCase("task-1") } returns "To Do"
+        coEvery { getTaskByIdUseCase(ids[0]) } returns sampleTask
+        coEvery { getStateNameUseCase(ids[2]) } returns "To Do"
         every { reader.readString() } returnsMany
             listOf(
                 "1",
@@ -228,10 +226,10 @@ class TaskInformationUiTest {
                 "4",
             )
 
-        taskInformationUi.showTaskInformation("task-1")
+        taskInformationUi.showTaskInformation(ids[0])
 
         val expectedTask = sampleTask.copy(name = sampleTask.name, stateId = sampleTask.stateId)
-        coVerify { updateTaskUseCase("task-1", expectedTask) }
+        coVerify { updateTaskUseCase(expectedTask) }
         verify { viewer.display(any()) }
     }
 }

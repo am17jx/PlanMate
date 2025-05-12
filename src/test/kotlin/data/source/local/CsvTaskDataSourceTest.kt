@@ -11,13 +11,20 @@ import org.example.logic.models.Task
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CsvTaskDataSourceTest {
     private lateinit var csvReader: CSVReader
     private lateinit var csvWriter: CSVWriter
     private lateinit var csvTaskDataSource: CsvTaskDataSource
+    val id1 = Uuid.random()
+    val id2 = Uuid.random()
+    val id3 = Uuid.random()
+
     private val headerLine = "id,name,stateId,addedBy,auditLogsIds,projectId"
-    private val taskCsvLine = "1,Initial Task,open,user1,audit1|audit2,proj1"
+    private val taskCsvLine = "$id1,Initial Task,$id1,$id1,$id1|$id3,$id1"
 
     @BeforeEach
     fun setUp() {
@@ -31,8 +38,8 @@ class CsvTaskDataSourceTest {
     inner class CreateTaskTests {
         @Test
         fun `should add a new task when function is called`() {
-            val newTask = Task("2", "New Task", "todo", "user2", listOf("audit3"), "proj2")
-            val newTaskCsvLine = "2,New Task,todo,user2,audit3,proj2"
+            val newTask = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
+            val newTaskCsvLine = "$id2,New Task,$id2,$id2,$id2,$id2"
             val result = csvTaskDataSource.createTask(newTask)
 
             assertThat(result).isEqualTo(newTask)
@@ -42,8 +49,8 @@ class CsvTaskDataSourceTest {
                     listOf(
                         headerLine,
                         taskCsvLine,
-                        newTaskCsvLine
-                    )
+                        newTaskCsvLine,
+                    ),
                 )
             }
         }
@@ -53,34 +60,35 @@ class CsvTaskDataSourceTest {
     inner class UpdateTaskTests {
         @Test
         fun `should update task when it exists`() {
-            val updated = Task("1", "Updated Task", "done", "user1", emptyList(), "proj1")
+            val updated = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
             val updatedCsvLine = "1,Updated Task,done,user1,,proj1"
             every { csvReader.readLines() } returns listOf(headerLine, updatedCsvLine)
 
             val result = csvTaskDataSource.updateTask(updated)
 
             assertThat(result).isEqualTo(updated)
-            assertThat(csvTaskDataSource.getTaskById("1")).isEqualTo(updated)
+            assertThat(csvTaskDataSource.getTaskById(id1)).isEqualTo(updated)
             verify(exactly = 2) { csvReader.readLines() }
             verify(exactly = 1) {
                 csvWriter.writeLines(
                     listOf(
                         headerLine,
-                        updatedCsvLine
-                    )
+                        updatedCsvLine,
+                    ),
                 )
             }
         }
+
         @Test
         fun `should do nothing when task is not created before`() {
-            val updated = Task("2", "Updated Task", "done", "user1", emptyList(), "proj1")
+            val updated = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
 
             csvTaskDataSource.updateTask(updated)
 
             verify(exactly = 2) { csvReader.readLines() }
             verify(exactly = 1) {
                 csvWriter.writeLines(
-                    listOf(headerLine, taskCsvLine)
+                    listOf(headerLine, taskCsvLine),
                 )
             }
         }
@@ -99,14 +107,14 @@ class CsvTaskDataSourceTest {
                 }
             }
 
-            csvTaskDataSource.deleteTask("1")
+            csvTaskDataSource.deleteTask(id1)
 
             assertThat(csvTaskDataSource.getAllTasks()).isEmpty()
         }
 
         @Test
         fun `should do nothing task when task with id does not exist`() {
-            csvTaskDataSource.deleteTask("2")
+            csvTaskDataSource.deleteTask(id2)
 
             assertThat(csvTaskDataSource.getAllTasks()).isNotEmpty()
         }
@@ -118,7 +126,7 @@ class CsvTaskDataSourceTest {
         fun `should return all available tasks`() {
             val tasks = csvTaskDataSource.getAllTasks()
 
-            verify (exactly = 1){ csvReader.readLines() }
+            verify(exactly = 1) { csvReader.readLines() }
             assertThat(tasks).hasSize(1)
             assertThat(tasks[0].id).isEqualTo("1")
         }
@@ -128,7 +136,7 @@ class CsvTaskDataSourceTest {
     inner class GetTaskByIDTests {
         @Test
         fun `should return task by ID when it is available`() {
-            val task = csvTaskDataSource.getTaskById("1")
+            val task = csvTaskDataSource.getTaskById(id1)
 
             assertThat(task).isNotNull()
             assertThat(task?.name).isEqualTo("Initial Task")
@@ -136,7 +144,7 @@ class CsvTaskDataSourceTest {
 
         @Test
         fun `should return null when task does not exist`() {
-            val task = csvTaskDataSource.getTaskById("2")
+            val task = csvTaskDataSource.getTaskById(id2)
 
             assertThat(task).isNull()
         }

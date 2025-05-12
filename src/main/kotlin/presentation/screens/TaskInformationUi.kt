@@ -48,7 +48,10 @@ class TaskInformationUi(
                         }
 
                         "3" -> showTaskLogs(taskId)
-                        "4" -> onNavigateBack()
+                        "4" -> {
+                            isRunning = false
+                            onNavigateBack()
+                        }
 
                         else -> viewer.display("Invalid choice. Please try again.")
                     }

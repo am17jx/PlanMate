@@ -133,13 +133,12 @@ class ProjectTasksUI(
 
         while (true) {
             viewer.display("Enter task index: ")
-            val input = reader.readString()
-            val index = input.toIntOrNull()?.minus(1)
+            val input = reader.readInt()?.minus(1)
 
-            if (index == null || index !in projectTasks.indices) {
+            if (input == null || input !in projectTasks.indices) {
                 viewer.display("Invalid index. Please try again.")
             } else {
-                val selectedTaskId = projectTasks[index].id
+                val selectedTaskId = projectTasks[input].id
                 return onNavigateToTaskDetails(selectedTaskId)
             }
         }
