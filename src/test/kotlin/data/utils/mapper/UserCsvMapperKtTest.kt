@@ -14,10 +14,13 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class UserCsvMapperKtTest {
 
+    val testId = Uuid.random()
+    val testId2 = Uuid.random()
+
     @Test
     fun `toCsvRow should return a CSV row when given a user`() {
-        val user = User(Uuid.random(), "usernameTest",UserRole.USER, User.AuthenticationMethod.Password("passwordTest"))
-        val expected = "test,usernameTest,passwordTest,USER"
+        val user = User(testId, "usernameTest",UserRole.USER, User.AuthenticationMethod.Password("passwordTest"))
+        val expected = "${testId.toHexString()},usernameTest,USER,PASSWORD,passwordTest"
 
         val result = user.toCsvRow()
 
@@ -28,13 +31,13 @@ class UserCsvMapperKtTest {
     @Test
     fun `toCsvRows should return a list of CSV rows when given a list of users`() {
         val listOfUsers = listOf(
-            User(Uuid.random(), "usernameTest", UserRole.USER, User.AuthenticationMethod.Password("passwordTest")),
-            User(Uuid.random(), "usernameTest2", UserRole.USER, User.AuthenticationMethod.Password("passwordTest2"))
+            User(testId, "usernameTest", UserRole.USER, User.AuthenticationMethod.Password("passwordTest")),
+            User(testId2, "usernameTest2", UserRole.USER, User.AuthenticationMethod.Password("passwordTest2"))
         )
 
         val expected = listOf(
-            "test,usernameTest,passwordTest,USER",
-            "test2,usernameTest2,passwordTest2,USER"
+            "${testId.toHexString()},usernameTest,USER,PASSWORD,passwordTest",
+            "${testId2.toHexString()},usernameTest2,USER,PASSWORD,passwordTest2"
         )
 
         val result = listOfUsers.toCsvRows()
@@ -45,13 +48,13 @@ class UserCsvMapperKtTest {
     @Test
     fun `toUsers should return a list of users when given a list of CSV rows`() {
         val listOfCsvRows = listOf(
-            "test,usernameTest,passwordTest,USER",
-            "test2,usernameTest2,passwordTest2,USER"
+            "${testId.toHexString()},usernameTest,USER,PASSWORD,passwordTest",
+            "${testId2.toHexString()},usernameTest2,USER,PASSWORD,passwordTest2"
         )
 
         val expected = listOf(
-            User(Uuid.random(), "usernameTest", UserRole.USER, User.AuthenticationMethod.Password("passwordTest")),
-            User(Uuid.random(), "usernameTest2", UserRole.USER, User.AuthenticationMethod.Password("passwordTest2"))
+            User(testId, "usernameTest", UserRole.USER, User.AuthenticationMethod.Password("passwordTest")),
+            User(testId2, "usernameTest2", UserRole.USER, User.AuthenticationMethod.Password("passwordTest2"))
         )
 
         val result = listOfCsvRows.toUsers()
