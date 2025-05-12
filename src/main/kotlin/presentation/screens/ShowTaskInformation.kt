@@ -49,7 +49,7 @@ class ShowTaskInformation(
 
                     "3" -> showTaskLogs(taskId)
                     "4" -> {
-                        onNavigateBack
+                        onNavigateBack()
                     }
 
                     else -> viewer.display("Invalid choice. Please try again.")
@@ -99,42 +99,59 @@ class ShowTaskInformation(
     }
 
     private fun updateTask(task: Task, projectState: List<State>) = runBlocking {
-
         try {
-            viewer.display("Enter new task name:")
-            val newName = reader.readString().takeIf { it.isNotBlank() } ?: task.name
+            viewer.display("What would you like to update?")
+            viewer.display("1. Task Name")
+            viewer.display("2. Task State")
+            viewer.display("Enter your choice:")
 
-            viewer.display("Select a new state from the following list:")
+            when (reader.readString().trim()) {
+                "1" -> {
+                    viewer.display("Enter new task name:")
+                    val newName = reader.readString().takeIf { it.isNotBlank() } ?: task.name
+                    val updatedTask = task.copy(name = newName)
+                    updateTaskUseCase(task.id, updatedTask)
+                    viewer.display("Task name updated successfully.")
+                }
 
-            val stateNames = projectState.map { it.title }
-            val stateIds = projectState.map { it.id }
-            val headers = listOf("Index", "State Name")
-            val columnValues = listOf(
-                stateNames.indices.map { (it + 1).toString() },
-                stateNames
-            )
-            tablePrinter.printTable(headers, columnValues)
+                "2" -> {
+                    viewer.display("Select a new state from the following list:")
+                    val stateNames = projectState.map { it.title }
+                    val stateIds = projectState.map { it.id }
+                    val headers = listOf("Index", "State Name")
+                    val columnValues = listOf(
+                        stateNames.indices.map { (it + 1).toString() },
+                        stateNames
+                    )
+                    tablePrinter.printTable(headers, columnValues)
 
-            viewer.display("Select a new state index:")
-            val index = reader.readInt()
-            val newStateId = if (index == null || index !in 1..stateIds.size) {
-                viewer.display("Invalid index, keeping old state.")
-                task.stateId
-            } else {
-                stateIds[index - 1]
+                    viewer.display("Select a new state index:")
+                    val index = reader.readInt()
+                    val newStateId = if (index == null || index !in 1..stateIds.size) {
+                        viewer.display("Invalid index, keeping old state.")
+                        task.stateId
+                    } else {
+                        stateIds[index - 1]
+                    }
+
+                    val updatedTask = task.copy(stateId = newStateId)
+                    updateTaskUseCase(task.id, updatedTask)
+                    viewer.display("Task state updated successfully.")
+                }
+
+                else -> {
+                    viewer.display("Invalid choice. Update cancelled.")
+                }
             }
-
-            val updatedTask = task.copy(name = newName, stateId = newStateId)
-            updateTaskUseCase(task.id, updatedTask)
-            viewer.display("Task updated successfully.")
         } catch (e: TaskNotFoundException) {
-            viewer.display("Error Task with id ${task.id} not found")
-        }catch (e: TaskNotChangedException) {
-            viewer.display("Error No changes detected for task with id ${task.id}")
-        }catch (e: Exception) {
+            viewer.display("Error: Task with id ${task.id} not found")
+        } catch (e: TaskNotChangedException) {
+            viewer.display("Error: No changes detected for task with id ${task.id}")
+        } catch (e: Exception) {
             viewer.display("Error updating task: ${e.message}")
         }
     }
+
 
     private fun deleteTask(taskId: String): Boolean = runBlocking {
         try {

@@ -15,11 +15,11 @@ object Constants {
     }
 
     object CollectionNames{
-        const val TASKS_DOCUMENTATION="Task"
+        const val TASKS_DOCUMENTATION="FTask"
         const val PROJECTS_DOCUMENTATION="Project"
         const val USERS_DOCUMENTATION="User"
-        const val AUDIT_LOGS_DOCUMENTATION="AuditLog"
-        const val STATE_DOCUMENTATION="State"
+        const val AUDIT_LOGS_DOCUMENTATION="FAuditLog"
+        const val STATE_DOCUMENTATION="FState"
 
     }
     const val DATABASE_NAME: String = "PlanMateDatabase"
