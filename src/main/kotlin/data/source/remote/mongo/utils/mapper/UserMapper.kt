@@ -11,8 +11,8 @@ fun UserDTO.toUser(): User =
     User(
         id = id.toUuid(),
         username = username,
-        password = password,
         role = UserRole.valueOf(role),
+        authMethod = authMethod.toAuthMethod()
     )
 
 @OptIn(ExperimentalUuidApi::class)
@@ -20,6 +20,13 @@ fun User.toUserDTO(): UserDTO =
     UserDTO(
         id = id.toHexString(),
         username = username,
-        password = password,
         role = role.name,
+        authMethod = authMethod.toAuthMethodDto()
     )
+fun User.AuthenticationMethod.toAuthMethodDto(): UserDTO.AuthenticationMethodDto = when(this){
+    is User.AuthenticationMethod.Password -> UserDTO.AuthenticationMethodDto.Password(this.password)
+}
+
+fun UserDTO.AuthenticationMethodDto.toAuthMethod(): User.AuthenticationMethod = when(this){
+    is UserDTO.AuthenticationMethodDto.Password -> User.AuthenticationMethod.Password(this.password)
+}
