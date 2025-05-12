@@ -4,8 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.logic.models.Project
-import org.example.logic.models.Task
+import mockdata.createProject
+import mockdata.createTask
 import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetStateNameUseCase
@@ -14,25 +14,24 @@ import org.example.logic.utils.TaskStateNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class GetProjectStateNameUseCaseTest {
     private lateinit var getTaskByIdUseCase: GetTaskByIdUseCase
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
     private lateinit var getStateNameUseCase: GetStateNameUseCase
     private lateinit var projectStateRepository: ProjectStateRepository
-    private val dummyTask = Task(
-        id = "task-123",
+    private val ids = List(6) { Uuid.random() }
+    private val dummyTask = createTask(
+        id = ids[1],
         name = "Some Task",
-        stateId = "state-001",
-        addedBy = "user-1",
-        auditLogsIds = emptyList(),
-        projectId = "project-1"
     )
 
-    private val dummyProject = Project(
-        id = "project-1", name = "My Project", projectStateIds = listOf(
-            "state-001", "state-002",
-        ), auditLogsIds = emptyList()
+    private val dummyProject = createProject(
+        id = ids[3],
+        name = "My Project"
     )
 
     @BeforeEach
@@ -45,8 +44,8 @@ class GetProjectStateNameUseCaseTest {
 
     @Test
     fun `should return sate name when take and project are available`() = runTest {
-        val taskId = "task-123"
-        val projectId = "project-1"
+        val taskId = ids[1]
+        val projectId = ids[3]
         val expectedStateName = "to do"
         coEvery { getProjectByIdUseCase(projectId) } returns dummyProject
         coEvery { getTaskByIdUseCase(taskId) } returns dummyTask
@@ -59,9 +58,9 @@ class GetProjectStateNameUseCaseTest {
 
     @Test
     fun `should return null when there is no state`() = runTest {
-        val taskId = "task-123"
-        val projectId = "project-1"
-        val missingStateTask = dummyTask.copy(stateId = "state-999")
+        val taskId = ids[2]
+        val projectId = ids[4]
+        val missingStateTask = dummyTask.copy(stateId = ids[5])
         coEvery { getProjectByIdUseCase(projectId) } returns dummyProject
         coEvery { getTaskByIdUseCase(taskId) } returns missingStateTask
 

@@ -5,13 +5,11 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import mockdata.createAuditLog
-import org.example.logic.models.AuditLogEntityType
+import org.example.logic.models.AuditLog
 import org.example.logic.repositries.AuditLogRepository
 import org.example.logic.useCase.GetEntityAuditLogsUseCase
-import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskNotFoundException
-import org.example.logic.utils.getCroppedId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -26,6 +24,7 @@ import kotlin.uuid.Uuid
 class GetEntityAuditLogsUseCaseTest {
     private lateinit var auditLogRepository: AuditLogRepository
     private lateinit var getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase
+    private val ids = List(5) { Uuid.random() }
 
     @BeforeEach
     fun setUp() {
@@ -36,46 +35,36 @@ class GetEntityAuditLogsUseCaseTest {
     @ParameterizedTest
     @MethodSource("provideExistingEntitiesScenarios")
     fun `should return list of audit logs when entity exists`(
-        entityId: String, entityType: AuditLogEntityType
+        entityId: String, entityType: AuditLog.EntityType
     ) = runTest {
         coEvery { auditLogRepository.getEntityLogs(any(), any()) } returns listOf(
             createAuditLog(
-                entityId = entityId,
-                entityType = entityType
+                entityId = ids[1], entityType = entityType
             )
         )
 
-        val result = getEntityAuditLogsUseCase(entityId, entityType)
+        val result = getEntityAuditLogsUseCase(ids[1], entityType)
 
         assertThat(result).isNotEmpty()
     }
 
     @Test
     fun `should throw TaskNotFoundException when entity type is Task and there is no logs for it`() = runTest {
-        val taskId = Uuid.random().getCroppedId()
+        val taskId = Uuid.random()
         coEvery { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
 
         assertThrows<TaskNotFoundException> {
-            getEntityAuditLogsUseCase(taskId, AuditLogEntityType.TASK)
+            getEntityAuditLogsUseCase(taskId, AuditLog.EntityType.TASK)
         }
     }
 
     @Test
     fun `should throw ProjectNotFoundException when entity type is Project and there is no logs for it`() = runTest {
-        val projectId = Uuid.random().getCroppedId()
+        val projectId = Uuid.random()
         coEvery { auditLogRepository.getEntityLogs(any(), any()) } returns emptyList()
 
         assertThrows<ProjectNotFoundException> {
-            getEntityAuditLogsUseCase(projectId, AuditLogEntityType.PROJECT)
-        }
-    }
-
-    @Test
-    fun `should throw BlankInputException when entity id is blank`() = runTest {
-        val blankId = ""
-
-        assertThrows<BlankInputException> {
-            getEntityAuditLogsUseCase(blankId, AuditLogEntityType.PROJECT)
+            getEntityAuditLogsUseCase(projectId, AuditLog.EntityType.PROJECT)
         }
     }
 
@@ -84,10 +73,10 @@ class GetEntityAuditLogsUseCaseTest {
         @JvmStatic
         fun provideExistingEntitiesScenarios(): Stream<Arguments> = Stream.of(
             Arguments.argumentSet(
-                "existing task", Uuid.random().getCroppedId(), AuditLogEntityType.TASK
+                "existing task", Uuid.random(), AuditLog.EntityType.TASK
             ),
             Arguments.argumentSet(
-                "existing project", Uuid.random().getCroppedId(), AuditLogEntityType.PROJECT
+                "existing project", Uuid.random(), AuditLog.EntityType.PROJECT
             ),
         )
     }
