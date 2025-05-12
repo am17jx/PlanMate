@@ -2,6 +2,7 @@ package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.logic.models.User
@@ -33,8 +34,8 @@ class CreateUserUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        authenticationRepository = mockk()
-        validation = mockk()
+        authenticationRepository = mockk(relaxed = true)
+        validation = mockk(relaxed = true)
         createUserUseCase = CreateUserUseCase(authenticationRepository, validation)
     }
 
@@ -59,6 +60,12 @@ class CreateUserUseCaseTest {
     fun `should throw exception with type BlankInputException when user not enter username`() =
         runTest {
             coEvery { authenticationRepository.getAllUsers() } returns users
+            every {
+                validation.validateCreateMateUsernameAndPasswordOrThrow(
+                    any(),
+                    any(),
+                )
+            } throws BlankInputException()
 
             assertThrows<BlankInputException> { createUserUseCase("", "testPassword") }
         }
@@ -67,6 +74,12 @@ class CreateUserUseCaseTest {
     fun `should throw exception with type BlankInputException when user not enter password`() =
         runTest {
             coEvery { authenticationRepository.getAllUsers() } returns users
+            every {
+                validation.validateCreateMateUsernameAndPasswordOrThrow(
+                    any(),
+                    any(),
+                )
+            } throws BlankInputException()
 
             assertThrows<BlankInputException> { createUserUseCase("newTestUsername", "") }
         }
@@ -75,6 +88,12 @@ class CreateUserUseCaseTest {
     fun `should throw exception with type InvalidUserNameInputException when user enter username with spaces`() =
         runTest {
             coEvery { authenticationRepository.getAllUsers() } returns users
+            every {
+                validation.validateCreateMateUsernameAndPasswordOrThrow(
+                    any(),
+                    any(),
+                )
+            } throws InvalidUsernameException()
 
             assertThrows<InvalidUsernameException> { createUserUseCase("new testUsername", "testPassword") }
         }

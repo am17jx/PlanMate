@@ -1,16 +1,22 @@
 package logic.useCase
 
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import mockdata.createProject
+import org.example.logic.models.ProjectState
 import org.example.logic.repositries.ProjectStateRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.CreateProjectStateUseCase
 import org.example.logic.useCase.GetProjectStatesUseCase
 import org.example.logic.useCase.Validation
+import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.ProjectNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertTrue
+import org.junit.jupiter.api.assertThrows
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -23,9 +29,13 @@ class CreateProjectStateUseCaseTest {
     private lateinit var createProjectStateUseCase: CreateProjectStateUseCase
     private val id1 = Uuid.random()
 
-    private val dummyProject =
-        createProject(
-            id = id1,
+    private val dummyProjectStates =
+        listOf(
+            ProjectState(
+                id = id1,
+                title = "StateTest1",
+                projectId = id1,
+            ),
         )
     private val stateName = "StateTest4"
 
@@ -45,38 +55,34 @@ class CreateProjectStateUseCaseTest {
     }
 
     @Test
-    fun `should return the updated project with the added state when given valid project id, state name is not blank and user is admin`() =
+    fun `should return the updated project with the added state when given valid project id, state name is not blank and project exists`() =
         runTest {
-//            coEvery { authenticationRepository.getCurrentUser() } returns createUser()
-//            coEvery { projectRepository.getProjectById(any()) } returns dummyProject
-//
-//            val updatedProject = createProjectStateUseCase(id1, stateName)
-//
-//            coVerify { projectRepository.getProjectById(any()) }
-            assertTrue(false)
+            coEvery { getProjectStatesUseCase(any()) } returns dummyProjectStates
+
+            createProjectStateUseCase(Uuid.random(), stateName)
+
+            verify { validation.validateInputNotBlankOrThrow(any()) }
+            coVerify { projectStateRepository.createProjectState(any()) }
         }
 
     @Test
     fun `should throw BlankInputException when state name is blank`() =
         runTest {
-//            val blankStateName = ""
-//            coEvery { authenticationRepository.getCurrentUser() } returns createUser()
-//
-//            assertThrows<BlankInputException> {
-//                createProjectStateUseCase(Uuid.random(), blankStateName)
-//            }
-            assertTrue { false }
+            val blankStateName = ""
+            every { validation.validateInputNotBlankOrThrow(blankStateName) } throws BlankInputException()
+
+            assertThrows<BlankInputException> {
+                createProjectStateUseCase(Uuid.random(), blankStateName)
+            }
         }
 
     @Test
     fun `should throw ProjectNotFoundException when no project found with the given id`() =
         runTest {
-//            coEvery { authenticationRepository.getCurrentUser() } returns createUser()
-//            coEvery { projectRepository.getProjectById(any()) } returns null
-//
-//            assertThrows<ProjectNotFoundException> {
-//                createProjectStateUseCase(Uuid.random(), stateName)
-//            }
-            assertTrue(false)
+            coEvery { getProjectStatesUseCase(any()) } throws ProjectNotFoundException()
+
+            assertThrows<ProjectNotFoundException> {
+                createProjectStateUseCase(Uuid.random(), stateName)
+            }
         }
 }
