@@ -46,7 +46,7 @@ class MongoTaskDataSourceTest {
         mongoTaskDataSource = MongoTaskDataSource(mongoClient)
         testTasks = listOf(
             createTask(ids[0], "Updated Task", ids[3], "in-progress", ids[5]),
-            createTask(ids[1], "remove Task", ids[4], "todo", ids[6]),
+            createTask(ids[1], "remove Task", ids[4], "todo", ids[5]),
         )
         testTaskDTOs = testTasks.map { it.toTaskDTO() }
     }
@@ -82,19 +82,19 @@ class MongoTaskDataSourceTest {
 
             val replaceResult = mockk<UpdateResult>(relaxed = true)
             coEvery {
-                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id.toHexString()), testTaskDTOs[0], any())
             } returns replaceResult
 
             val result = mongoTaskDataSource.updateTask(testTasks[0])
 
             assertEquals(testTasks[0], result)
-            coVerify { mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id), testTaskDTOs[0], any()) }
+            coVerify { mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id.toHexString()), testTaskDTOs[0], any()) }
         }
 
         @Test
         fun `updateTask should throw TaskNotChangedException  when update task fails`() = runTest {
             coEvery {
-                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id), testTaskDTOs[0], any())
+                mongoClient.replaceOne(Filters.eq(ID, testTasks[0].id.toHexString()), testTaskDTOs[0], any())
             } throws TaskNotChangedException()
 
             assertThrows<TaskNotChangedException> { mongoTaskDataSource.updateTask(testTasks[0]) }
@@ -169,11 +169,11 @@ class MongoTaskDataSourceTest {
             val taskId = ids[2]
             val deleteResult = mockk<DeleteResult>(relaxed = true)
 
-            coEvery { mongoClient.deleteOne(Filters.eq(ID, taskId), any()) } returns deleteResult
+            coEvery { mongoClient.deleteOne(Filters.eq(ID, taskId.toHexString()), any()) } returns deleteResult
 
             mongoTaskDataSource.deleteTask(taskId)
 
-            coVerify { mongoClient.deleteOne(Filters.eq(ID, taskId), any()) }
+            coVerify { mongoClient.deleteOne(Filters.eq(ID, taskId.toHexString()), any()) }
         }
 
         @Test
@@ -184,30 +184,32 @@ class MongoTaskDataSourceTest {
 
                 assertThrows<TaskDeletionFailedException> { mongoTaskDataSource.deleteTask(ids[1]) }
             }
+    }
 
+    @Nested
+    inner class GetTasksByProjectStateTests{
         @Test
-        fun `deleteTasksByStateId should delete when task exist`() = runTest {
+        fun `getTaskByProjectState should delete when task exist`() = runTest {
             val stateId = ids[4]
-
-            val deleteResult = mockk<DeleteResult>(relaxed = true)
-
+            val findFlow = mockk<FindFlow<TaskDTO>>(relaxed = true)
             coEvery {
-                mongoClient.deleteOne(Filters.and(Filters.eq(STATE_ID_FIELD, stateId)), any())
-            } returns deleteResult
+                mongoClient.find(any(), any())
+            } returns findFlow
 
             mongoTaskDataSource.getTasksByProjectState(stateId)
 
             coVerify {
-                mongoClient.deleteMany(Filters.and(Filters.eq(STATE_ID_FIELD, stateId)), any())
+                mongoClient.find(
+                    Filters.eq(STATE_ID_FIELD, stateId.toHexString())
+                )
             }
         }
 
         @Test
-        fun `deleteTasksByStateId should throw MongoTimeoutException when when happen incorrect configuration`() =
+        fun `getTaskByProjectState should throw MongoTimeoutException when when happen incorrect configuration`() =
             runTest {
                 val stateId = ids[1]
-
-                coEvery { mongoClient.deleteMany(filter = any(), options = any()) } throws MongoTimeoutException("Error")
+                coEvery { mongoClient.find(filter = any()) } throws MongoTimeoutException("Error")
 
                 assertThrows<MongoTimeoutException> { mongoTaskDataSource.getTasksByProjectState(stateId) }
             }

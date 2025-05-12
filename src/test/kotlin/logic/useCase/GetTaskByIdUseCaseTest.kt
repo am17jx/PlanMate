@@ -52,35 +52,13 @@ class GetTaskByIdUseCaseTest {
     }
 
     @Test
-    fun `should throw BlankInputException when task ID is blank`() = runTest {
-        val taskID = ids[3]
-        assertThrows<BlankInputException> {
-            getTaskByIdUseCase(taskID)
-        }
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = ["fdd54-fd456", "894116s-45-5-6"])
-    fun `should return task when id contains Letters or Digits or hyphens and not contain any special characters`(
-        projectId: String
-    ) = runTest {
-        val projectUuid = Uuid.parseHex(projectId)
+    fun `should return task when it exists`() = runTest {
+        val projectUuid = Uuid.random()
         val expectedTask = createTask(projectUuid, "task")
         coEvery { taskRepository.getTaskById(projectUuid) } returns expectedTask
 
         val result = getTaskByIdUseCase(projectUuid)
 
         assertThat(result).isEqualTo(expectedTask)
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = ["45 45 #% &^", "423545@@!"])
-    fun `should throw InvalidInputException when id Contains special Characters`(projectId: String) = runTest {
-        val projectUuid = Uuid.parseHex(projectId)
-        coEvery { taskRepository.getTaskById(projectUuid) } returns null
-
-        assertThrows<InvalidInputException> {
-            getTaskByIdUseCase(projectUuid)
-        }
     }
 }

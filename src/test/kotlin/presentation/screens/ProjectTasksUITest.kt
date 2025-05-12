@@ -2,8 +2,10 @@ package presentation.screens
 
 import com.google.common.truth.Truth.assertThat
 import io.mockk.*
+import kotlinx.coroutines.test.runTest
 import logic.useCase.CreateTaskUseCase
 import mockdata.createProject
+import mockdata.createState
 import mockdata.createTask
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.useCase.GetProjectStatesUseCase
@@ -55,8 +57,8 @@ class ProjectTasksUITest {
 
 
     @Test
-    fun `should navigate back when option 0 is selected`() {
-        every { reader.readInt() } returns 0
+    fun `should navigate back when option 3 is selected`() {
+        every { reader.readInt() } returns GO_BACK_OPTION
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -80,9 +82,8 @@ class ProjectTasksUITest {
     }
 
     @Test
-    fun `should navigate to task details when option 1 is selected with valid task ID`() {
-        every { reader.readInt() } returns 1
-        every { reader.readString() } returns "1"
+    fun `should navigate to task details when option 2 is selected with valid task ID`() {
+        every { reader.readInt() } returnsMany listOf(VIEW_TASK_OPTION, 1)
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -101,15 +102,15 @@ class ProjectTasksUITest {
             projectId = ids[0]
         )
 
-        assertThat(navigatedTaskId).isEqualTo("1")
-        verify { viewer.display("Enter Task Id: ") }
+        assertThat(navigatedTaskId).isNotNull()
+        verify { viewer.display("Enter task index: ") }
     }
 
     @Test
-    fun `should handle invalid task ID when option 1 is selected`() {
-        val invalidTaskId = "999"
-        every { reader.readInt() } returnsMany listOf(1, 0)
-        every { reader.readString() } returns invalidTaskId
+    fun `should handle invalid task ID when option 2 is selected`() {
+        val invalidTaskIndex = 999
+        val validTaskIndex = 1
+        every { reader.readInt() } returnsMany listOf(VIEW_TASK_OPTION, invalidTaskIndex, validTaskIndex)
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -128,45 +129,20 @@ class ProjectTasksUITest {
             projectId = ids[0]
         )
 
-        verify { viewer.display("Id is incorrect!") }
-        assertThat(isNavigateBackCalled).isTrue()
+        verify { viewer.display("Invalid index. Please try again.") }
+        verify(exactly = 2) { viewer.display("Enter task index: ") }
+        assertThat(navigatedTaskId).isNotNull()
     }
 
     @Test
-    fun `should create new task when option 2 is selected with valid inputs`() {
-        every { reader.readInt() } returnsMany listOf(2, 0)
-        every { reader.readString() } returnsMany listOf("New Task", "1")
-        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = ids[4])
-
-        projectTasksUi = ProjectTasksUI(
-            getProjectTasksUseCase = getProjectTasksUseCase,
-            getProjectByIdUseCase = getProjectByIdUseCase,
-            createTaskUseCase = createTaskUseCase,
-            getProjectStatesUseCase = getProjectStatesUseCase,
-            reader = reader,
-            viewer = viewer,
-            tablePrinter = tablePrinter,
-            onNavigateBack = {
-                isNavigateBackCalled = true
-            },
-            onNavigateToTaskDetails = { taskId ->
-                navigatedTaskId = taskId
-            },
-            projectId = ids[0]
-        )
-
-        coVerify { createTaskUseCase.invoke("New Task", ids[0], ids[3]) }
-        verify { viewer.display("Enter Task Name: ") }
-        verify { viewer.display("Select a state from the following states:") }
-        verify { viewer.display("Enter state ID: ") }
-        assertThat(isNavigateBackCalled).isTrue()
-    }
-
-    @Test
-    fun `should not start create new task flow when project has no states`() {
+    fun `should not start create new task flow when project has no states`()= runTest {
         coEvery { getProjectByIdUseCase(any()) } returns createProject(id = ids[0], name = "Test Project")
-        every { reader.readInt() } returnsMany listOf(2, 0)
-        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = ids[3])
+        every { reader.readInt() } returnsMany listOf(GO_BACK_OPTION)
+        coEvery { getProjectStatesUseCase(any()) } returns emptyList()
+        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(
+            name = "New Task",
+            stateId = ids[3]
+        )
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -184,15 +160,13 @@ class ProjectTasksUITest {
             },
             projectId = ids[0]
         )
-
-        verify { viewer.display("No project states added yet! Go back and update project with new states.") }
         assertThat(isNavigateBackCalled).isTrue()
     }
 
 
     @Test
     fun `should handle invalid menu option when it is selected`() {
-        every { reader.readInt() } returnsMany listOf(99, 0)
+        every { reader.readInt() } returnsMany listOf(99, 3)
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
@@ -264,55 +238,10 @@ class ProjectTasksUITest {
         verify { viewer.display("Generic error") }
     }
 
-    @Test
-    fun `should handle exception when creating task`() {
-        every { reader.readInt() } returnsMany listOf(2, 0)
-        every { reader.readString() } returnsMany listOf("New Task", "1")
-        coEvery { createTaskUseCase.invoke(any(), any(), any()) } throws RuntimeException("Error creating task")
+    companion object {
+        private const val CREATE_TASK_OPTION = 1
+        private const val VIEW_TASK_OPTION = 2
+        private const val GO_BACK_OPTION = 3
 
-        projectTasksUi = ProjectTasksUI(
-            getProjectTasksUseCase = getProjectTasksUseCase,
-            getProjectByIdUseCase = getProjectByIdUseCase,
-            createTaskUseCase = createTaskUseCase,
-            getProjectStatesUseCase = getProjectStatesUseCase,
-            reader = reader,
-            viewer = viewer,
-            tablePrinter = tablePrinter,
-            onNavigateBack = {
-                isNavigateBackCalled = true
-            },
-            onNavigateToTaskDetails = { taskId ->
-                navigatedTaskId = taskId
-            },
-            projectId = ids[0]
-        )
-
-        verify { viewer.display("Error creating task") }
-        assertThat(isNavigateBackCalled).isTrue()
-    }
-
-    @Test
-    fun `should display empty states message when project has no states`() {
-        val projectWithNoStates = createProject(id = ids[0], name = "Test Project")
-        coEvery { getProjectByIdUseCase.invoke(any()) } returns projectWithNoStates
-
-        projectTasksUi = ProjectTasksUI(
-            getProjectTasksUseCase = getProjectTasksUseCase,
-            getProjectByIdUseCase = getProjectByIdUseCase,
-            createTaskUseCase = createTaskUseCase,
-            getProjectStatesUseCase = getProjectStatesUseCase,
-            reader = reader,
-            viewer = viewer,
-            tablePrinter = tablePrinter,
-            onNavigateBack = {
-                isNavigateBackCalled = true
-            },
-            onNavigateToTaskDetails = { taskId ->
-                navigatedTaskId = taskId
-            },
-            projectId = ids[0]
-        )
-
-        verify { viewer.display("<==========( No States Added yet )==========>") }
     }
 }

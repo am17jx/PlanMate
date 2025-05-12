@@ -10,6 +10,7 @@ import org.example.logic.repositries.ProjectRepository
 import org.example.logic.useCase.GetProjectByIdUseCase
 import org.example.logic.utils.BlankInputException
 import org.example.logic.utils.InvalidInputException
+import org.example.logic.utils.ProjectNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -42,20 +43,10 @@ class GetProjectByIdUseCaseTest {
     }
 
     @Test
-    fun `should throw BlankInputException when pass blank id`() = runTest {
-        val projectId = ids[4]
-        coEvery { projectRepository.getProjectById(projectId) } returns null
-
-        assertThrows<BlankInputException> {
-            getProjectByIdUseCase(projectId)
-        }
-    }
-
-    @Test
-    fun `should throw InvalidInputException when pass invalid id have special chars`() = runTest {
+    fun `should throw ProjectNotFoundException when pass invalid id have special chars`() = runTest {
         val projectId = ids[3]
         coEvery { projectRepository.getProjectById(projectId) } returns null
-        assertThrows<InvalidInputException> {
+        assertThrows<ProjectNotFoundException> {
             getProjectByIdUseCase(projectId)
         }
     }

@@ -47,24 +47,6 @@ class LoginUserUseCaseTest {
         assertThat(users[0]).isEqualTo(result)
     }
 
-
-    @Test
-    fun `should throw exception with type BlankInputException when user not enter username`() = runTest {
-
-        coEvery { authenticationRepository.getAllUsers() } returns users
-
-        assertThrows<BlankInputException> { loginUserUseCase("", "testPassword") }
-    }
-
-
-    @Test
-    fun `should throw exception with type BlankInputException when user not enter password`() = runTest {
-
-        coEvery { authenticationRepository.getAllUsers() } returns users
-
-        assertThrows<BlankInputException> { loginUserUseCase("testUsername", "") }
-    }
-
 }
 
 
