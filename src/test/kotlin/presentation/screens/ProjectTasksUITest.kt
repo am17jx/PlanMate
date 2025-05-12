@@ -5,8 +5,8 @@ import io.mockk.*
 import logic.useCase.CreateTaskUseCase
 import mockdata.createProject
 import mockdata.createTask
-import org.example.logic.models.ProjectState
 import org.example.logic.useCase.GetProjectByIdUseCase
+import org.example.logic.useCase.GetProjectStatesUseCase
 import org.example.logic.useCase.GetProjectTasksUseCase
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.presentation.screens.ProjectTasksUI
@@ -15,23 +15,26 @@ import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class ProjectTasksUITest {
     private lateinit var getProjectTasksUseCase: GetProjectTasksUseCase
     private lateinit var getProjectByIdUseCase: GetProjectByIdUseCase
+    private lateinit var getProjectStatesUseCase: GetProjectStatesUseCase
     private lateinit var createTaskUseCase: CreateTaskUseCase
     private lateinit var reader: Reader
     private lateinit var viewer: Viewer
     private lateinit var tablePrinter: TablePrinter
     private lateinit var projectTasksUi: ProjectTasksUI
     private var isNavigateBackCalled: Boolean = false
-    private var navigatedTaskId: String? = null
-
-    private val project =
-        createProject(id = "1", name = "Test Project", projectStates = listOf(ProjectState(id = "1", title = "State 1")))
+    private var navigatedTaskId: Uuid? = null
+    private val ids = List(6) { Uuid.random() }
+    private val project = createProject(id = ids[0], name = "Test Project")
     private val projectTasks = listOf(
-        createTask(id = "1", name = "Task 1", projectId = "1", stateId = "1"),
-        createTask(id = "2", name = "Task 2", projectId = "1", stateId = "1")
+        createTask(id = ids[1], name = "Task 1", projectId = ids[0], stateId = ids[3]),
+        createTask(id = ids[2], name = "Task 2", projectId = ids[0], stateId = ids[3])
     )
 
     @BeforeEach
@@ -39,6 +42,7 @@ class ProjectTasksUITest {
         getProjectTasksUseCase = mockk(relaxed = true)
         getProjectByIdUseCase = mockk(relaxed = true)
         createTaskUseCase = mockk(relaxed = true)
+        getProjectStatesUseCase = mockk(relaxed = true)
         reader = mockk(relaxed = true)
         viewer = mockk(relaxed = true)
         tablePrinter = mockk(relaxed = true)
@@ -50,7 +54,6 @@ class ProjectTasksUITest {
     }
 
 
-
     @Test
     fun `should navigate back when option 0 is selected`() {
         every { reader.readInt() } returns 0
@@ -59,6 +62,7 @@ class ProjectTasksUITest {
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -68,7 +72,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         assertThat(isNavigateBackCalled).isTrue()
@@ -84,6 +88,7 @@ class ProjectTasksUITest {
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -93,7 +98,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         assertThat(navigatedTaskId).isEqualTo("1")
@@ -110,6 +115,7 @@ class ProjectTasksUITest {
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -119,7 +125,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         verify { viewer.display("Id is incorrect!") }
@@ -130,12 +136,13 @@ class ProjectTasksUITest {
     fun `should create new task when option 2 is selected with valid inputs`() {
         every { reader.readInt() } returnsMany listOf(2, 0)
         every { reader.readString() } returnsMany listOf("New Task", "1")
-        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
+        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = ids[4])
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -145,10 +152,10 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
-        coVerify { createTaskUseCase.invoke("New Task", "1", "1") }
+        coVerify { createTaskUseCase.invoke("New Task", ids[0], ids[3]) }
         verify { viewer.display("Enter Task Name: ") }
         verify { viewer.display("Select a state from the following states:") }
         verify { viewer.display("Enter state ID: ") }
@@ -157,14 +164,15 @@ class ProjectTasksUITest {
 
     @Test
     fun `should not start create new task flow when project has no states`() {
-        coEvery { getProjectByIdUseCase(any()) } returns createProject(id = "1", name = "Test Project")
+        coEvery { getProjectByIdUseCase(any()) } returns createProject(id = ids[0], name = "Test Project")
         every { reader.readInt() } returnsMany listOf(2, 0)
-        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = "1")
+        coEvery { createTaskUseCase.invoke(any(), any(), any()) } returns createTask(name = "New Task", stateId = ids[3])
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -174,13 +182,12 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         verify { viewer.display("No project states added yet! Go back and update project with new states.") }
         assertThat(isNavigateBackCalled).isTrue()
     }
-
 
 
     @Test
@@ -191,6 +198,7 @@ class ProjectTasksUITest {
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -200,7 +208,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         verify { viewer.display("Invalid option. Please, try again!") }
@@ -215,6 +223,7 @@ class ProjectTasksUITest {
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -224,7 +233,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         verify { viewer.display("Error: project not found") }
@@ -239,6 +248,7 @@ class ProjectTasksUITest {
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -248,7 +258,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         verify { viewer.display("Generic error") }
@@ -264,6 +274,7 @@ class ProjectTasksUITest {
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -273,7 +284,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         verify { viewer.display("Error creating task") }
@@ -282,13 +293,14 @@ class ProjectTasksUITest {
 
     @Test
     fun `should display empty states message when project has no states`() {
-        val projectWithNoStates = createProject(id = "1", name = "Test Project", projectStates = emptyList())
+        val projectWithNoStates = createProject(id = ids[0], name = "Test Project")
         coEvery { getProjectByIdUseCase.invoke(any()) } returns projectWithNoStates
 
         projectTasksUi = ProjectTasksUI(
             getProjectTasksUseCase = getProjectTasksUseCase,
             getProjectByIdUseCase = getProjectByIdUseCase,
             createTaskUseCase = createTaskUseCase,
+            getProjectStatesUseCase = getProjectStatesUseCase,
             reader = reader,
             viewer = viewer,
             tablePrinter = tablePrinter,
@@ -298,7 +310,7 @@ class ProjectTasksUITest {
             onNavigateToTaskDetails = { taskId ->
                 navigatedTaskId = taskId
             },
-            projectId = "1"
+            projectId = ids[0]
         )
 
         verify { viewer.display("<==========( No States Added yet )==========>") }

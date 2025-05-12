@@ -77,7 +77,7 @@ class MongoAuditLogDataSourceTest {
     @Test
     fun `getEntityLogs should return list of AuditLog when  try to get audit logs from MongoDB`() =
         runTest {
-            remoteAuditLogDataSource.getEntityLogs("1", AuditLogEntityType.PROJECT)
+            remoteAuditLogDataSource.getEntityLogs(Uuid.random(), AuditLog.EntityType.PROJECT)
 
             coVerify(exactly = 1) { mongoClientCollection.find(filter = any()) }
         }

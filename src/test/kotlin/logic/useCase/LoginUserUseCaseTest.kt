@@ -4,28 +4,35 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import mockdata.createUser
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.useCase.LoginUserUseCase
+import org.example.logic.useCase.Validation
 import org.example.logic.utils.BlankInputException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class LoginUserUseCaseTest {
     private lateinit var authenticationRepository: AuthenticationRepository
+    private lateinit var validation: Validation
     private lateinit var loginUserUseCase: LoginUserUseCase
-
+    private val ids = List(6) { Uuid.random() }
     private val users = listOf(
-        User("testId", "testUsername", "fed3b61b26081849378080b34e693d2e", UserRole.USER),
-        User("testId2", "testUsername2", "eec4a40174d49402e72d37b79119d0c5", UserRole.USER)
+        createUser(ids[0], "testUsername"),
+        createUser(ids[1], "testUsername2")
     )
 
     @BeforeEach
     fun setUp() {
-        authenticationRepository = mockk()
-        loginUserUseCase = LoginUserUseCase(authenticationRepository)
+        authenticationRepository = mockk(relaxed = true)
+        validation = mockk(relaxed = true)
+        loginUserUseCase = LoginUserUseCase(authenticationRepository, validation)
     }
 
 

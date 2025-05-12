@@ -18,12 +18,13 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class MongoAuthenticationDataSourceTest {
     private lateinit var mongoCollection: MongoCollection<UserDTO>
     private lateinit var remoteAuthenticationDataSource: MongoAuthenticationDataSource
-
+    private val ids = List(6) { Uuid.random() }
     @OptIn(ExperimentalUuidApi::class)
-    private val user = User(Uuid.random(), "test", "password", UserRole.USER)
+    private val user = User(ids[0], "test", UserRole.USER, authMethod = User.AuthenticationMethod.Password(""))
     private val userDTO = user.toUserDTO()
 
     @BeforeEach

@@ -16,6 +16,7 @@ fun createProject(
     name = name,
 )
 
+@OptIn(ExperimentalUuidApi::class)
 fun createState(
     id: Uuid = Uuid.random(),
     title: String = "",
