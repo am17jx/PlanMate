@@ -91,7 +91,8 @@ class ProjectsOverviewUI(
     }
 
     private fun displayNoProjectsMessage() {
-        viewer.display("No projects found.")
+        viewer.display("No projects found , Redirecting to previous screen...".red())
+        onLogout()
     }
 
     private fun showProjectsInTable(projects: List<Project>) {
