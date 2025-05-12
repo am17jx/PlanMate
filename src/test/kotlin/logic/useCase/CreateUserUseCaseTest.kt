@@ -34,7 +34,7 @@ class CreateUserUseCaseTest {
     fun `should return user data when user enter username and password and not exists before`() = runTest {
 
         coEvery { authenticationRepository.getAllUsers() } returns users
-        coEvery { authenticationRepository.createUser(any(), any()) } returns User("newId", "newTestUsername", "testPassword", UserRole.USER)
+        coEvery { authenticationRepository.createUserWithPassword(any(), any()) } returns User("newId", "newTestUsername", "testPassword", UserRole.USER)
 
         val result = createUserUseCase("newTestUsername", "testPassword")
 

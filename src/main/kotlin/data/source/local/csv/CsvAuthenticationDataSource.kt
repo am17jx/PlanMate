@@ -26,15 +26,15 @@ class CsvAuthenticationDataSource(
 
     override fun getAllUsers(): List<User> = csvReader.readLines().toUsers()
 
-    override fun login(
+    override fun loginWithPassword(
         username: String,
         hashedPassword: String,
     ): User {
         try {
             return getAllUsers()
-                .first { it.username == username && it.password == hashedPassword }
+                .first { it.username == username  }
                 .also { currentUser = it }
-                .let { User(it.id, it.username, it.password, it.role) }
+                .let { User(it.id, it.username, it.role, authMethod = User.AuthenticationMethod.Password("")) }
         } catch (e: NoSuchElementException) {
             throw NoSuchElementException()
         }

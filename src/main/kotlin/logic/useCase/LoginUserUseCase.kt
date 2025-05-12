@@ -12,6 +12,6 @@ class LoginUserUseCase(
         password: String,
     ): User {
         validation.validateLoginUsernameAndPasswordOrThrow(username, password)
-        return authenticationRepository.login(username, password)
+        return authenticationRepository.loginWithPassword(username, password)
     }
 }
