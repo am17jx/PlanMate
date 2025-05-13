@@ -24,7 +24,6 @@ class ProjectsOverviewUI(
     private val getAllProjectsUseCase: GetAllProjectsUseCase,
     private val updateProjectUseCase: UpdateProjectUseCase,
     private val deleteProjectUseCase: DeleteProjectUseCase,
-    private val getProjectByIdUseCase: GetProjectByIdUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val viewer: Viewer,
@@ -46,12 +45,8 @@ class ProjectsOverviewUI(
                     displayNoProjectsMessage()
                     return@runBlocking emptyList()
                 }
-
                 showProjectsInTable(projects)
                 return@runBlocking projects
-            } catch (e: NoProjectsFoundException) {
-                displayLoadingError(e)
-                return@runBlocking emptyList()
             } catch (e: Exception) {
                 displayLoadingError(e)
                 return@runBlocking emptyList()
@@ -249,7 +244,6 @@ class ProjectsOverviewUI(
                 projectScreensOptions = projectScreensOptions,
                 getAllProjectsUseCase = getKoin().get(),
                 updateProjectUseCase = getKoin().get(),
-                getProjectByIdUseCase = getKoin().get(),
                 deleteProjectUseCase = getKoin().get(),
                 getEntityAuditLogsUseCase = getKoin().get(),
                 logoutUseCase = getKoin().get(),

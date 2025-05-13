@@ -37,8 +37,7 @@ class MongoTaskDataSource(
     }
 
     override suspend fun getAllTasks(): List<Task> = executeMongoOperation {
-        mongoClient.find().toList().map { it.toTask() }
-    }
+        mongoClient.find().toList().map { it.toTask() } }
 
     override suspend fun getTaskById(taskId: Uuid): Task? = executeMongoOperation {
         mongoClient.find(Filters.eq(ID, taskId.toHexString())).firstOrNull()?.toTask()
