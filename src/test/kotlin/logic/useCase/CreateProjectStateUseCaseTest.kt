@@ -39,6 +39,7 @@ class CreateProjectStateUseCaseTest {
         )
     private val stateName = "StateTest4"
 
+
     @BeforeEach
     fun setUp() {
         projectStateRepository = mockk(relaxed = true)
@@ -65,6 +66,7 @@ class CreateProjectStateUseCaseTest {
             coVerify { projectStateRepository.createProjectState(any()) }
         }
 
+
     @Test
     fun `should throw BlankInputException when state name is blank`() =
         runTest {
@@ -75,6 +77,7 @@ class CreateProjectStateUseCaseTest {
                 createProjectStateUseCase(Uuid.random(), blankStateName)
             }
         }
+
 
     @Test
     fun `should throw ProjectNotFoundException when no project found with the given id`() =
