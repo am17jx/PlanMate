@@ -8,7 +8,7 @@ import presentation.utils.green
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 
-class CreateUserUi(
+class UserCreationUI(
     private val createUserUseCase: CreateUserUseCase,
     private val reader: Reader,
     private val viewer: Viewer,

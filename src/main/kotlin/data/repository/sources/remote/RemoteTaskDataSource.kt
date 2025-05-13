@@ -16,8 +16,7 @@ interface RemoteTaskDataSource {
 
     suspend fun getTaskById(taskId: Uuid): Task?
 
-    suspend fun deleteTasksByStateId(
+    suspend fun getTasksByProjectState(
         stateId: Uuid,
-        taskId: Uuid,
-    )
+    ): List<Task>
 }

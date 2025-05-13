@@ -15,7 +15,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class TaskInformationUi(
+class TaskInformationUI(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val getStateNameUseCase: GetStateNameUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
@@ -37,7 +37,7 @@ class TaskInformationUi(
                     val stateName = getStateNameUseCase(taskId)
                     val project = getProjectByIdUseCase(task.projectId)
                     val projectTests = getProjectStatesUseCase(task.projectId)
-                    displayTaskDetails(task, stateName)
+                    displayTaskDetails(task, task.stateName)
                     displayMenu()
 
                     when (reader.readString().trim()) {
@@ -49,6 +49,7 @@ class TaskInformationUi(
 
                         "3" -> showTaskLogs(taskId)
                         "4" -> {
+                            isRunning = false
                             onNavigateBack()
                         }
 
@@ -190,8 +191,8 @@ class TaskInformationUi(
         }
 
     companion object {
-        fun create(onNavigateBack: () -> Unit): TaskInformationUi =
-            TaskInformationUi(
+        fun create(onNavigateBack: () -> Unit): TaskInformationUI =
+            TaskInformationUI(
                 getTaskByIdUseCase = getKoin().get(),
                 onNavigateBack = onNavigateBack,
                 getStateNameUseCase = getKoin().get(),

@@ -12,6 +12,8 @@ class UpdateProjectStateUseCase(
     private val projectStateRepository: ProjectStateRepository,
     private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
+    private val getTasksByProjectStateUseCase: GetTasksByProjectStateUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase,
     private val validation: Validation,
 ) {
     suspend operator fun invoke(
@@ -33,6 +35,9 @@ class UpdateProjectStateUseCase(
             )
         ).also {
             projectStateRepository.updateProjectState(ProjectState(stateId, newStateName, projectId))
+            getTasksByProjectStateUseCase(stateId).forEach { task ->
+                updateTaskUseCase(task.copy(stateName = newStateName))
+            }
         }
     }
 

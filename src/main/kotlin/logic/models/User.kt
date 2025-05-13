@@ -7,6 +7,10 @@ import kotlin.uuid.Uuid
 data class User(
     val id: Uuid = Uuid.random(),
     val username: String,
-    val password: String,
     val role: UserRole,
-)
+    val authMethod: AuthenticationMethod,
+) {
+    sealed class AuthenticationMethod {
+        data class Password(val password: String) : AuthenticationMethod()
+    }
+}

@@ -9,8 +9,5 @@ class GetAllProjectsUseCase(
 ) {
     suspend operator fun invoke(): List<Project> {
        return  projectRepository.getAllProjects()
-           .takeIf { it.isNotEmpty() }
-           ?: throw NoProjectsFoundException()
-
     }
 }

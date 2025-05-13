@@ -9,8 +9,9 @@ import org.example.data.source.remote.mongo.utils.executeMongoOperation
 import org.example.data.source.remote.mongo.utils.mapper.toUser
 import org.example.data.source.remote.mongo.utils.mapper.toUserDTO
 import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
-import org.example.data.utils.Constants.PASSWORD
-import org.example.data.utils.Constants.USERNAME
+import org.example.data.utils.Constants.AUTH_TYPE_FIELD
+import org.example.data.utils.Constants.PASSWORD_FIELD
+import org.example.data.utils.Constants.USERNAME_FIELD
 import org.example.logic.models.User
 import org.example.logic.utils.UserAlreadyExistsException
 import org.example.logic.utils.UserNotFoundException
@@ -22,7 +23,7 @@ class MongoAuthenticationDataSource(private val mongoClient: MongoCollection<Use
 
     override suspend fun saveUser(user: User) {
 
-        if (mongoClient.find(Filters.eq(USERNAME, user.username)).firstOrNull() != null)
+        if (mongoClient.find(Filters.eq(USERNAME_FIELD, user.username)).firstOrNull() != null)
             throw UserAlreadyExistsException()
         executeMongoOperation {
             mongoClient.insertOne(user.toUserDTO())
@@ -35,13 +36,14 @@ class MongoAuthenticationDataSource(private val mongoClient: MongoCollection<Use
         }
     }
 
-    override suspend fun login(username: String, hashedPassword: String): User {
+    override suspend fun loginWithPassword(username: String, hashedPassword: String): User {
         return executeMongoOperation {
             currentUser = mongoClient
                 .find(
                     Filters.and(
-                        Filters.eq(USERNAME, username),
-                        Filters.eq(PASSWORD, hashedPassword)
+                        Filters.eq(USERNAME_FIELD, username),
+                        Filters.eq(AUTH_TYPE_FIELD, "password"),
+                        Filters.eq(PASSWORD_FIELD, hashedPassword)
                     )
                 )
                 .firstOrNull()?.toUser()

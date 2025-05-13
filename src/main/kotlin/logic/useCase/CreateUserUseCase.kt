@@ -13,7 +13,7 @@ class CreateUserUseCase(
     ): User {
 
         validation.validateCreateMateUsernameAndPasswordOrThrow(username, password)
-        return authenticationRepository.createUser(username, password)
+        return authenticationRepository.createUserWithPassword(username, password)
     }
 
 }

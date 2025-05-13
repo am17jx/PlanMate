@@ -5,7 +5,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-interface LocalTaskStateDataSource {
+interface LocalProjectStateDataSource {
     fun createProjectState(projectState: ProjectState): ProjectState
     fun updateProjectState(updatedTaskProjectState: ProjectState): ProjectState
     fun deleteProjectState(taskStateId: Uuid)

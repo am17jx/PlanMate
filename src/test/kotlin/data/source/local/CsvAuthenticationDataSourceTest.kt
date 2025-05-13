@@ -1,28 +1,30 @@
-package data.source
+package data.source.local
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import org.example.data.source.local.csv.CsvAuthenticationDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.utils.UserAlreadyExistsException
-import org.example.logic.utils.UserNotFoundException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CsvAuthenticationDataSourceTest {
     private lateinit var testFile: File
     private lateinit var expectedFile: File
     private lateinit var dataSource: CsvAuthenticationDataSource
 
-
-    private val user = User("testId", "testUsername", "fed3b61b26081849378080b34e693d2e", UserRole.USER)
-    private val testUsername = "testUsername"
-    private val testHashedPassword = "fed3b61b26081849378080b34e693d2e"
+    private val testUsername = "username"
+    private val testPassword = "password"
+    private val userId = Uuid.random()
+    private val user = User(userId, testUsername, UserRole.USER, User.AuthenticationMethod.Password(testPassword))
 
     @BeforeEach
     fun setup() {
@@ -39,65 +41,62 @@ class CsvAuthenticationDataSourceTest {
 
     @Test
     fun `saveUser should write user to file when user not exists`() {
-        expectedFile.writeText("id,username,password,USER")
+        expectedFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
 
-        dataSource.saveUser(User("id", "username", "password", UserRole.USER))
+        dataSource.saveUser(User(userId, "username", UserRole.USER, User.AuthenticationMethod.Password("password")))
 
-        assertThat(testFile.readText()).isEqualTo(expectedFile.readText())
+        Truth.assertThat(testFile.readText()).isEqualTo(expectedFile.readText())
     }
 
     @Test
     fun `saveUser should throw exception with type UserAlreadyExistsException when user enter username is exists before`() {
-
-        testFile.writeText("id,testUsername,password,USER")
+        testFile.writeText("${userId.toHexString()},testUsername,USER,PASSWORD,password")
 
         assertThrows<UserAlreadyExistsException> {
             dataSource.saveUser(
                 User(
-                    "testId",
+                    Uuid.random(),
                     "testUsername",
-                    "password",
-                    UserRole.USER
-                )
+                    UserRole.USER,
+                    User.AuthenticationMethod.Password("password")
+                ),
             )
         }
     }
 
-
     @Test
     fun `getAllUsers should return all users from file`() {
-        testFile.writeText("id,username,password,USER")
-        val expectedUser = User("id", "username", "password", UserRole.USER)
+        testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
+        val expectedUser = User(userId, "username", UserRole.USER, User.AuthenticationMethod.Password("password"))
 
         val users = dataSource.getAllUsers()
 
-        assertThat(users[0]).isEqualTo(expectedUser)
+        Truth.assertThat(users[0]).isEqualTo(expectedUser)
     }
 
     @Test
     fun `login should return user data when user enter username and password that exists in users data`() {
-        testFile.writeText("testId,testUsername,fed3b61b26081849378080b34e693d2e,USER")
+        testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
 
-        val result = dataSource.login(testUsername, testHashedPassword)
+        val result = dataSource.loginWithPassword(testUsername, testPassword)
 
-        assertThat(user).isEqualTo(result)
+        Truth.assertThat(user).isEqualTo(result)
     }
 
     @Test
     fun `getCurrentUser should return logged in user when user is logged in`() {
-        testFile.writeText("testId,testUsername,fed3b61b26081849378080b34e693d2e,USER")
-        dataSource.login(testUsername, testHashedPassword)
+        testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
+        dataSource.loginWithPassword(testUsername, testPassword)
 
         val result = dataSource.getCurrentUser()
 
-        assertThat(result).isEqualTo(user)
+        Truth.assertThat(result).isEqualTo(user)
     }
 
     @Test
     fun `getCurrentUser should return null when user is not logged in`() {
         val result = dataSource.getCurrentUser()
 
-        assertThat(result).isNull()
+        Truth.assertThat(result).isNull()
     }
-
 }

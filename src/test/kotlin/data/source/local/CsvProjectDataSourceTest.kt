@@ -13,13 +13,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.IOException
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class CsvProjectDataSourceTest {
     private lateinit var mockCsvReader: CSVReader
     private lateinit var mockCsvWriter: CSVWriter
     private lateinit var dataSource: CsvProjectDataSource
     private lateinit var testProjects: List<Project>
     private lateinit var testCsvLines: List<String>
+
+    private val projectId = Uuid.random()
+    private val projectId2 = Uuid.random()
 
     @BeforeEach
     fun setUp() {
@@ -29,16 +35,12 @@ class CsvProjectDataSourceTest {
         testProjects =
             listOf(
                 Project(
-                    id = "1",
-                    name = "Project 1",
-                    projectStateIds =listOf("6","4"),
-                    auditLogsIds = listOf("100"),
+                    id = projectId,
+                    name = "Project 1"
                 ),
                 Project(
-                    id = "2",
-                    name = "Project 2",
-                    projectStateIds = listOf("6","4"),
-                    auditLogsIds = listOf("200"),
+                    id = projectId2,
+                    name = "Project 2"
                 ),
             )
         testCsvLines = testProjects.toCsvLines()
@@ -55,18 +57,16 @@ class CsvProjectDataSourceTest {
 
         val allProjects = dataSource.getAllProjects()
         assertThat(allProjects).hasSize(2)
-        assertThat(allProjects[0].id).isEqualTo("1")
-        assertThat(allProjects[1].id).isEqualTo("2")
+        assertThat(allProjects[0].id).isEqualTo(projectId)
+        assertThat(allProjects[1].id).isEqualTo(projectId2)
     }
 
     @Test
     fun `createProject should adds the new project and saves to file`() {
         val newProject =
             Project(
-                id = "3",
-                name = "Project 3",
-                projectStateIds =listOf("6","4"),
-                auditLogsIds = listOf("300"),
+                id = projectId,
+                name = "Project 3"
             )
 
         val result = dataSource.createProject(newProject)
@@ -82,10 +82,8 @@ class CsvProjectDataSourceTest {
     fun `createProject should throws ProjectCreationFailedException when saving fails`() {
         val newProject =
             Project(
-                id = "3",
-                name = "Project 3",
-                projectStateIds = emptyList(),
-                auditLogsIds = emptyList(),
+                id = projectId,
+                name = "Project 3"
             )
         every { mockCsvWriter.writeLines(any()) } throws IOException()
 
@@ -98,10 +96,8 @@ class CsvProjectDataSourceTest {
     fun `updateProject should updates existing project and saves to file`() {
         val updatedProject =
             Project(
-                id = "1",
-                name = "Updated Project 1",
-                projectStateIds = listOf("6","4"),
-                auditLogsIds = listOf("100", "101"),
+                id = projectId,
+                name = "Updated Project 1"
             )
 
         val result = dataSource.updateProject(updatedProject)
@@ -116,10 +112,8 @@ class CsvProjectDataSourceTest {
     fun `updateProject should throws ProjectNotChangedException when saving fails`() {
         val updatedProject =
             Project(
-                id = "1",
-                name = "Updated Project 1",
-                projectStateIds = emptyList(),
-                auditLogsIds = emptyList(),
+                id = projectId,
+                name = "Updated Project 1"
             )
         every { mockCsvWriter.writeLines(any()) } throws IOException("Test exception")
 
@@ -130,14 +124,14 @@ class CsvProjectDataSourceTest {
 
     @Test
     fun `deleteProject should removes project and saves to file`() {
-        val projectIdToDelete = "1"
+        val projectIdToDelete = projectId
 
         dataSource.deleteProject(projectIdToDelete)
 
         verify { mockCsvWriter.writeLines(any()) }
         val allProjects = dataSource.getAllProjects()
         assertThat(allProjects).hasSize(1)
-        assertThat(allProjects[0].id).isEqualTo("2")
+        assertThat(allProjects[0].id).isEqualTo(projectId2)
     }
 
     @Test
@@ -145,19 +139,19 @@ class CsvProjectDataSourceTest {
         val result = dataSource.getAllProjects()
 
         assertThat(result).hasSize(2)
-        assertThat(result[0].id).isEqualTo("1")
+        assertThat(result[0].id).isEqualTo(projectId)
         assertThat(result[0].name).isEqualTo("Project 1")
-        assertThat(result[1].id).isEqualTo("2")
+        assertThat(result[1].id).isEqualTo(projectId2)
         assertThat(result[1].name).isEqualTo("Project 2")
     }
 
     @Test
     fun `getProjectById should returns correct project with the same id`() {
-        val projectId = "2"
+        val projectId = projectId2
 
         val result = dataSource.getProjectById(projectId)
 
-        assertThat(result?.id).isEqualTo("2")
+        assertThat(result?.id).isEqualTo(projectId)
         assertThat(result?.name).isEqualTo("Project 2")
     }
 }
