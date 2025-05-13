@@ -50,7 +50,6 @@ class ProjectCreationUI(
 
     companion object {
         const val BLANK_INPUT_EXCEPTION_MESSAGE = "Project name cannot be blank"
-        const val PROJECT_CREATION_FAILED_EXCEPTION_MESSAGE = "Failed to create project"
         const val PROJECT_NAME_LENGTH_EXCEPTION_MESSAGE = "Project name should not exceed 16 characters"
     }
 }
