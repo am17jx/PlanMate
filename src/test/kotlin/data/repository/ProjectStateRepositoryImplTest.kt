@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.*
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.example.data.repository.ProjectStateRepositoryImpl
 import org.example.data.source.remote.contract.RemoteProjectStateDataSource
 import org.example.logic.models.ProjectState
@@ -34,7 +34,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `createProjectState should return created project state when a new project state created`() = runBlocking {
+    fun `createProjectState should return created project state when a new project state created`() = runTest {
         
         coEvery { remoteDataSource.createProjectState(projectState) } returns projectState
 
@@ -47,7 +47,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `createProjectState should throws exception when remote source fails`(): Unit = runBlocking {
+    fun `createProjectState should throws exception when remote source fails`() = runTest {
         val exception = RuntimeException("Network error")
         coEvery { remoteDataSource.createProjectState(projectState) } throws exception
 
@@ -58,7 +58,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `updateProjectState should return updated project state when an old project state updated`() = runBlocking {
+    fun `updateProjectState should return updated project state when an old project state updated`() = runTest {
 
         coEvery { remoteDataSource.updateProjectState(projectState) } returns projectState
 
@@ -71,7 +71,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `updateProjectState should throws exception when remote source fails`(): Unit = runBlocking {
+    fun `updateProjectState should throws exception when remote source fails`()= runTest {
 
         val exception = RuntimeException("Network error")
         coEvery { remoteDataSource.updateProjectState(projectState) } throws exception
@@ -83,7 +83,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `deleteProjectState should call remote source when deleting a project state`() = runBlocking {
+    fun `deleteProjectState should call remote source when deleting a project state`() = runTest {
         
         val projectStateId = Uuid.random()
         coEvery { remoteDataSource.deleteProjectState(projectStateId) } returns Unit
@@ -96,7 +96,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `deleteProjectState should throws exception when remote source fails`(): Unit = runBlocking {
+    fun `deleteProjectState should throws exception when remote source fails`() = runTest {
         
         val projectStateId = Uuid.random()
         val exception = RuntimeException("Network error")
@@ -109,7 +109,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `getProjectStates should return list of project states`() = runBlocking {
+    fun `getProjectStates should return list of project states`() = runTest {
         
         val projectId = Uuid.random()
         val projectStates = listOf(projectState, projectState.copy(title = "RUN"))
@@ -124,7 +124,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `getProjectStates should return empty list when no states exist`() = runBlocking {
+    fun `getProjectStates should return empty list when no states exist`() = runTest {
         
         val projectId = Uuid.random()
         coEvery { remoteDataSource.getProjectStates(projectId) } returns emptyList()
@@ -137,7 +137,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `getProjectStateById should return project state when exists`() = runBlocking {
+    fun `getProjectStateById should return project state when exists`() = runTest {
         
         val projectStateId = Uuid.random()
         coEvery { remoteDataSource.getProjectStateById(projectStateId) } returns projectState
@@ -151,7 +151,7 @@ class ProjectStateRepositoryImplTest {
     }
 
     @Test
-    fun `getProjectStateById should return null when project state doesn't exist`() = runBlocking {
+    fun `getProjectStateById should return null when project state doesn't exist`() = runTest {
         
         val projectStateId = Uuid.random()
         coEvery { remoteDataSource.getProjectStateById(projectStateId) } returns null
