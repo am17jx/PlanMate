@@ -1,19 +1,15 @@
 package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.test.runTest
-import org.example.logic.models.Task
-import org.example.logic.models.User
-import org.example.logic.models.UserRole
+import mockdata.createTask
+import org.example.logic.models.AuditLog
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.UpdateTaskUseCase
 import org.example.logic.utils.TaskNotChangedException
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
+import org.example.logic.utils.TaskNotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -22,109 +18,64 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class UpdateTaskUseCaseTest {
+
     private lateinit var taskRepository: TaskRepository
     private lateinit var createAuditLogUseCase: CreateAuditLogUseCase
-    private lateinit var useCase: UpdateTaskUseCase
+    private lateinit var updateTaskUseCase: UpdateTaskUseCase
 
-    private val user = User(Uuid.random(), "Sarah", UserRole.USER, User.AuthenticationMethod.Password("password"))
+    private val taskId = Uuid.random()
 
     @BeforeEach
-    fun setup() {
-        createAuditLogUseCase = mockk(relaxed = true)
+    fun setUp() {
         taskRepository = mockk(relaxed = true)
-        useCase = UpdateTaskUseCase(taskRepository, createAuditLogUseCase)
+        createAuditLogUseCase = mockk(relaxed = true)
+        updateTaskUseCase = UpdateTaskUseCase(taskRepository, createAuditLogUseCase)
     }
 
     @Test
-    fun `should return updated task when task is modified`() =
-        runTest {
-            val id = Uuid.random()
-            val oldTask = Task(id, "Old", id, "u1", id, "", id)
-            val newTask = oldTask.copy(name = "Updated")
-            coEvery { taskRepository.getTaskById(id) } returns oldTask
-            coEvery { taskRepository.updateTask(newTask) } returns newTask
-            coEvery { createAuditLogUseCase.logCreation(any(), any(), any()) } returnsArgument 0
+    fun `should update task when changes detected and create audit log`() = runTest {
+        val existingTask = createTask(taskId, "Old Task")
+        val updatedTask = existingTask.copy(name = "New Task")
 
-            val result =
-                useCase(
-                    Task(
-                        id,
-                        "Updated",
-                        id,
-                        "u1",
-                        id,
-                        "",
-                        id,
-                    ),
-                )
+        coEvery { taskRepository.getTaskById(taskId) } returns existingTask
+        coEvery { taskRepository.updateTask(updatedTask) } returns updatedTask
 
-            assertThat(result.id, equalTo(newTask.id))
-            assertThat(result.name, equalTo(newTask.name))
+        val result = updateTaskUseCase(updatedTask)
 
-            coVerify { taskRepository.updateTask(newTask) }
-        }
+        assertThat(result).isEqualTo(updatedTask)
+        coVerify(exactly = 1) { createAuditLogUseCase.logUpdate(
+            entityType = AuditLog.EntityType.TASK,
+            entityId = taskId,
+            entityName = "New Task",
+            fieldChange = match { it.fieldName == "name" && it.oldValue == "Old Task" && it.newValue == "New Task" }
+        ) }
+    }
 
     @Test
-    fun `should throw TaskNotChangedException when task is not modified`() =
-        runTest {
-            val id = Uuid.random()
-            val task = Task(id, "Old", id, "u1", id, "", id)
-            val updatedTask = Task(id, "Old", id, "u1", id, "", id)
-            coEvery { taskRepository.getTaskById(any()) } returns task
+    fun `should throw TaskNotFoundException when task does not exist`() = runTest {
+        val updatedTask = createTask(taskId, "New Task")
+        coEvery { taskRepository.getTaskById(taskId) } returns null
 
-            assertThrows<TaskNotChangedException> {
-                useCase(
-                    updatedTask,
-                )
-            }
+        assertThrows<TaskNotFoundException> {
+            updateTaskUseCase(updatedTask)
         }
+
+        coVerify(exactly = 0) { taskRepository.updateTask(any()) }
+        coVerify(exactly = 0) { createAuditLogUseCase.logUpdate(any(), any(), any(), any()) }
+    }
 
     @Test
-    fun `should return updated task when only stateId is changed`() =
-        runTest {
-            val id = Uuid.random()
-            val stateId = Uuid.random()
-            val oldTask = Task(id, "Old", id, "u1", id, "", id)
-            val newTask = oldTask.copy(stateId = stateId)
-            coEvery { taskRepository.getTaskById(Uuid.random()) } returns oldTask
-            coEvery { taskRepository.updateTask(newTask) } returns newTask
+    fun `should throw TaskNotChangedException when task has no changes`() = runTest {
+        val existingTask = createTask(taskId, "Same Task")
+        val updatedTask = existingTask.copy() // No change
 
-            val result = useCase(newTask)
+        coEvery { taskRepository.getTaskById(taskId) } returns existingTask
 
-            assertThat(result.stateId, equalTo(stateId))
+        assertThrows<TaskNotChangedException> {
+            updateTaskUseCase(updatedTask)
         }
 
-    @Test
-    fun `should return updated task and create audit log when both name and stateId are changed`() =
-        runTest {
-            val id = Uuid.random()
-            val stateId = Uuid.random()
-            val oldTask = Task(id, "Old", id, "u1", id, "", id)
-            val newTask = oldTask.copy(name = "New Task", stateId = stateId)
-
-            coEvery { taskRepository.getTaskById(Uuid.random()) } returns oldTask
-            coEvery { taskRepository.updateTask(newTask) } returns newTask
-
-            val result =
-                useCase(newTask)
-
-            assertThat(result.id).isEqualTo(newTask.id)
-            assertThat(result.name).isEqualTo(newTask.name)
-        }
-
-    @Test
-    fun `should return updated task when user is logged in`() =
-        runTest {
-            val oldTask = Task(Uuid.random(), "Old", Uuid.random(), "u1", Uuid.random(), "", Uuid.random())
-            val newTask = oldTask.copy(name = "Updated Task", stateId = Uuid.random())
-
-            coEvery { taskRepository.getTaskById(Uuid.random()) } returns oldTask
-            coEvery { taskRepository.updateTask(newTask) } returns newTask
-
-            val result =
-                useCase(newTask)
-
-            assertThat(result.id).isEqualTo(newTask.id)
-            assertThat(result.name).isEqualTo(newTask.name)
-        }
+        coVerify(exactly = 0) { taskRepository.updateTask(any()) }
+        coVerify(exactly = 0) { createAuditLogUseCase.logUpdate(any(), any(), any(), any()) }
+    }
 }

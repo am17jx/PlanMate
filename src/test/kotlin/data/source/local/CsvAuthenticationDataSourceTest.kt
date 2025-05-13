@@ -40,7 +40,7 @@ class CsvAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `saveUser should write user to file when user not exists`() {
+    fun `should save user to file when user does not exist`() {
         expectedFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
 
         dataSource.saveUser(User(userId, "username", UserRole.USER, User.AuthenticationMethod.Password("password")))
@@ -49,7 +49,7 @@ class CsvAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `saveUser should throw exception with type UserAlreadyExistsException when user enter username is exists before`() {
+    fun `should throw UserAlreadyExistsException when user tries to save existing username`() {
         testFile.writeText("${userId.toHexString()},testUsername,USER,PASSWORD,password")
 
         assertThrows<UserAlreadyExistsException> {
@@ -65,7 +65,7 @@ class CsvAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `getAllUsers should return all users from file`() {
+    fun `should return all users when users exist in file`() {
         testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
         val expectedUser = User(userId, "username", UserRole.USER, User.AuthenticationMethod.Password("password"))
 
@@ -75,7 +75,7 @@ class CsvAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `login should return user data when user enter username and password that exists in users data`() {
+    fun `should return user when logging in with correct username and password`() {
         testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
 
         val result = dataSource.loginWithPassword(testUsername, testPassword)
@@ -84,7 +84,14 @@ class CsvAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `getCurrentUser should return logged in user when user is logged in`() {
+    fun `should throw NoSuchElementException when logging in with non-existing username`() {
+        assertThrows<NoSuchElementException> {
+            dataSource.loginWithPassword("non_existing_username", "any_password")
+        }
+    }
+
+    @Test
+    fun `should return logged in user when getCurrentUser is called after login`() {
         testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
         dataSource.loginWithPassword(testUsername, testPassword)
 
@@ -94,9 +101,19 @@ class CsvAuthenticationDataSourceTest {
     }
 
     @Test
-    fun `getCurrentUser should return null when user is not logged in`() {
+    fun `should return null when getCurrentUser is called without login`() {
         val result = dataSource.getCurrentUser()
 
         Truth.assertThat(result).isNull()
+    }
+
+    @Test
+    fun `should return null when logout is called after login`() {
+        testFile.writeText("${userId.toHexString()},username,USER,PASSWORD,password")
+        dataSource.loginWithPassword(testUsername, testPassword)
+
+        dataSource.logout()
+
+        Truth.assertThat(dataSource.getCurrentUser()).isNull()
     }
 }
