@@ -17,11 +17,9 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class TaskInformationUI(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
-    private val getStateNameUseCase: GetStateNameUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getEntityAuditLogsUseCase: GetEntityAuditLogsUseCase,
-    private val getProjectByIdUseCase: GetProjectByIdUseCase,
     private val getProjectStatesUseCase: GetProjectStatesUseCase,
     private val viewer: Viewer,
     private val reader: Reader,
@@ -34,8 +32,6 @@ class TaskInformationUI(
             while (isRunning) {
                 try {
                     val task = getTaskByIdUseCase(taskId)
-                    val stateName = getStateNameUseCase(taskId)
-                    val project = getProjectByIdUseCase(task.projectId)
                     val projectTests = getProjectStatesUseCase(task.projectId)
                     displayTaskDetails(task, task.stateName)
                     displayMenu()
@@ -195,11 +191,9 @@ class TaskInformationUI(
             TaskInformationUI(
                 getTaskByIdUseCase = getKoin().get(),
                 onNavigateBack = onNavigateBack,
-                getStateNameUseCase = getKoin().get(),
                 updateTaskUseCase = getKoin().get(),
                 deleteTaskUseCase = getKoin().get(),
                 getEntityAuditLogsUseCase = getKoin().get(),
-                getProjectByIdUseCase = getKoin().get(),
                 viewer = getKoin().get(),
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get(),
