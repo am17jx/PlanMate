@@ -20,7 +20,7 @@ class CreateNewProjectUiTest {
     private val viewerMock: Viewer = mockk(relaxed = true)
 
     @Test
-    fun `should return success message when project is created successfully`() {
+    fun `should return success message when project is created successfully` () {
         val projectName = "New Project"
         val project =
             Project(
@@ -36,7 +36,7 @@ class CreateNewProjectUiTest {
     }
 
     @Test
-    fun `should return error message when project name is blank`() {
+    fun `should return error message when project name is blank` () {
         every { readerMock.readString() } returns ""
         coEvery { createProjectUseCase(any()) } throws BlankInputException()
 
@@ -47,7 +47,7 @@ class CreateNewProjectUiTest {
     }
 
     @Test
-    fun `should return error message when project creation fails`() {
+    fun `should return error message when project creation fails` () {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws ProjectCreationFailedException()
 
@@ -58,7 +58,7 @@ class CreateNewProjectUiTest {
     }
 
     @Test
-    fun `should return error message when no user is logged in`() {
+    fun `should return error message when no user is logged in` () {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws NoLoggedInUserException()
 
@@ -69,7 +69,7 @@ class CreateNewProjectUiTest {
     }
 
     @Test
-    fun `should return error message when the user is unauthorized to create a project`() {
+    fun `should return error message when the user is unauthorized to create a project` () {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws UnauthorizedAccessException()
 
@@ -80,7 +80,7 @@ class CreateNewProjectUiTest {
     }
 
     @Test
-    fun `should return error message when there is an invalid audit input`() {
+    fun `should return error message when there is an invalid audit input` () {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws InvalidAuditInputException()
 
@@ -91,7 +91,7 @@ class CreateNewProjectUiTest {
     }
 
     @Test
-    fun `should return error message when an unexpected exception occurs`() {
+    fun `should return error message when an unexpected exception occurs` () {
         val exceptionMessage = "Unexpected error"
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws Exception(exceptionMessage)
