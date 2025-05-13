@@ -13,6 +13,6 @@ val repositoryModule =
         singleOf(::AuditLogRepositoryImpl) { bind<AuditLogRepository>() }
         singleOf(::TaskRepositoryImpl) { bind<TaskRepository>() }
         singleOf(::AuthenticationRepositoryImpl) { bind<AuthenticationRepository>() }
-        singleOf(::TaskStateRepositoryImpl) { bind<TaskStateRepository>() }
+        singleOf(::ProjectStateRepositoryImpl) { bind<ProjectStateRepository>() }
 
     }

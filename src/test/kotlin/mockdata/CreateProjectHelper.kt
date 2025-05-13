@@ -1,24 +1,28 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package mockdata
 
 import org.example.logic.models.Project
-import org.example.logic.models.State
+import org.example.logic.models.ProjectState
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 fun createProject(
-    id: String = "",
-    name: String = "",
-    states: List<State> = emptyList(),
-    auditLogsIds: List<String> = emptyList()
+    id: Uuid = Uuid.random(),
+    name: String = ""
 ) = Project(
     id = id,
     name = name,
-    tasksStatesIds = states,
-    auditLogsIds = auditLogsIds
 )
 
+@OptIn(ExperimentalUuidApi::class)
 fun createState(
-    id: String = "",
-    title: String = ""
-) = State(
+    id: Uuid = Uuid.random(),
+    title: String = "",
+    projectId: Uuid = Uuid.random()
+) = ProjectState(
     id = id,
-    title = title
+    title = title,
+    projectId = projectId
 )

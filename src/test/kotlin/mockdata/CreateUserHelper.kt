@@ -2,15 +2,18 @@ package mockdata
 
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 fun createUser(
-    id: String = "",
+    id: Uuid = Uuid.random(),
     username: String = "",
-    password: String = "",
-    role: UserRole = UserRole.ADMIN
+    role: UserRole = UserRole.ADMIN,
+    authMethod: User.AuthenticationMethod = User.AuthenticationMethod.Password("")
 ) = User(
     id = id,
     username = username,
-    password = password,
-    role = role
+    role = role,
+    authMethod = authMethod
 )

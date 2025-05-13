@@ -1,14 +1,10 @@
 package org.example.logic.useCase
 
-import kotlinx.datetime.Clock
-import org.example.logic.models.*
-import org.example.logic.repositries.AuditLogRepository
+import org.example.logic.models.AuditLog
+import org.example.logic.models.Project
+import org.example.logic.models.ProjectState
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.repositries.TaskStateRepository
-import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.ProjectCreationFailedException
-import org.example.logic.utils.formattedString
-import org.example.logic.utils.getCroppedId
+import org.example.logic.repositries.ProjectStateRepository
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -16,46 +12,35 @@ import kotlin.uuid.Uuid
 class CreateProjectUseCase(
     private val projectRepository: ProjectRepository,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
-    private val taskStateRepository: TaskStateRepository,
-){
+    private val projectStateRepository: ProjectStateRepository,
+    private val validation: Validation,
+    ){
     suspend operator fun invoke(projectName: String): Project {
-        checkInputValidation(projectName)
-
-        return createAndLogProject(projectName)
-    }
-
-    private suspend fun createAndLogProject(projectName: String): Project {
-        val projectId = Uuid.random().getCroppedId()
-        val audit = createAuditLogUseCase.logCreation(
-            entityId = projectId,
-            entityName = projectName,
-            entityType = AuditLog.EntityType.PROJECT
-        )
-        val newProject =
+        validation.validateProjectNameOrThrow(projectName)
+        return projectRepository.createProject(
             Project(
-                id = projectId,
-                name = projectName,
-                tasksStatesIds = getDefaultStates(),
-                auditLogsIds = listOf(audit.id),
+                name = projectName
             )
-
-        projectRepository.createProject(newProject)
-        return newProject
-    }
-
-    private suspend fun getDefaultStates() =
-        listOf(
-            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_TO_DO_STATE_NAME)),
-            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_IN_PROGRESS_STATE_NAME)),
-            taskStateRepository.createTaskState(State(Uuid.random().getCroppedId(), DEFAULT_DONE_STATE_NAME)),
-        ).map { it.id }
-
-    private fun checkInputValidation(projectName: String) {
-        when {
-            projectName.isBlank() -> throw BlankInputException()
-            projectName.length > 16 -> throw ProjectCreationFailedException()
+        ).also { project ->
+            createLog(project.id, projectName)
+            createDefaultStates(project.id)
         }
     }
+
+    private suspend fun createLog(projectId: Uuid, projectName: String) {
+        createAuditLogUseCase.logCreation(
+            entityId = projectId,
+            entityName = projectName,
+            entityType = AuditLog.EntityType.PROJECT,
+        )
+    }
+
+    private suspend fun createDefaultStates(projectId: Uuid) =
+        listOf(
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_TO_DO_STATE_NAME, projectId = projectId)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_IN_PROGRESS_STATE_NAME, projectId = projectId)),
+            projectStateRepository.createProjectState(ProjectState(title = DEFAULT_DONE_STATE_NAME, projectId = projectId)),
+        ).map { it.id }
 
     companion object {
         const val DEFAULT_TO_DO_STATE_NAME = "To Do"

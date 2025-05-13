@@ -7,7 +7,7 @@ interface LocalAuthenticationDataSource {
 
     fun getAllUsers(): List<User>
 
-    fun login(
+    fun loginWithPassword(
         username: String,
         hashedPassword: String,
     ): User

@@ -101,4 +101,11 @@ class AdminHomeUITest {
         assertThat(output).contains("Invalid input. Try again.")
         assertThat(navigateToBackCalled).isTrue()
     }
+
+    @Test
+    fun `should trigger Exit when choice is 0`() {
+        simulateInput("0\n")
+        assertThat(navigateToExitCalled).isTrue()
+    }
+
 }
