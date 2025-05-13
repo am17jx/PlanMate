@@ -1,14 +1,12 @@
 package presentation.screens
 
 import io.mockk.*
-import kotlinx.datetime.Clock
 import mockdata.createAuditLog
 import mockdata.createProject
 import mockdata.createTask
 import org.example.logic.models.AuditLog
-import org.example.logic.models.Task
 import org.example.logic.useCase.*
-import org.example.presentation.screens.TaskInformationUi
+import org.example.presentation.screens.TaskInformationUI
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import presentation.utils.TablePrinter
@@ -18,7 +16,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class TaskInformationUiTest {
+class TaskInformationUITest {
     private lateinit var getTaskByIdUseCase: GetTaskByIdUseCase
     private lateinit var getStateNameUseCase: GetStateNameUseCase
     private lateinit var updateTaskUseCase: UpdateTaskUseCase
@@ -28,7 +26,7 @@ class TaskInformationUiTest {
     private lateinit var getProjectStatesUseCase: GetProjectStatesUseCase
     private lateinit var viewer: Viewer
     private lateinit var reader: Reader
-    private lateinit var taskInformationUi: TaskInformationUi
+    private lateinit var taskInformationUi: TaskInformationUI
     private val tablePrinter = mockk<TablePrinter>(relaxed = true)
     private val ids = List(6) { Uuid.random() }
     private val sampleTask =
@@ -66,7 +64,7 @@ class TaskInformationUiTest {
         reader = mockk(relaxed = true)
 
 
-        taskInformationUi = TaskInformationUi(
+        taskInformationUi = TaskInformationUI(
             tablePrinter = tablePrinter,
             getTaskByIdUseCase = getTaskByIdUseCase,
             getStateNameUseCase = getStateNameUseCase,

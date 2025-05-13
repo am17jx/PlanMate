@@ -5,7 +5,7 @@ import io.mockk.verify
 import org.example.logic.models.Project
 import org.example.logic.useCase.CreateProjectUseCase
 import org.example.logic.utils.*
-import org.example.presentation.screens.CreateNewProjectUi
+import org.example.presentation.screens.ProjectCreationUI
 import org.junit.jupiter.api.Test
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
@@ -13,7 +13,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class CreateNewProjectUiTest {
+class ProjectCreationUITest {
     private val createProjectUseCase: CreateProjectUseCase = mockk(relaxed = true)
     private val onBackMock: () -> Unit = mockk(relaxed = true)
     private val readerMock: Reader = mockk(relaxed = true)
@@ -29,7 +29,7 @@ class CreateNewProjectUiTest {
             )
         coEvery { createProjectUseCase(projectName) } returns project
 
-        CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+        ProjectCreationUI(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -40,7 +40,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns ""
         coEvery { createProjectUseCase(any()) } throws BlankInputException()
 
-        CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+        ProjectCreationUI(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -51,7 +51,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws ProjectCreationFailedException()
 
-        CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+        ProjectCreationUI(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -62,7 +62,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws NoLoggedInUserException()
 
-        CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+        ProjectCreationUI(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -73,7 +73,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws UnauthorizedAccessException()
 
-        CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+        ProjectCreationUI(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -84,7 +84,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws InvalidAuditInputException()
 
-        CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+        ProjectCreationUI(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -96,7 +96,7 @@ class CreateNewProjectUiTest {
         every { readerMock.readString() } returns "Project Name"
         coEvery { createProjectUseCase(any()) } throws Exception(exceptionMessage)
 
-        CreateNewProjectUi(createProjectUseCase, onBackMock, readerMock, viewerMock)
+        ProjectCreationUI(createProjectUseCase, onBackMock, readerMock, viewerMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
