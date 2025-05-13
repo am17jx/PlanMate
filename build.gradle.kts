@@ -26,7 +26,6 @@ dependencies {
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-
 }
 
 tasks.test {
@@ -46,6 +45,25 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         html.required.set(true)
     }
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    exclude(
+                        "**/default/**",
+                        "**/di/**",
+                        "**/org/example/di/**",
+                        "/org/example/presentation/MainUiController",
+                        "**/org/example/presentation/navigation/**",
+                        "**/org/example/data/source/local/csv/utils/command/**",
+                        "**/data/source/remote/mongo/utils/**",
+                        "**/org/example/presentation/role/**",
+                        "**/org/example/presentation/**",
+                    )
+                }
+            },
+        ),
+    )
 }
 
 tasks.jacocoTestCoverageVerification {

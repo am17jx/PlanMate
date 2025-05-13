@@ -2,6 +2,7 @@ package logic.useCase
 
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import mockdata.createProject
@@ -25,6 +26,8 @@ class GetProjectStateNameUseCaseTest {
     private lateinit var getStateNameUseCase: GetStateNameUseCase
     private lateinit var projectStateRepository: ProjectStateRepository
     private val ids = List(3) { Uuid.random() }
+    private val taskId = Uuid.random()
+    private val stateId = Uuid.random()
     private val dummyTask = createTask(
         id = ids[1],
         name = "to do",
@@ -34,6 +37,7 @@ class GetProjectStateNameUseCaseTest {
         id = ids[2],
         title = "to do"
     )
+    private val projectId = Uuid.random()
 
     @BeforeEach
     fun setUp() {
@@ -75,4 +79,5 @@ class GetProjectStateNameUseCaseTest {
             getStateNameUseCase(taskId)
         }
     }
+
 }
