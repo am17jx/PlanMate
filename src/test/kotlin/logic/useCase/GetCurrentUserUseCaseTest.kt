@@ -30,13 +30,14 @@ class GetCurrentUserUseCaseTest {
     fun `should return current user when user is logged in`() =
         runTest {
             val user =
-                User(Uuid.random(), "fares", UserRole.USER, User.AuthenticationMethod.Password("f4556fd41d3s964s"))
+                User(Uuid.random(), "fares ", UserRole.USER, User.AuthenticationMethod.Password("f4556fd41d3s964s"))
             coEvery { authRepository.getCurrentUser() } returns user
 
             val result = getCurrentUserUseCaseTest()
 
             assertThat(result).isEqualTo(user)
         }
+
 
     @Test
     fun `should throw NoLoggedInUserException when user is not logged in`() =

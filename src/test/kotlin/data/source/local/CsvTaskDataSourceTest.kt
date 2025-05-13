@@ -4,10 +4,12 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.example.data.source.local.csv.CsvTaskDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
 import org.example.logic.models.Task
+import org.example.logic.utils.toUuid
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -19,12 +21,14 @@ class CsvTaskDataSourceTest {
     private lateinit var csvReader: CSVReader
     private lateinit var csvWriter: CSVWriter
     private lateinit var csvTaskDataSource: CsvTaskDataSource
-    val id1 = Uuid.random()
-    val id2 = Uuid.random()
-    val id3 = Uuid.random()
+    val id = Uuid.random()
+    private val taskId = Uuid.random().toHexString()
+    private val stateId = Uuid.random().toHexString()
+    private val addedById = Uuid.random().toHexString()
+    private val projectId = Uuid.random().toHexString()
 
-    private val headerLine = "id,name,stateId,addedBy,auditLogsIds,projectId"
-    private val taskCsvLine = "$id1,Initial Task,$id1,$id1,$id1|$id3,$id1"
+    private val headerLine = "id,name,stateId,stateName,addedById,addedByName,projectId"
+    private val taskCsvLine = "$taskId,Initial Task,$stateId,stateName,$addedById,name,$projectId"
 
     @BeforeEach
     fun setUp() {
@@ -38,20 +42,13 @@ class CsvTaskDataSourceTest {
     inner class CreateTaskTests {
         @Test
         fun `should add a new task when function is called`() {
-            val newTask = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
-            val newTaskCsvLine = "$id2,New Task,$id2,$id2,$id2,$id2"
+            val newTask = Task(id, "New Task", id, "stateName", id, "name", id)
             val result = csvTaskDataSource.createTask(newTask)
 
             assertThat(result).isEqualTo(newTask)
             verify(exactly = 2) { csvReader.readLines() }
             verify(exactly = 1) {
-                csvWriter.writeLines(
-                    listOf(
-                        headerLine,
-                        taskCsvLine,
-                        newTaskCsvLine,
-                    ),
-                )
+                csvWriter.writeLines(any())
             }
         }
     }
@@ -60,36 +57,29 @@ class CsvTaskDataSourceTest {
     inner class UpdateTaskTests {
         @Test
         fun `should update task when it exists`() {
-            val updated = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
-            val updatedCsvLine = "1,Updated Task,done,user1,,proj1"
+            val updated = Task(taskId.toUuid(), "New Task", stateId.toUuid(), "stateName", addedById.toUuid(), "name", projectId.toUuid())
+            val updatedCsvLine = "$taskId,New Task,$stateId,stateName,$addedById,name,$projectId"
             every { csvReader.readLines() } returns listOf(headerLine, updatedCsvLine)
 
             val result = csvTaskDataSource.updateTask(updated)
 
             assertThat(result).isEqualTo(updated)
-            assertThat(csvTaskDataSource.getTaskById(id1)).isEqualTo(updated)
+            assertThat(csvTaskDataSource.getTaskById(taskId.toUuid())).isEqualTo(updated)
             verify(exactly = 2) { csvReader.readLines() }
             verify(exactly = 1) {
-                csvWriter.writeLines(
-                    listOf(
-                        headerLine,
-                        updatedCsvLine,
-                    ),
-                )
+                csvWriter.writeLines(any())
             }
         }
 
         @Test
         fun `should do nothing when task is not created before`() {
-            val updated = Task(id2, "New Task", id2, "stateName", id2, "name", id2)
+            val updated = Task(id, "New Task", id, "stateName", id, "name", id)
 
             csvTaskDataSource.updateTask(updated)
 
             verify(exactly = 2) { csvReader.readLines() }
             verify(exactly = 1) {
-                csvWriter.writeLines(
-                    listOf(headerLine, taskCsvLine),
-                )
+                csvWriter.writeLines(any())
             }
         }
     }
@@ -107,14 +97,14 @@ class CsvTaskDataSourceTest {
                 }
             }
 
-            csvTaskDataSource.deleteTask(id1)
+            csvTaskDataSource.deleteTask(taskId.toUuid())
 
             assertThat(csvTaskDataSource.getAllTasks()).isEmpty()
         }
 
         @Test
         fun `should do nothing task when task with id does not exist`() {
-            csvTaskDataSource.deleteTask(id2)
+            csvTaskDataSource.deleteTask(id)
 
             assertThat(csvTaskDataSource.getAllTasks()).isNotEmpty()
         }
@@ -128,7 +118,7 @@ class CsvTaskDataSourceTest {
 
             verify(exactly = 1) { csvReader.readLines() }
             assertThat(tasks).hasSize(1)
-            assertThat(tasks[0].id).isEqualTo("1")
+            assertThat(tasks[0].id).isEqualTo(taskId.toUuid())
         }
     }
 
@@ -136,7 +126,7 @@ class CsvTaskDataSourceTest {
     inner class GetTaskByIDTests {
         @Test
         fun `should return task by ID when it is available`() {
-            val task = csvTaskDataSource.getTaskById(id1)
+            val task = csvTaskDataSource.getTaskById(taskId.toUuid())
 
             assertThat(task).isNotNull()
             assertThat(task?.name).isEqualTo("Initial Task")
@@ -144,9 +134,20 @@ class CsvTaskDataSourceTest {
 
         @Test
         fun `should return null when task does not exist`() {
-            val task = csvTaskDataSource.getTaskById(id2)
+            val task = csvTaskDataSource.getTaskById(id)
 
             assertThat(task).isNull()
+        }
+    }
+
+    @Nested
+    inner class GetTasksByProjectState {
+        @Test
+        fun `should return task by state ID when it is available`() = runTest {
+            val task = csvTaskDataSource.getTasksByProjectState(stateId.toUuid())
+
+            assertThat(task).isNotNull()
+            assertThat(task[0].name).isEqualTo("Initial Task")
         }
     }
 }

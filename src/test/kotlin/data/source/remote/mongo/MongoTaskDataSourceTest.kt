@@ -110,7 +110,7 @@ class MongoTaskDataSourceTest {
             coEvery { mongoClient.find<List<TaskDTO>>(filter = any(), any()) } returns findFlow
             coEvery { findFlow.firstOrNull() } returns testTaskDTOs
 
-            val result = mongoTaskDataSource.getTaskById(ids[1])
+            mongoTaskDataSource.getTaskById(ids[1])
 
 
             coVerify(exactly = 1) { mongoClient.find(filter = any()) }
@@ -122,7 +122,7 @@ class MongoTaskDataSourceTest {
             every { mongoClient.find<TaskDTO>(filter = any()) } returns findFlow
             coEvery { findFlow.firstOrNull() } returns testTaskDTOs[0]
 
-            val result = mongoTaskDataSource.getTaskById(ids[2])
+            mongoTaskDataSource.getTaskById(ids[2])
 
             coVerify(exactly = 1) { mongoClient.find(filter = any()) }
 
