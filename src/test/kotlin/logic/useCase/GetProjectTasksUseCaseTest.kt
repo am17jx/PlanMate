@@ -1,17 +1,17 @@
 package logic.useCase
 
-import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import mockdata.createTask
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
 import org.example.logic.useCase.GetProjectTasksUseCase
-import org.example.logic.utils.BlankInputException
+import org.example.logic.utils.NoTasksFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -19,11 +19,37 @@ import kotlin.uuid.Uuid
 class GetProjectTasksUseCaseTest {
     private lateinit var taskRepository: TaskRepository
     private lateinit var getProjectTasksUseCase: GetProjectTasksUseCase
-    private val ids = List(6) { Uuid.random() }
-    private val dummyTasks = listOf(
-        createTask(ids[1], "TaskName", projectId = ids[0]),
-        createTask(ids[2], "TaskName", projectId = ids[0]),
-        createTask(ids[3], "TaskName", projectId = ids[0]),
+
+    private val projectId = Uuid.random()
+    private val otherProjectId = Uuid.random()
+    private val tasks = listOf(
+        Task(
+            id = Uuid.random(),
+            name = "Task 1",
+            stateId = Uuid.random(),
+            stateName = "To Do",
+            projectId = projectId,
+            addedById = Uuid.random(),
+            addedByName = "User 1"
+        ),
+        Task(
+            id = Uuid.random(),
+            name = "Task 2",
+            stateId = Uuid.random(),
+            stateName = "In Progress",
+            projectId = projectId,
+            addedById = Uuid.random(),
+            addedByName = "User 1"
+        ),
+        Task(
+            id = Uuid.random(),
+            name = "Task 3",
+            stateId = Uuid.random(),
+            stateName = "Done",
+            projectId = otherProjectId,
+            addedById = Uuid.random(),
+            addedByName = "User 2"
+        )
     )
 
     @BeforeEach
@@ -32,17 +58,71 @@ class GetProjectTasksUseCaseTest {
         getProjectTasksUseCase = GetProjectTasksUseCase(taskRepository)
     }
 
-
     @Test
-    fun `should return a list of tasks for the given project id when they exist`() = runTest {
-        val projectId = ids[0]
-        coEvery { taskRepository.getAllTasks() } returns dummyTasks
+    fun `should return only tasks for the specified project when tasks exist`() = runTest {
+   
+        coEvery { taskRepository.getAllTasks() } returns tasks
 
+       
         val result = getProjectTasksUseCase(projectId)
 
-        assertThat(result).isNotEmpty()
-        result.forEach {
-            assertThat(it.projectId).isEqualTo(projectId)
+       
+        assertEquals(2, result.size)
+        result.forEach { task ->
+            assertEquals(projectId, task.projectId)
         }
+        coVerify(exactly = 1) { taskRepository.getAllTasks() }
+    }
+
+    @Test
+    fun `should return empty list when no tasks exist for the project`() = runTest {
+   
+        coEvery { taskRepository.getAllTasks() } returns tasks
+
+       
+        val result = getProjectTasksUseCase(Uuid.random())
+
+       
+        assertEquals(emptyList(), result)
+        coVerify(exactly = 1) { taskRepository.getAllTasks() }
+    }
+
+    @Test
+    fun `should return empty list when no tasks exist at all`() = runTest {
+   
+        coEvery { taskRepository.getAllTasks() } returns emptyList()
+
+       
+        val result = getProjectTasksUseCase(projectId)
+
+       
+        assertEquals(emptyList(), result)
+        coVerify(exactly = 1) { taskRepository.getAllTasks() }
+    }
+
+    @Test
+    fun `should propagate NoTasksFoundException from repository`() = runTest {
+   
+        coEvery { taskRepository.getAllTasks() } throws NoTasksFoundException()
+
+        
+        assertThrows<NoTasksFoundException> {
+            getProjectTasksUseCase(projectId)
+        }
+        coVerify(exactly = 1) { taskRepository.getAllTasks() }
+    }
+
+    @Test
+    fun `should handle repository runtime exceptions`() = runTest {
+   
+        val errorMessage = "Database connection failed"
+        coEvery { taskRepository.getAllTasks() } throws RuntimeException(errorMessage)
+
+       
+        val exception = assertThrows<RuntimeException> {
+            getProjectTasksUseCase(projectId)
+        }
+        assertEquals(errorMessage, exception.message)
+        coVerify(exactly = 1) { taskRepository.getAllTasks() }
     }
 }
