@@ -1,6 +1,8 @@
 package logic.useCase
 
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.example.logic.models.ProjectState
 import org.example.logic.models.Task
@@ -15,37 +17,29 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class UpdateProjectStateUseCaseTest {
+
     private lateinit var projectStateRepository: ProjectStateRepository
     private lateinit var getProjectStatesUseCase: GetProjectStatesUseCase
     private lateinit var createAuditLogUseCase: CreateAuditLogUseCase
     private lateinit var getTasksByProjectStateUseCase: GetTasksByProjectStateUseCase
     private lateinit var updateTaskUseCase: UpdateTaskUseCase
     private lateinit var validation: Validation
-    private lateinit var updateProjectStateUseCase: UpdateProjectStateUseCase
 
-    private val projectId = Uuid.random()
+    private lateinit var useCase: UpdateProjectStateUseCase
+
     private val stateId = Uuid.random()
-    private val newStateName = "New State Name"
-    private val oldStateName = "Old State Name"
-    private val oldProjectStates = listOf(
-        ProjectState(Uuid.random(), "State 1", projectId),
-        ProjectState(stateId, oldStateName, projectId),
-        ProjectState(Uuid.random(), "State 3", projectId)
-    )
-    private val tasks = listOf(
-        Task(Uuid.random(), "Task 1", stateId, oldStateName, projectId, "User 1", projectId),
-        Task(Uuid.random(), "Task 2", stateId, oldStateName, projectId, "User 2", projectId)
-    )
+    private val projectId = Uuid.random()
 
     @BeforeEach
     fun setUp() {
         projectStateRepository = mockk(relaxed = true)
-        getProjectStatesUseCase = mockk(relaxed = true)
+        getProjectStatesUseCase = mockk()
         createAuditLogUseCase = mockk(relaxed = true)
-        getTasksByProjectStateUseCase = mockk(relaxed = true)
+        getTasksByProjectStateUseCase = mockk()
         updateTaskUseCase = mockk(relaxed = true)
         validation = mockk(relaxed = true)
-        updateProjectStateUseCase = UpdateProjectStateUseCase(
+
+        useCase = UpdateProjectStateUseCase(
             projectStateRepository,
             getProjectStatesUseCase,
             createAuditLogUseCase,
@@ -56,30 +50,63 @@ class UpdateProjectStateUseCaseTest {
     }
 
     @Test
-    fun `should update project state and associated tasks when update is successful`() = runTest {
+    fun `should throw BlankInputException when state name is blank`() = runTest {
+        coEvery { validation.validateInputNotBlankOrThrow("") } throws BlankInputException()
 
-        every { validation.validateInputNotBlankOrThrow(newStateName) } just Runs
-        coEvery { getProjectStatesUseCase(projectId) } returns oldProjectStates
-        coEvery { getTasksByProjectStateUseCase(stateId) } returns tasks
-
-        updateProjectStateUseCase(newStateName, stateId, projectId)
-
-        coVerify { validation.validateInputNotBlankOrThrow(newStateName) }
-        coVerify { getProjectStatesUseCase(projectId) }
-        tasks.forEach { task ->
-            coVerify {
-                updateTaskUseCase(task.copy(stateName = newStateName))
-            }
+        assertThrows<BlankInputException> {
+            useCase("", stateId, projectId)
         }
+
+        coVerify(exactly = 0) { projectStateRepository.updateProjectState(any()) }
     }
 
     @Test
-    fun `should throw exception when newStateName is blank`() = runTest {
+    fun `should update all tasks state name if state is updated`() = runTest {
+        val oldStates = listOf(ProjectState(stateId, "Old State", projectId))
+        val tasks = listOf(
+            Task(Uuid.random(), "Task 1", projectId, "u1", stateId, "Old State", Uuid.random()),
+            Task(Uuid.random(), "Task 2", projectId, "u2", stateId, "Old State", Uuid.random())
+        )
 
-        every { validation.validateInputNotBlankOrThrow("") } throws BlankInputException()
+        coEvery { getProjectStatesUseCase(projectId) } returns oldStates
+        coEvery { getTasksByProjectStateUseCase(stateId) } returns tasks
+        coEvery { createAuditLogUseCase.logUpdate(any(), any(), any(), any()) } returns mockk()
 
-        assertThrows<BlankInputException> {
-            updateProjectStateUseCase("", stateId, projectId)
+        useCase("Updated State", stateId, projectId)
+
+        coVerify(exactly = 1) {
+            projectStateRepository.updateProjectState(
+                ProjectState(
+                    stateId,
+                    "Updated State",
+                    projectId
+                )
+            )
         }
+        coVerify(exactly = tasks.size) { updateTaskUseCase(match { it.stateName == "Updated State" }) }
     }
+
+    @Test
+    fun `should not update tasks if no tasks exist for state`() = runTest {
+        val oldStates = listOf(ProjectState(stateId, "Old State", projectId))
+
+        coEvery { getProjectStatesUseCase(projectId) } returns oldStates
+        coEvery { getTasksByProjectStateUseCase(stateId) } returns emptyList()
+        coEvery { createAuditLogUseCase.logUpdate(any(), any(), any(), any()) } returns mockk()
+
+        useCase("New State", stateId, projectId)
+
+        coVerify(exactly = 1) {
+            projectStateRepository.updateProjectState(
+                ProjectState(
+                    stateId,
+                    "New State",
+                    projectId
+                )
+            )
+        }
+        coVerify(exactly = 0) { updateTaskUseCase(any()) }
+    }
+
+
 }

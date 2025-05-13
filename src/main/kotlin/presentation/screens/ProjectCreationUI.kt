@@ -10,7 +10,7 @@ import presentation.utils.io.Viewer
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
-class CreateNewProjectUi(
+class ProjectCreationUI(
     private val createProjectUseCase: CreateProjectUseCase,
     private val onBack: () -> Unit,
     private val reader: Reader,

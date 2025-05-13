@@ -9,11 +9,7 @@ import mockdata.createAuditLog
 import org.example.data.source.local.csv.CsvAuditLogDataSource
 import org.example.data.source.local.csv.utils.CSVReader
 import org.example.data.source.local.csv.utils.CSVWriter
-import org.example.data.source.local.csv.utils.mapper.toCsvRow
 import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLog.ActionType
-import org.example.logic.models.AuditLog.EntityType
-import org.example.logic.utils.toUuid
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import kotlin.test.Test
