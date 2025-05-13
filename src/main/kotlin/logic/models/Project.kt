@@ -5,6 +5,8 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 data class Project(
-    val id: Uuid = Uuid.random(),
+    val id: String,
     val name: String,
+    val tasksStatesIds: List<String>,
+    val auditLogsIds: List<Uuid>
 )

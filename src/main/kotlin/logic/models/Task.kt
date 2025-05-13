@@ -5,11 +5,11 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 data class Task(
-    val id: Uuid = Uuid.random(),
+    val id: String,
     val name: String,
-    val stateId: Uuid,
+    val stateId: String,
     val stateName: String,
-    val addedById: Uuid,
-    val addedByName: String,
-    val projectId: Uuid
+    val addedBy: String,
+    val auditLogsIds: List<Uuid>,
+    val projectId: String
 )

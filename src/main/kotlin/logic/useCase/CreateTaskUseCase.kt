@@ -1,11 +1,14 @@
 package logic.useCase
 
+import kotlinx.datetime.*
 import org.example.logic.models.*
+import org.example.logic.repositries.AuditLogRepository
+import org.example.logic.repositries.ProjectRepository
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.repositries.ProjectStateRepository
+import org.example.logic.repositries.TaskStateRepository
 import org.example.logic.useCase.CreateAuditLogUseCase
 import org.example.logic.useCase.GetCurrentUserUseCase
-import org.example.logic.useCase.Validation
+import org.example.logic.useCase.GetStateNameUseCase
 import org.example.logic.utils.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -13,41 +16,69 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class CreateTaskUseCase(
     private val taskRepository: TaskRepository,
+    private val projectRepository: ProjectRepository,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
-    private val projectStateRepository: ProjectStateRepository,
-    private val validation: Validation,
-    ) {
+    private val taskStateRepository: TaskStateRepository
+) {
     suspend operator fun invoke(
         name: String,
-        projectId: Uuid,
-        stateId: Uuid,
+        projectId: String,
+        stateId: String,
     ): Task {
-        validation.validateInputNotBlankOrThrow(name)
-        val state = getState(stateId)
-        val currentUser = getCurrentUserUseCase()
-        return taskRepository.createTask(
+        verifyNoBlankInputs(name, projectId, stateId)
+        val state = verifyProjectAndStateExist(projectId, stateId)
+        return createAndLogTask(name, projectId, stateId, state.title, getCurrentUserUseCase())
+    }
+
+    private suspend fun createAndLogTask(
+        taskName: String,
+        projectId: String,
+        stateId: String,
+        stateName: String,
+        loggedInUser: User,
+    ): Task {
+        val taskId = Uuid.random().getCroppedId()
+        val taskAuditLog = createAuditLogUseCase.logCreation(
+            entityId = taskId,
+            entityName = taskName,
+            entityType = AuditLog.EntityType.TASK
+        )
+        val newTask =
             Task(
-                name = name,
+                id = taskId,
+                name = taskName,
                 stateId = stateId,
-                stateName = state.title,
+                stateName = stateName,
                 projectId = projectId,
-                addedById = currentUser.id,
-                addedByName = currentUser.username
+                addedBy = loggedInUser.id,
+                auditLogsIds = listOf(taskAuditLog.id),
             )
-        ).also { task ->
-            createAuditLogUseCase.logCreation(
-                entityId = task.id,
-                entityName = task.name,
-                entityType = AuditLog.EntityType.TASK,
-            )
+        taskRepository.createTask(newTask)
+        return newTask
+    }
+
+    private suspend fun verifyProjectAndStateExist(
+        projectId: String,
+        stateId: String,
+    ) : State{
+       return  projectRepository.getProjectById(projectId)?.let { project ->
+            if (project.tasksStatesIds.none { it == stateId }) throw TaskStateNotFoundException()
+           taskStateRepository.getTaskStateById(stateId)
+        } ?: throw ProjectNotFoundException()
+    }
+
+    private fun verifyNoBlankInputs(
+        name: String,
+        projectId: String,
+        stateId: String,
+    ) {
+        when {
+            name.isBlank() -> throw BlankInputException()
+            projectId.isBlank() -> throw BlankInputException()
+            stateId.isBlank() -> throw BlankInputException()
         }
     }
 
-    private suspend fun getState(
-        stateId: Uuid,
-    ): ProjectState = projectStateRepository.getProjectStateById(stateId).takeIf {
-            it != null
-        } ?: throw TaskStateNotFoundException()
 
 }

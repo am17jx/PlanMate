@@ -7,21 +7,38 @@ import org.example.data.utils.Constants.ProjectParsingKeys.ID_INDEX
 import org.example.data.utils.Constants.ProjectParsingKeys.NAME_INDEX
 import org.example.data.utils.Constants.ProjectParsingKeys.STATES_INDEX
 import org.example.logic.models.Project
-import org.example.logic.utils.toUuid
+import org.example.logic.models.State
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 fun Project.toCsvLine(): String =
-    "${id.toHexString()}," + name
+    "$id," +
+        "$name," +
+        "[${tasksStatesIds.joinToString(",")}]," +
+        "[${auditLogsIds.joinToString(",")}]"
 
 fun String.toProject(): Project {
     val segments = this.parsedSegments()
 
-    if (segments.size < 2) throw IllegalArgumentException("Input string doesn't have enough segments: $this")
+    if (segments.size < 4) throw IllegalArgumentException("Input string doesn't have enough segments: $this")
 
     return Project(
-        id = segments[ID_INDEX].trim().toUuid(),
+        id = segments[ID_INDEX],
         name = segments[NAME_INDEX],
+        tasksStatesIds =
+            segments[STATES_INDEX]
+                .trim('[', ']')
+                .takeIf { it.isNotBlank() }
+                ?.split(",")
+                ?.map { it.trim() }
+                ?: emptyList(),
+        auditLogsIds =
+            segments[AUDIT_LOGS_IDS_INDEX]
+                .trim('[', ']')
+                .takeIf { it.isNotBlank() }
+                ?.split(",")
+                ?.map { Uuid.parse(it.trim()) }
+                ?: emptyList(),
     )
 }
 

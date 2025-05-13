@@ -1,134 +1,177 @@
-package org.example.logic.useCase.updateProject
+package logic.useCase
 
-import io.mockk.*
+import com.google.common.truth.Truth.assertThat
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import io.mockk.spyk
 import kotlinx.coroutines.test.runTest
-import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLog.FieldChange.Companion.detectChanges
-import org.example.logic.models.Project
+import mockdata.createAuditLog
+import mockdata.createProject
+import mockdata.createState
+import mockdata.createUser
+import org.example.logic.models.UserRole
+import org.example.logic.repositries.AuditLogRepository
+import org.example.logic.repositries.AuthenticationRepository
 import org.example.logic.repositries.ProjectRepository
-import org.example.logic.useCase.CreateAuditLogUseCase
-import org.example.logic.useCase.Validation
-import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.ProjectNotChangedException
-import org.example.logic.utils.ProjectNotFoundException
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import org.example.logic.repositries.TaskRepository
+import org.example.logic.useCase.GetCurrentUserUseCase
+import org.example.logic.useCase.GetProjectTasksUseCase
+import org.example.logic.useCase.updateProject.UpdateProjectUseCase
+import org.example.logic.utils.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
-@OptIn(ExperimentalUuidApi::class)
 class UpdateProjectUseCaseTest {
+    private lateinit var updateProjectUseCase: UpdateProjectUseCase
+    private lateinit var projectRepository: ProjectRepository
+    private lateinit var auditLogRepository: AuditLogRepository
+    private lateinit var getProjectTasksUseCase: GetProjectTasksUseCase
+    private lateinit var taskRepository: TaskRepository
+    private lateinit var currentUserUseCase: GetCurrentUserUseCase
 
-    private lateinit var useCase: UpdateProjectUseCase
-    private lateinit var repo: ProjectRepository
-    private lateinit var auditLogUC: CreateAuditLogUseCase
-    private lateinit var validation: Validation
-
-    @BeforeTest
+    @BeforeEach
     fun setup() {
-        repo = mockk(relaxed = true)
-        auditLogUC = mockk(relaxed = true)
-        validation = mockk(relaxed = true)
+        projectRepository = mockk(relaxed = true)
+        auditLogRepository = mockk(relaxed = true)
+        auditLogRepository = spyk<AuditLogRepository>()
+        projectRepository = mockk(relaxed = true)
+        getProjectTasksUseCase = mockk(relaxed = true)
+        taskRepository = mockk(relaxed = true)
+        currentUserUseCase = mockk(relaxed = true)
+        updateProjectUseCase = UpdateProjectUseCase(
+            projectRepository, auditLogRepository,currentUserUseCase)
+    }
 
-        useCase = UpdateProjectUseCase(
-            projectRepository = repo,
-            createAuditLogUseCase = auditLogUC,
-            validation = validation
+    @Test
+    fun `should throw BlankInputException when project name is empty`() = runTest {
+        val updatedProject = createProject(name = "")
+
+        assertThrows<BlankInputException> {
+            updateProjectUseCase(updatedProject)
+        }
+    }
+
+    @Test
+    fun `should throws ProjectNotFoundException when project does not exist`() = runTest {
+        val updatedProject = createProject(name = "updated project")
+        coEvery { currentUserUseCase() } returns createUser(role = UserRole.ADMIN)
+        coEvery { projectRepository.getProjectById(updatedProject.id) } throws ProjectNotFoundException()
+
+        assertThrows<ProjectNotFoundException> {
+            updateProjectUseCase(updatedProject)
+        }
+    }
+
+    @Test
+    fun `should throws ProjectNotChangedException when audit updating project log return exception`() = runTest {
+        val updatedProject = createProject(name = "Plan")
+        coEvery { currentUserUseCase() } returns createUser(role = UserRole.ADMIN)
+        coEvery { projectRepository.getProjectById(updatedProject.id) } returns createProject()
+        coEvery { auditLogRepository.createAuditLog(any()) } throws ProjectNotChangedException()
+
+        assertThrows<ProjectNotChangedException> {
+            updateProjectUseCase(updatedProject)
+        }
+    }
+
+    @Test
+    fun `should throw NoLoggedInUserException when no user is logged in`() = runTest {
+        val updatedProject = createProject(name = "PlanMate")
+        coEvery { currentUserUseCase() } throws NoLoggedInUserException()
+
+        assertThrows<NoLoggedInUserException> {
+            updateProjectUseCase(updatedProject)
+        }
+    }
+
+    @Test
+    fun `should throw ProjectNotFoundException when project does not exist`() = runTest {
+        val updatedProject = createProject(name = "Updated")
+        coEvery { currentUserUseCase() } returns createUser(role = UserRole.ADMIN)
+        coEvery { projectRepository.getProjectById(updatedProject.id) } throws ProjectNotFoundException()
+
+        assertThrows<ProjectNotFoundException> {
+            updateProjectUseCase(updatedProject)
+        }
+    }
+
+    @Test
+    fun `should update project successfully when only name is changed`() = runTest {
+        val originalProject = createProject(id = "1", "plans mate")
+        val updatedProject = createProject(id = "1", "plan mate")
+        val currentUser = createUser(role = UserRole.ADMIN)
+        val auditLog = createAuditLog("2", userId = currentUser.id)
+        coEvery { currentUserUseCase() } returns currentUser
+        coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
+        coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
+
+        val result = updateProjectUseCase(updatedProject)
+
+        assertThat(result.name).isEqualTo(updatedProject.name)
+    }
+
+    @Test
+    fun `should update project successfully when a state is updated`() = runTest {
+        val originalProject = createProject(
+            id = "1",
+            name = "new",
+            states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
         )
-    }
-
-    @Test
-    fun `when name blank then throws BlankInputException`() = runTest {
-        // arrange
-        val id = Uuid.random()
-        val updated = Project(id = id, name = "")
-        every { validation.validateInputNotBlankOrThrow("") } throws BlankInputException()
-
-        // act & assert
-        assertFailsWith<BlankInputException> {
-            useCase(updated)
-        }
-    }
-
-    @Test
-    fun `when project not found then throws ProjectNotFoundException`() = runTest {
-        // arrange
-        val id = Uuid.random()
-        val updated = Project(id = id, name = "New name")
-        every { validation.validateInputNotBlankOrThrow("New name") } just Runs
-        coEvery { repo.getProjectById(id) } returns null
-
-        // act & assert
-        assertFailsWith<ProjectNotFoundException> {
-            useCase(updated)
-        }
-    }
-
-    @Test
-    fun `when no change in name then throws ProjectNotChangedException`() = runTest {
-        // arrange
-        val id = Uuid.random()
-        val original = Project(id = id, name = "Same")
-        val updated = Project(id = id, name = "Same")
-        every { validation.validateInputNotBlankOrThrow("Same") } just Runs
-        coEvery { repo.getProjectById(id) } returns original
-
-        // act & assert
-        assertFailsWith<ProjectNotChangedException> {
-            useCase(updated)
-        }
-    }
-
-    @Test
-    fun `when name changed then calls update and logs each field change`() = runTest {
-        // arrange
-        val id = Uuid.random()
-        val original = Project(id = id, name = "Old")
-        val updated = Project(id = id, name = "New")
-
-        // لا حاجة لموك detectChanges لأنه تنفيذ حقيقي
-        val changes = listOf(
-            AuditLog.FieldChange(fieldName = "name", oldValue = "Old", newValue = "New")
+        val updatedProject = createProject(
+            id = "1",
+            name = "new",
+            states = listOf(createState(title = "ToDO"), createState(title = "InReview"), createState(title = "Done"))
         )
-        // ننفذ الفحص الحقيقي على الكائنين
-        assertEquals(changes, updated.detectChanges(original))
+        val currentUser = createUser(role = UserRole.ADMIN)
+        val auditLog = createAuditLog("2", userId = currentUser.id)
+        coEvery { currentUserUseCase() } returns currentUser
+        coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
+        coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
 
-        // ضبط الموكات
-        every { validation.validateInputNotBlankOrThrow("New") } just Runs
-        coEvery { repo.getProjectById(id) } returns original
-        coEvery { repo.updateProject(updated) } returns updated
-        coEvery {
-            auditLogUC.logUpdate(
-                entityType = AuditLog.EntityType.PROJECT,
-                entityId = id,
-                entityName = "New",
-                fieldChange = changes[0]
-            )
-        } returns AuditLog(
-            userId = Uuid.random(),
-            userName = "tester",
-            entityId = id,
-            entityType = AuditLog.EntityType.PROJECT,
-            entityName = "New",
-            actionType = AuditLog.ActionType.UPDATE,
-            fieldChange = changes[0]
+        val result = updateProjectUseCase(updatedProject)
+
+        assertThat(result.name).isEqualTo(updatedProject.name)
+        coVerify { auditLogRepository.createAuditLog(any()) }
+    }
+
+    @Test
+    fun `should update project successfully when a state is added`() = runTest {
+        val originalProject = createProject(id = "1", name = "new", states = listOf())
+        val updatedProject = createProject(id = "1", name = "new", states = listOf(createState(title = "ToDO")))
+        val currentUser = createUser(role = UserRole.ADMIN)
+        val auditLog = createAuditLog("2", userId = currentUser.id)
+        coEvery { currentUserUseCase() } returns currentUser
+        coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
+        coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
+
+        val result = updateProjectUseCase(updatedProject)
+
+        assertThat(result.name).isEqualTo(updatedProject.name)
+        coVerify { auditLogRepository.createAuditLog(any()) }
+    }
+
+    @Test
+    fun `should update project successfully when a state is deleted`() = runTest {
+        val originalProject = createProject(
+            id = "1",
+            name = "new",
+            states = listOf(createState(title = "ToDO"), createState(title = "InProgress"), createState(title = "Done"))
         )
+        val updatedProject = createProject(
+            id = "1", name = "new", states = listOf(createState(title = "ToDO"), createState(title = "InReview"))
+        )
+        val currentUser = createUser(role = UserRole.ADMIN)
+        val auditLog = createAuditLog("2", userId = currentUser.id)
+        coEvery { currentUserUseCase() } returns currentUser
+        coEvery { projectRepository.getProjectById(updatedProject.id) } returns originalProject
+        coEvery { auditLogRepository.createAuditLog(createAuditLog()) } returns auditLog
 
-        // act
-        val result = useCase(updated)
+        val result = updateProjectUseCase(updatedProject)
 
-        // assert
-        assertEquals("New", result.name)
-        coVerify(exactly = 1) { repo.updateProject(updated) }
-        coVerify(exactly = 1) {
-            auditLogUC.logUpdate(
-                entityType = AuditLog.EntityType.PROJECT,
-                entityId = id,
-                entityName = "New",
-                fieldChange = changes[0]
-            )
-        }
+        assertThat(result.name).isEqualTo(updatedProject.name)
+        coVerify { auditLogRepository.createAuditLog(any()) }
+
     }
 }

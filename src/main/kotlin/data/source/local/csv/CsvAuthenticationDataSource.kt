@@ -7,9 +7,7 @@ import org.example.data.source.local.csv.utils.mapper.toCsvRow
 import org.example.data.source.local.csv.utils.mapper.toUsers
 import org.example.logic.models.User
 import org.example.logic.utils.UserAlreadyExistsException
-import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalUuidApi::class)
 class CsvAuthenticationDataSource(
     private val csvWriter: CSVWriter,
     private val csvReader: CSVReader,
@@ -26,15 +24,15 @@ class CsvAuthenticationDataSource(
 
     override fun getAllUsers(): List<User> = csvReader.readLines().toUsers()
 
-    override fun loginWithPassword(
+    override fun login(
         username: String,
         hashedPassword: String,
     ): User {
         try {
             return getAllUsers()
-                .first { it.username == username  }
+                .first { it.username == username && it.password == hashedPassword }
                 .also { currentUser = it }
-                .let { User(it.id, it.username, it.role, authMethod = User.AuthenticationMethod.Password(hashedPassword)) }
+                .let { User(it.id, it.username, it.password, it.role) }
         } catch (e: NoSuchElementException) {
             throw NoSuchElementException()
         }

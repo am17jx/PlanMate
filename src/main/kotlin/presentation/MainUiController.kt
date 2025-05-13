@@ -12,9 +12,7 @@ import org.koin.java.KoinJavaComponent.getKoin
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
 import kotlin.system.exitProcess
-import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalUuidApi::class)
 class MainUiController(
     private val navigationController: NavigationController,
     private val viewer: Viewer,
@@ -69,7 +67,7 @@ class MainUiController(
             }
 
             is Route.CreateProjectRoute -> {
-                ProjectCreationUI(
+                CreateNewProjectUi(
                     createProjectUseCase = getKoin().get(),
                     onBack = { navigationController.navigateTo(Route.AdminHomeRoute) },
                     reader = reader,
@@ -78,7 +76,7 @@ class MainUiController(
             }
 
             is Route.ShowProjectTasksRoute -> {
-                ProjectTasksUI.create(
+                ShowProjectTasksUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
                     onNavigateToTaskDetails = {
@@ -88,8 +86,8 @@ class MainUiController(
             }
 
             is Route.CreateUserRoute -> {
-                UserCreationUI(
-                    createUserUseCase = getKoin().get(),
+                CreateUserUi(
+                    createMateUseCase = getKoin().get(),
                     reader = reader,
                     viewer = viewer,
                     onBack = { navigationController.popBackStack() },
@@ -97,14 +95,14 @@ class MainUiController(
             }
 
             is Route.ProjectStatusRoute -> {
-                ProjectStateUI.create(
+                ProjectStatusUI.create(
                     projectId = route.projectId,
                     onNavigateBack = navigationController::popBackStack,
                 )
             }
 
             is Route.TaskDetailsRoute -> {
-                TaskInformationUI.create(
+                ShowTaskInformation.create(
                     onNavigateBack = navigationController::popBackStack
 
                 ).showTaskInformation(taskId = route.taskId)
