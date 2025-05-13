@@ -1,12 +1,11 @@
 package org.example.presentation.screens
 
 import kotlinx.coroutines.runBlocking
-import org.example.logic.useCase.*
 import org.example.logic.useCase.CreateProjectStateUseCase
 import org.example.logic.useCase.DeleteProjectStateUseCase
+import org.example.logic.useCase.GetProjectStatesUseCase
 import org.example.logic.useCase.UpdateProjectStateUseCase
 import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.InvalidInputException
 import org.example.logic.utils.ProjectNotFoundException
 import org.example.logic.utils.TaskStateNotFoundException
 import org.koin.java.KoinJavaComponent.getKoin
@@ -51,6 +50,7 @@ class ProjectStateUI(
                     onNavigateBack()
                     return
                 }
+
                 null -> viewer.display("Invalid input. Please try again.".red())
             }
         }
@@ -64,10 +64,11 @@ class ProjectStateUI(
         viewer.display("Select an option:")
     }
 
-    private fun showProjectStates() = runBlocking {
-        try {
-            val projectStates = getProjectStatesUseCase(projectId)
-            viewer.display("\n========== Project States ==========".cyan())
+    private fun showProjectStates() =
+        runBlocking {
+            try {
+                val projectStates = getProjectStatesUseCase(projectId)
+                viewer.display("\n========== Project States ==========".cyan())
 
                 val indexList = projectStates.indices.map { (it + 1).toString() }
                 val stateTitles = projectStates.map { it.title }
@@ -78,8 +79,6 @@ class ProjectStateUI(
                 )
             } catch (e: ProjectNotFoundException) {
                 viewer.display("Failed to fetch project states: ${e.message}")
-            } catch (e: InvalidInputException) {
-                viewer.display("Failed to fetch project states: Project ID is invalid")
             } catch (e: Exception) {
                 viewer.display("Failed to fetch project states: ${e.message}".red())
             }
@@ -101,9 +100,10 @@ class ProjectStateUI(
             }
         }
 
-    private fun updateProjectState() = runBlocking {
-        try {
-            val projectStates = getProjectStatesUseCase(projectId)
+    private fun updateProjectState() =
+        runBlocking {
+            try {
+                val projectStates = getProjectStatesUseCase(projectId)
 
                 viewer.display("Enter the index of the state to update:".cyan())
                 val input = reader.readString()
@@ -131,9 +131,10 @@ class ProjectStateUI(
             }
         }
 
-    private fun deleteProjectState() = runBlocking {
-        try {
-            val projectStates = getProjectStatesUseCase(projectId)
+    private fun deleteProjectState() =
+        runBlocking {
+            try {
+                val projectStates = getProjectStatesUseCase(projectId)
 
                 viewer.display("Enter the index of the state to delete:".cyan())
                 val input = reader.readString()
@@ -149,8 +150,6 @@ class ProjectStateUI(
                 viewer.display("State deleted successfully.".green())
             } catch (e: ProjectNotFoundException) {
                 viewer.display("Failed to delete state: Project not found")
-            } catch (e: BlankInputException) {
-                viewer.display("Input cannot be blank")
             } catch (e: Exception) {
                 viewer.display("Failed to delete state: ${e.message}".red())
             }
@@ -159,9 +158,9 @@ class ProjectStateUI(
     companion object {
         fun create(
             projectId: Uuid,
-            onNavigateBack: () -> Unit
-        ): ProjectStateUI {
-            return ProjectStateUI(
+            onNavigateBack: () -> Unit,
+        ): ProjectStateUI =
+            ProjectStateUI(
                 projectId = projectId,
                 onNavigateBack = onNavigateBack,
                 createProjectStateUseCase = getKoin().get(),
@@ -172,7 +171,6 @@ class ProjectStateUI(
                 reader = getKoin().get(),
                 tablePrinter = getKoin().get(),
             )
-        }
     }
 
     enum class StatusMenuOption(
