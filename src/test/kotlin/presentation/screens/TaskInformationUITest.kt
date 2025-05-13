@@ -67,14 +67,12 @@ class TaskInformationUITest {
         taskInformationUi = TaskInformationUI(
             tablePrinter = tablePrinter,
             getTaskByIdUseCase = getTaskByIdUseCase,
-            getStateNameUseCase = getStateNameUseCase,
             updateTaskUseCase = updateTaskUseCase,
             deleteTaskUseCase = deleteTaskUseCase,
             getEntityAuditLogsUseCase = getEntityAuditLogsUseCase,
             getProjectStatesUseCase = getProjectStatesUseCase,
             viewer = viewer,
             reader = reader,
-            getProjectByIdUseCase = getProjectByIdUseCase,
             onNavigateBack = {}
         )
     }
