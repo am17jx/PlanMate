@@ -2,24 +2,23 @@ package org.example.logic.useCase
 
 import org.example.logic.models.AuditLog
 import org.example.logic.repositries.TaskRepository
+import org.example.logic.utils.TaskDeletionFailedException
+import org.example.logic.utils.formattedString
+import org.example.logic.utils.getCroppedId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 class DeleteTaskUseCase(
     private val taskRepository: TaskRepository,
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val createAuditLogUseCase: CreateAuditLogUseCase,
 ) {
-    suspend operator fun invoke(taskId: Uuid) {
+    suspend operator fun invoke(taskId: String) {
         getTaskByIdUseCase(taskId).let { task ->
-            taskRepository.deleteTask(taskId).also {
-                createAuditLogUseCase.logDeletion(
-                    entityType = AuditLog.EntityType.TASK,
-                    entityId = task.id,
-                    entityName = task.name,
-                )
-            }
+            createAuditLogUseCase.logDeletion(
+                entityType = AuditLog.EntityType.PROJECT, entityId = task.id, entityName = task.name
+            )
+            taskRepository.deleteTask(taskId)
         }
     }
 }

@@ -46,26 +46,6 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         html.required.set(true)
     }
-    classDirectories.setFrom(
-        files(
-            classDirectories.files.map {
-                fileTree(it) {
-                    exclude(
-                        "**/default/**",
-                        "**/di/**",
-                        "**/org/example/di/**",
-                        "**/presentation/utils/**",
-                        "/org/example/presentation/MainUiController",
-                        "**/org/example/presentation/navigation/**",
-                        "**/org/example/data/source/local/csv/utils/command/**",
-                        "**/data/source/remote/mongo/utils/**",
-                        "**/org/example/presentation/role/**",
-                        "**/org/example/presentation/**",
-                    )
-                }
-            },
-        ),
-    )
 }
 
 tasks.jacocoTestCoverageVerification {

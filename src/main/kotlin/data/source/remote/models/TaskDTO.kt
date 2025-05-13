@@ -6,7 +6,7 @@ data class TaskDTO(
     val name: String,
     val stateId: String,
     val stateName: String,
-    val addedById: String,
-    val addedByName: String,
+    val addedBy: String,
+    val auditLogsIds: List<String>,
     val projectId: String
 )

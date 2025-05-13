@@ -5,12 +5,12 @@ import org.example.logic.models.User
 interface AuthenticationRepository {
     suspend fun getCurrentUser(): User?
 
-    suspend fun createUserWithPassword(
+    suspend fun createMate(
         username: String,
         password: String,
     ): User
 
-    suspend fun loginWithPassword(
+    suspend fun login(
         username: String,
         password: String,
     ): User

@@ -1,24 +1,19 @@
 package mockdata
 
 import org.example.logic.models.Task
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 fun createTask(
-    id: Uuid = Uuid.random(),
+    id: String = "",
     name: String = "",
-    addedById: Uuid = Uuid.random(),
-    addedByName: String = "",
-    projectId: Uuid = Uuid.random(),
-    stateId: Uuid = Uuid.random(),
-    stateName: String = "",
+    addedBy: String = "",
+    projectId: String = "",
+    stateId: String = "",
+    auditLogsIds: List<String> = emptyList()
 ) = Task(
     id = id,
     name = name,
     stateId = stateId,
-    addedById = addedById,
-    addedByName = addedByName,
-    projectId = projectId,
-    stateName = stateName
+    addedBy = addedBy,
+    auditLogsIds = auditLogsIds,
+    projectId = projectId
 )

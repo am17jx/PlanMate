@@ -7,7 +7,7 @@ interface RemoteAuthenticationDataSource {
 
     suspend fun getAllUsers(): List<User>
 
-    suspend fun loginWithPassword(
+    suspend fun login(
         username: String,
         hashedPassword: String,
     ): User
