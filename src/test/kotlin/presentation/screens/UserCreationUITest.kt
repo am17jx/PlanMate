@@ -17,7 +17,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class CreateUserUiTest {
+class UserCreationUITest {
     private val createUserUseCase: CreateUserUseCase = mockk(relaxed = true)
     private val readerMock: Reader = mockk(relaxed = true)
     private val viewerMock: Viewer = mockk(relaxed = true)
@@ -37,7 +37,7 @@ class CreateUserUiTest {
         every { readerMock.readString() } returns username andThen password
         coEvery { createUserUseCase(username, password) } returns user
 
-        CreateUserUi(createUserUseCase, readerMock, viewerMock, onBackMock)
+        UserCreationUI(createUserUseCase, readerMock, viewerMock, onBackMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -48,7 +48,7 @@ class CreateUserUiTest {
         every { readerMock.readString() } returns "" andThen "password123"
         coEvery { createUserUseCase(any(), any()) } throws BlankInputException()
 
-        CreateUserUi(createUserUseCase, readerMock, viewerMock, onBackMock)
+        UserCreationUI(createUserUseCase, readerMock, viewerMock, onBackMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -59,7 +59,7 @@ class CreateUserUiTest {
         every { readerMock.readString() } returns "newUser" andThen ""
         coEvery { createUserUseCase(any(), any()) } throws BlankInputException()
 
-        CreateUserUi(createUserUseCase, readerMock, viewerMock, onBackMock)
+        UserCreationUI(createUserUseCase, readerMock, viewerMock, onBackMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -70,7 +70,7 @@ class CreateUserUiTest {
         every { readerMock.readString() } returns "invalid#user" andThen "password123"
         coEvery { createUserUseCase(any(), any()) } throws InvalidUsernameException()
 
-        CreateUserUi(createUserUseCase, readerMock, viewerMock, onBackMock)
+        UserCreationUI(createUserUseCase, readerMock, viewerMock, onBackMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -81,7 +81,7 @@ class CreateUserUiTest {
         every { readerMock.readString() } returns "existingUser" andThen "password123"
         coEvery { createUserUseCase(any(), any()) } throws UserAlreadyExistsException()
 
-        CreateUserUi(createUserUseCase, readerMock, viewerMock, onBackMock)
+        UserCreationUI(createUserUseCase, readerMock, viewerMock, onBackMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
@@ -93,7 +93,7 @@ class CreateUserUiTest {
         every { readerMock.readString() } returns "newUser" andThen "password123"
         coEvery { createUserUseCase(any(), any()) } throws Exception(exceptionMessage)
 
-        CreateUserUi(createUserUseCase, readerMock, viewerMock, onBackMock)
+        UserCreationUI(createUserUseCase, readerMock, viewerMock, onBackMock)
 
         verify { viewerMock.display(any()) }
         verify { onBackMock.invoke() }
