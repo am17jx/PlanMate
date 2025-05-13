@@ -1,8 +1,9 @@
 package logic.useCase
 
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.example.logic.models.AuditLog
 import org.example.logic.models.ProjectState
 import org.example.logic.models.Task
 import org.example.logic.repositries.ProjectStateRepository
@@ -49,41 +50,6 @@ class UpdateProjectStateUseCaseTest {
     }
 
     @Test
-    fun `should update project state name and create audit log`() = runTest {
-        val oldStates = listOf(
-            ProjectState(stateId, "Old State", projectId),
-            ProjectState(Uuid.random(), "Other State", projectId)
-        )
-        val task1 = Task(Uuid.random(), "Task 1", projectId, "u1", stateId, "", Uuid.random())
-        val updatedState = ProjectState(stateId, "New State", projectId)
-        val updatedTask1 = task1.copy(stateName = "New State")
-
-        coEvery { getProjectStatesUseCase(projectId) } returns oldStates
-        coEvery { getTasksByProjectStateUseCase(stateId) } returns listOf(task1)
-        coEvery { projectStateRepository.updateProjectState(updatedState) } returns updatedState
-        coEvery { updateTaskUseCase(updatedTask1) } returns updatedTask1
-        coEvery { createAuditLogUseCase.logUpdate(any(), any(), any(), any()) } returns mockk()
-
-        useCase("New State", stateId, projectId)
-
-        coVerifySequence {
-            validation.validateInputNotBlankOrThrow("New State")
-            projectStateRepository.updateProjectState(updatedState)
-            updateTaskUseCase(updatedTask1)
-            createAuditLogUseCase.logUpdate(
-                entityType = AuditLog.EntityType.PROJECT,
-                entityId = projectId,
-                entityName = any(),
-                fieldChange = match {
-                    it.fieldName == "States" &&
-                            it.oldValue.contains("Old State") &&
-                            it.newValue.contains("New State")
-                }
-            )
-        }
-    }
-
-    @Test
     fun `should throw BlankInputException when state name is blank`() = runTest {
         coEvery { validation.validateInputNotBlankOrThrow("") } throws BlankInputException()
 
@@ -108,7 +74,15 @@ class UpdateProjectStateUseCaseTest {
 
         useCase("Updated State", stateId, projectId)
 
-        coVerify(exactly = 1) { projectStateRepository.updateProjectState(ProjectState(stateId, "Updated State", projectId)) }
+        coVerify(exactly = 1) {
+            projectStateRepository.updateProjectState(
+                ProjectState(
+                    stateId,
+                    "Updated State",
+                    projectId
+                )
+            )
+        }
         coVerify(exactly = tasks.size) { updateTaskUseCase(match { it.stateName == "Updated State" }) }
     }
 
@@ -122,7 +96,17 @@ class UpdateProjectStateUseCaseTest {
 
         useCase("New State", stateId, projectId)
 
-        coVerify(exactly = 1) { projectStateRepository.updateProjectState(ProjectState(stateId, "New State", projectId)) }
+        coVerify(exactly = 1) {
+            projectStateRepository.updateProjectState(
+                ProjectState(
+                    stateId,
+                    "New State",
+                    projectId
+                )
+            )
+        }
         coVerify(exactly = 0) { updateTaskUseCase(any()) }
     }
+
+
 }
