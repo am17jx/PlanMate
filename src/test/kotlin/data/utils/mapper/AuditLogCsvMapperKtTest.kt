@@ -6,29 +6,34 @@ import mockdata.createAuditLog
 import org.example.data.source.local.csv.utils.mapper.toAuditLogs
 import org.example.data.source.local.csv.utils.mapper.toCsvRow
 import org.example.data.source.local.csv.utils.mapper.toCsvRows
-import org.example.logic.models.AuditLogActionType
-import org.example.logic.models.AuditLogEntityType
+import org.example.logic.models.AuditLog.ActionType
+import org.example.logic.models.AuditLog.EntityType
 import org.example.logic.utils.toInstant
+import org.example.logic.utils.toUuid
 import java.util.*
 import kotlin.test.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class AuditLogCsvMapperKtTest {
+    private val id1 = Uuid.random()
+
     @Test
     fun `toCsvRow should return a CSV row when an audit log given`() {
-        val audiLogID = UUID.randomUUID().toString()
+        val audiLogID = Uuid.random()
         val currentTime = Clock.System.now()
         val auditLog =
             createAuditLog(
                 id = audiLogID,
-                userId = "1",
-                action = "user abc changed task XYZ-001 from InProgress to InDevReview",
+                userId = id1,
                 createdAt = currentTime,
-                entityType = AuditLogEntityType.TASK,
-                entityId = "2",
-                actionType = AuditLogActionType.UPDATE,
+                entityType = EntityType.TASK,
+                entityId = id1,
+                actionType = ActionType.UPDATE,
             )
         val expected =
-            "$audiLogID,1,user abc changed task XYZ-001 from InProgress to InDevReview,${currentTime.toEpochMilliseconds()},TASK,2,UPDATE"
+            "${audiLogID.toHexString()},$id1,,${currentTime.toEpochMilliseconds()},TASK,$id1,,UPDATE,,,"
 
         val result = auditLog.toCsvRow()
 
@@ -37,34 +42,32 @@ class AuditLogCsvMapperKtTest {
 
     @Test
     fun `toCsvRows should return a CSV rows when a list of audit log given`() {
-        val audiLogID = UUID.randomUUID().toString()
-        val audiLogID2 = UUID.randomUUID().toString()
+        val audiLogID = Uuid.random()
+        val audiLogID2 = Uuid.random()
         val currentTime = Clock.System.now()
         val auditLogs =
             listOf(
                 createAuditLog(
                     id = audiLogID,
-                    userId = "1",
-                    action = "user abc changed task XYZ-001 from InProgress to InDevReview",
+                    userId = id1,
                     createdAt = currentTime,
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "2",
-                    actionType = AuditLogActionType.UPDATE,
+                    entityType = EntityType.TASK,
+                    entityId = id1,
+                    actionType = ActionType.UPDATE,
                 ),
                 createAuditLog(
                     id = audiLogID2,
-                    userId = "2",
-                    action = "user mno changed task XYZ-001 from InDevReview to InProgress",
+                    userId = id1,
                     createdAt = currentTime,
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "2",
-                    actionType = AuditLogActionType.UPDATE,
+                    entityType = EntityType.TASK,
+                    entityId = id1,
+                    actionType = ActionType.UPDATE,
                 ),
             )
         val expected =
             listOf(
-                "$audiLogID,1,user abc changed task XYZ-001 from InProgress to InDevReview,${currentTime.toEpochMilliseconds()},TASK,2,UPDATE",
-                "$audiLogID2,2,user mno changed task XYZ-001 from InDevReview to InProgress,${currentTime.toEpochMilliseconds()},TASK,2,UPDATE",
+                "${audiLogID.toHexString()},$id1,,${currentTime.toEpochMilliseconds()},TASK,$id1,,UPDATE,,,",
+                "${audiLogID2.toHexString()},$id1,,${currentTime.toEpochMilliseconds()},TASK,$id1,,UPDATE,,,",
             )
         val result = auditLogs.toCsvRows()
 
@@ -73,30 +76,32 @@ class AuditLogCsvMapperKtTest {
 
     @Test
     fun `toAuditLogs should return list of audit log when list of CSV rows are given`() {
+        val audiLogID = Uuid.random()
+        val audiLogID2 = Uuid.random()
+        val currentTime = Clock.System.now()
+        val testId = "e009d0e87044482ba5ad6a60cd877a5e"
         val lisOfCsvRows =
             listOf(
-                "asd2-qwe2-asdw-wer1,1,user abc changed task XYZ-001 from InProgress to InDevReview,123456789,TASK,2,UPDATE",
-                "hsd2-qw42-asdw-ukrr,2,user mno changed task XYZ-001 from InDevReview to InProgress,123456789,TASK,2,UPDATE",
+                "${audiLogID.toHexString()},$testId,,${currentTime.toEpochMilliseconds()},TASK,$testId,,UPDATE,,,",
+                "${audiLogID2.toHexString()},$testId,,${currentTime.toEpochMilliseconds()},TASK,$testId,,UPDATE,,,",
             )
         val expected =
             listOf(
                 createAuditLog(
-                    id = "asd2-qwe2-asdw-wer1",
-                    userId = "1",
-                    action = "user abc changed task XYZ-001 from InProgress to InDevReview",
-                    createdAt = 123456789L.toInstant(),
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "2",
-                    actionType = AuditLogActionType.UPDATE,
+                    id = audiLogID,
+                    userId = testId.toUuid(),
+                    createdAt = currentTime.toEpochMilliseconds().toInstant(),
+                    entityType = EntityType.TASK,
+                    entityId = testId.toUuid(),
+                    actionType = ActionType.UPDATE,
                 ),
                 createAuditLog(
-                    id = "hsd2-qw42-asdw-ukrr",
-                    userId = "2",
-                    action = "user mno changed task XYZ-001 from InDevReview to InProgress",
-                    createdAt = 123456789L.toInstant(),
-                    entityType = AuditLogEntityType.TASK,
-                    entityId = "2",
-                    actionType = AuditLogActionType.UPDATE,
+                    id = audiLogID2,
+                    userId = testId.toUuid(),
+                    createdAt = currentTime.toEpochMilliseconds().toInstant(),
+                    entityType = EntityType.TASK,
+                    entityId = testId.toUuid(),
+                    actionType = ActionType.UPDATE,
                 ),
             )
         val result = lisOfCsvRows.toAuditLogs()
