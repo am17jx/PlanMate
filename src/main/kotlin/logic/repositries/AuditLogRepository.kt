@@ -1,11 +1,19 @@
 package org.example.logic.repositries
 
 import org.example.logic.models.AuditLog
-import org.example.logic.models.AuditLogEntityType
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 interface AuditLogRepository {
-    fun createAuditLog(log: AuditLog): AuditLog
-    fun deleteAuditLog(logId: String)
-    fun getEntityLogs(entityId: String, entityType: AuditLogEntityType): List<AuditLog>
-    fun getEntityLogByLogId(auditLogId:String): AuditLog?
+    suspend fun createAuditLog(log: AuditLog): AuditLog
+
+    suspend fun deleteAuditLog(logId: Uuid)
+
+    suspend fun getEntityLogs(
+        entityId: Uuid,
+        entityType: AuditLog.EntityType,
+    ): List<AuditLog>
+
+    suspend fun getEntityLogByLogId(auditLogId: Uuid): AuditLog?
 }

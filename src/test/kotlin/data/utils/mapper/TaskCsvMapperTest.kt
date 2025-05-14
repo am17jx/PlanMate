@@ -1,15 +1,22 @@
 package data.utils.mapper
 
 import com.google.common.truth.Truth.assertThat
-import org.example.data.utils.mapper.CsvLine
-import org.example.data.utils.mapper.toCsvLines
-import org.example.data.utils.mapper.toTasks
+import org.example.data.source.local.csv.utils.mapper.CsvLine
+import org.example.data.source.local.csv.utils.mapper.toCsvLines
+import org.example.data.source.local.csv.utils.mapper.toTasks
 import org.example.logic.models.Task
+import org.example.logic.utils.toUuid
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class TaskCsvMapperTest {
+
+    val testId = Uuid.random()
+
     @Nested
     inner class ToTasksTests {
         @Test
@@ -33,9 +40,9 @@ class TaskCsvMapperTest {
         @Test
         fun `should correctly parse CSV lines when they are valid and available`() {
             val csvLines = listOf(
-                "id,name,stateId,addedBy,auditLogsIds,projectId",
-                "task-1,First Task,active,user-1,audit-1|audit-2,project-1",
-                "task-2,Second Task,pending,user-2,,project-2"
+                "id,name,stateId,stateName,addedById,addedByName,projectId",
+                "${testId.toHexString()},First Task,${testId.toHexString()},stateName,${testId.toHexString()},user-1,${testId.toHexString()}",
+                "${testId.toHexString()},Second Task,${testId.toHexString()},stateName,${testId.toHexString()},user-2,${testId.toHexString()}"
             )
 
             val tasks = csvLines.toTasks()
@@ -43,21 +50,23 @@ class TaskCsvMapperTest {
             assertThat(tasks).hasSize(2)
 
             val expectedTask1 = Task(
-                id = "task-1",
+                id = testId,
                 name = "First Task",
-                stateId = "active",
-                addedBy = "user-1",
-                auditLogsIds = listOf("audit-1", "audit-2"),
-                projectId = "project-1"
+                stateId = testId,
+                stateName = "stateName",
+                addedById = testId,
+                addedByName = "user-1",
+                projectId = testId
             )
 
             val expectedTask2 = Task(
-                id = "task-2",
+                id = testId,
                 name = "Second Task",
-                stateId = "pending",
-                addedBy = "user-2",
-                auditLogsIds = listOf(),
-                projectId = "project-2"
+                stateId = testId,
+                stateName = "stateName",
+                addedById = testId,
+                addedByName = "user-2",
+                projectId = testId
             )
             assertThat(expectedTask1).isEqualTo(tasks[0])
             assertThat(expectedTask2).isEqualTo(tasks[1])
@@ -83,52 +92,55 @@ class TaskCsvMapperTest {
             val csvLines = tasks.toCsvLines()
 
             assertThat(csvLines).hasSize(1)
-            assertThat(csvLines[0]).isEqualTo("id,name,stateId,addedBy,auditLogsIds,projectId")
+            assertThat(csvLines[0]).isEqualTo("id,name,stateId, stateName, addedById, addedByName, projectId")
         }
 
         @Test
         fun `should convert tasks to CSV lines when they are correct and available`() {
             val tasks = listOf(
                 Task(
-                    id = "task-1",
+                    id = testId,
                     name = "First Task",
-                    stateId = "active",
-                    addedBy = "user-1",
-                    auditLogsIds = listOf("audit-1", "audit-2"),
-                    projectId = "project-1"
+                    stateId = testId,
+                    stateName = "stateName",
+                    addedById = testId,
+                    addedByName = "user-1",
+                    projectId = testId
                 ), Task(
-                    id = "task-2",
+                    id = testId,
                     name = "Second Task",
-                    stateId = "pending",
-                    addedBy = "user-2",
-                    auditLogsIds = emptyList(),
-                    projectId = "project-2"
+                    stateId = testId,
+                    stateName = "stateName",
+                    addedById = testId,
+                    addedByName = "user-2",
+                    projectId = testId
                 )
             )
 
             val csvLines = tasks.toCsvLines()
 
             assertThat(csvLines).hasSize(3)
-            assertThat(csvLines[0]).isEqualTo("id,name,stateId,addedBy,auditLogsIds,projectId")
-            assertThat(csvLines[1]).isEqualTo("task-1,First Task,active,user-1,audit-1|audit-2,project-1")
-            assertThat(csvLines[2]).isEqualTo("task-2,Second Task,pending,user-2,,project-2")
+            assertThat(csvLines[0]).isEqualTo("id,name,stateId, stateName, addedById, addedByName, projectId")
+            assertThat(csvLines[1]).isEqualTo("$testId,First Task,$testId,stateName,${testId.toHexString()},user-1,$testId")
+            assertThat(csvLines[2]).isEqualTo("$testId,Second Task,$testId,stateName,${testId.toHexString()},user-2,$testId")
         }
 
         @Test
         fun `should throw IllegalArgumentException when task name contains comma`() {
             val tasks = listOf(
                 Task(
-                    id = "task-1",
-                    name = "Task, with comma",
-                    stateId = "active",
-                    addedBy = "user-1",
-                    auditLogsIds = listOf("audit-1"),
-                    projectId = "project-1"
+                    id = Uuid.random(),
+                    name = "First, Task",
+                    stateId = Uuid.random(),
+                    stateName = "stateName",
+                    addedById = Uuid.random(),
+                    addedByName = "user-1",
+                    projectId = Uuid.random()
                 )
             )
 
             assertThrows<IllegalArgumentException> {
-                val csvLines = tasks.toCsvLines()
+                tasks.toCsvLines()
             }
         }
     }

@@ -1,20 +1,18 @@
 package org.example.logic.useCase
 
-import org.example.logic.models.Project
-import org.example.logic.models.State
 import org.example.logic.models.Task
-import org.example.logic.utils.StateNotFoundException
+import org.example.logic.repositries.ProjectStateRepository
+import org.example.logic.utils.TaskStateNotFoundException
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class GetStateNameUseCase(
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
-    private val getProjectByIdUseCase: GetProjectByIdUseCase
+    private val projectStateRepository: ProjectStateRepository,
 ) {
-    operator fun invoke(taskId: String): String {
+    suspend operator fun invoke(taskId: Uuid): String {
         val task: Task = getTaskByIdUseCase(taskId)
-        val project: Project = getProjectByIdUseCase(task.projectId)
-        return getState(project,task.stateId).title
+        return projectStateRepository.getProjectStateById(task.stateId)?.title ?: throw TaskStateNotFoundException()
     }
-    private fun getState(project: Project, stateId: String): State =
-        project.states.find { it.id == stateId }
-            ?: throw StateNotFoundException("State not found")
 }

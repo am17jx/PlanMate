@@ -1,103 +1,88 @@
 package data.repository
 
 import com.google.common.truth.Truth.assertThat
-import data.source.local.contract.LocalAuthenticationDataSource
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.example.data.repository.AuthenticationRepositoryImpl
+import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class AuthenticationRepositoryImplTest {
-    private lateinit var localAuthenticationDataSource: LocalAuthenticationDataSource
+    private lateinit var remoteAuthenticationDataSource: RemoteAuthenticationDataSource
     private lateinit var authenticationRepository: AuthenticationRepositoryImpl
+    private val id1 = Uuid.random()
+    private val id2 = Uuid.random()
 
-    private val users = listOf(
-        User("testId", "testUsername", "testPassword", UserRole.USER),
-        User("testId2", "testUsername2", "testPassword2", UserRole.USER)
-    )
+    private val users =
+        listOf(
+            User(id1, "testUsername", UserRole.USER, User.AuthenticationMethod.Password("testPassword")),
+            User(id2, "testUsername2", UserRole.USER, User.AuthenticationMethod.Password("testPassword2")),
+        )
     private val testUsername = "testUsername"
     private val testPassword = "testPassword"
 
     @BeforeEach
     fun setUp() {
-        localAuthenticationDataSource = mockk(relaxed = true)
-        authenticationRepository = AuthenticationRepositoryImpl(localAuthenticationDataSource)
+        remoteAuthenticationDataSource = mockk(relaxed = true)
+        authenticationRepository = AuthenticationRepositoryImpl(remoteAuthenticationDataSource)
     }
 
     @Test
-    fun `getCurrentUser should return logged in user when user is logged in`() {
-        every { authenticationRepository.getAllUsers() } returns users
-        authenticationRepository.login(testUsername, testPassword)
+    fun `getCurrentUser should return logged in user when user is logged in`() =
+        runTest {
+            coEvery { remoteAuthenticationDataSource.getCurrentUser() } returns users.first()
 
-        val result = authenticationRepository.getCurrentUser()
+            val result = authenticationRepository.getCurrentUser()
 
-        assertThat(result).isEqualTo(users.first())
-    }
-
-    @Test
-    fun `getCurrentUser should return null when user is not logged in`() {
-        every { authenticationRepository.getAllUsers() } returns users
-
-        val result = authenticationRepository.getCurrentUser()
-
-        assertThat(result).isNull()
-    }
-
-    @Test
-    fun `login should set and return the current user when user is logged in`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
-
-        val loggedInUser = authenticationRepository.login(testUsername, testPassword)
-        val currentUser = authenticationRepository.getCurrentUser()
-
-        assertThat(loggedInUser).isEqualTo(currentUser)
-        assertThat(loggedInUser.username).isEqualTo(testUsername)
-        assertThat(loggedInUser.password).isEqualTo(testPassword)
-        assertThat(loggedInUser.role).isEqualTo(UserRole.USER)
-    }
-
-
-    @Test
-    fun `createMate should save and return the created user when create new mate`() {
-
-        every { localAuthenticationDataSource.saveUser(any()) } returns Unit
-
-        val createdUser = authenticationRepository.createMate(testUsername, testPassword)
-
-        verify { localAuthenticationDataSource.saveUser(any()) }
-        assertThat(createdUser.username).isEqualTo(testUsername)
-        assertThat(createdUser.password).isEqualTo(testPassword)
-        assertThat(createdUser.role).isEqualTo(UserRole.USER)
-    }
-
-    @Test
-    fun `getAllUsers should call getAllUsers function from localAuthenticationDataSource when get all users`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
-
-        val result = authenticationRepository.getAllUsers()
-
-        assertThat(result).isEqualTo(users)
-    }
-
-    @Test
-    fun `getUserId should throw exception when user is not found`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
-
-        assertThrows<NoSuchElementException> {
-            authenticationRepository.login("wrongUser", "wrongPassword")
+            assertThat(result).isEqualTo(users.first())
         }
-    }
 
     @Test
-    fun `getUserRole should throw exception when user is not found`() {
-        every { localAuthenticationDataSource.getAllUsers() } returns users
+    fun `login should set and return the current user when user is logged in`() =
+        runTest {
+            coEvery { remoteAuthenticationDataSource.loginWithPassword(any(), any()) } returns users.first()
 
-        assertThrows<NoSuchElementException> {
-            authenticationRepository.login("nonExistentUser", "wrongPassword")
+            val loggedInUser = authenticationRepository.loginWithPassword(testUsername, testPassword)
+
+            assertThat(loggedInUser.username).isEqualTo(testUsername)
+            assertThat(loggedInUser.role).isEqualTo(UserRole.USER)
         }
-    }
+
+    @Test
+    fun `createMate should save and return the created user when create new mate`() =
+        runTest {
+            coEvery { remoteAuthenticationDataSource.saveUser(any()) } returns Unit
+
+            val createdUser = authenticationRepository.createUserWithPassword(testUsername, testPassword)
+
+            coVerify { remoteAuthenticationDataSource.saveUser(any()) }
+            assertThat(createdUser.username).isEqualTo(testUsername)
+            assertThat(createdUser.role).isEqualTo(UserRole.USER)
+        }
+
+    @Test
+    fun `getAllUsers should call getAllUsers function from remoteAuthenticationDataSource when get all users`() =
+        runTest {
+            coEvery { remoteAuthenticationDataSource.getAllUsers() } returns users
+
+            val result = authenticationRepository.getAllUsers()
+
+            assertThat(result).isEqualTo(users)
+        }
+
+    @Test
+    fun `logout should call logout function from remoteAuthenticationDataSource when logout`() =
+        runTest {
+            authenticationRepository.logout()
+
+            coVerify { remoteAuthenticationDataSource.logout() }
+        }
 }

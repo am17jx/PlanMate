@@ -2,31 +2,20 @@ package org.example.logic.useCase
 
 import org.example.logic.models.Task
 import org.example.logic.repositries.TaskRepository
-import org.example.logic.utils.BlankInputException
-import org.example.logic.utils.TaskNotFoundException
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class GetProjectTasksUseCase(
     private val taskRepository: TaskRepository,
 ) {
-    operator fun invoke(projectId: String): List<Task> {
-        checkInputValidation(projectId)
-        return taskRepository
+    suspend operator fun invoke(projectId: Uuid): List<Task> =
+        taskRepository
             .getAllTasks()
             .filter { isTaskForProject(it, projectId) }
-    }
 
     private fun isTaskForProject(
         task: Task,
-        projectId: String,
+        projectId: Uuid,
     ) = task.projectId == projectId
-
-    private fun checkInputValidation(id: String) {
-        when {
-            id.isBlank() -> throw BlankInputException(PROJECT_ID_BLANK_ERROR_MESSAGE)
-        }
-    }
-
-    companion object {
-        const val PROJECT_ID_BLANK_ERROR_MESSAGE = "Project id cannot be blank"
-    }
 }

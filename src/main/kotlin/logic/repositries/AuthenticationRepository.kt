@@ -3,17 +3,19 @@ package org.example.logic.repositries
 import org.example.logic.models.User
 
 interface AuthenticationRepository {
-    fun getCurrentUser(): User?
+    suspend fun getCurrentUser(): User?
 
-    fun createMate(
+    suspend fun createUserWithPassword(
         username: String,
-        hashedPassword: String,
+        password: String,
     ): User
 
-    fun login(
+    suspend fun loginWithPassword(
         username: String,
-        hashedPassword: String,
+        password: String,
     ): User
 
-    fun getAllUsers(): List<User>
+    suspend fun logout()
+
+    suspend fun getAllUsers(): List<User>
 }

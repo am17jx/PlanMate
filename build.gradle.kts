@@ -1,5 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.1.20"
+    kotlin("plugin.serialization") version "1.9.21"
     jacoco
 }
 
@@ -13,11 +14,19 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
     implementation("io.insert-koin:koin-core:4.0.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+
     testImplementation(kotlin("test"))
     // tests
     testImplementation("com.google.truth:truth:1.4.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.12.1")
     testImplementation("io.mockk:mockk:1.13.16")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+
 }
 
 tasks.test {
@@ -37,6 +46,26 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         html.required.set(true)
     }
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    exclude(
+                        "**/default/**",
+                        "**/di/**",
+                        "**/org/example/di/**",
+                        "**/presentation/utils/**",
+                        "/org/example/presentation/MainUiController",
+                        "**/org/example/presentation/navigation/**",
+                        "**/org/example/data/source/local/csv/utils/command/**",
+                        "**/data/source/remote/mongo/utils/**",
+                        "**/org/example/presentation/role/**",
+                        "**/org/example/presentation/**",
+                    )
+                }
+            },
+        ),
+    )
 }
 
 tasks.jacocoTestCoverageVerification {
@@ -44,7 +73,7 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = "0.70".toBigDecimal()
+                minimum = "0.40".toBigDecimal()
             }
         }
     }

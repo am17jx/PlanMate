@@ -1,55 +1,47 @@
 package org.example.data.repository
 
-import data.source.local.contract.LocalAuthenticationDataSource
+import org.example.data.repository.mapper.mapExceptionsToDomainException
+import org.example.data.repository.sources.remote.RemoteAuthenticationDataSource
+import org.example.data.repository.utils.hashWithMD5
 import org.example.logic.models.User
 import org.example.logic.models.UserRole
 import org.example.logic.repositries.AuthenticationRepository
-import org.example.logic.utils.getCroppedId
+import org.example.logic.utils.UserCreationFailedException
+import org.example.logic.utils.UserNotFoundException
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class AuthenticationRepositoryImpl(
-    private val localAuthenticationDataSource: LocalAuthenticationDataSource
-): AuthenticationRepository {
-
-    private var currentUser: User? = null
-
-
-    override fun getCurrentUser(): User? = currentUser
+    private val remoteAuthenticationDataSource: RemoteAuthenticationDataSource,
+) : AuthenticationRepository {
+    override suspend fun getCurrentUser(): User? = remoteAuthenticationDataSource.getCurrentUser()
 
     @OptIn(ExperimentalUuidApi::class)
-    override fun createMate(username: String, hashedPassword: String): User {
-        val user = User(Uuid.random().getCroppedId(),username,hashedPassword, UserRole.USER)
-        localAuthenticationDataSource.saveUser(user)
-        return user
-    }
-
-    override fun login(username: String, hashedPassword: String): User {
-        val userId = getUserId(username, hashedPassword)
-        val userRole = getUserRole(username, hashedPassword)
-        currentUser = User(userId, username, hashedPassword, userRole)
-        return currentUser!!
-    }
-
-    override fun getAllUsers(): List<User> {
-        return localAuthenticationDataSource.getAllUsers()
-    }
-
-
-    private fun getUserId(username: String, hashedPassword: String): String {
-        try {
-            return getAllUsers().first { it.username == username && it.password == hashedPassword }.id
-        } catch(e: NoSuchElementException) {
-            throw NoSuchElementException("User not found")
+    override suspend fun createUserWithPassword(
+        username: String,
+        password: String,
+    ): User =
+        mapExceptionsToDomainException(UserCreationFailedException()) {
+            val hashedPassword = hashWithMD5(password)
+            val user = User(username = username, authMethod = User.AuthenticationMethod.Password(hashedPassword), role = UserRole.USER)
+            remoteAuthenticationDataSource.saveUser(user)
+            user
         }
 
+    override suspend fun loginWithPassword(
+        username: String,
+        password: String,
+    ): User =
+        mapExceptionsToDomainException(UserNotFoundException()) {
+            val hashedPassword = hashWithMD5(password)
+            remoteAuthenticationDataSource.loginWithPassword(username, hashedPassword)
+        }
+
+    override suspend fun logout() {
+        remoteAuthenticationDataSource.logout()
     }
 
-    private fun getUserRole(username: String, hashedPassword: String): UserRole {
-        try {
-            return getAllUsers().first { it.username == username && it.password == hashedPassword }.role
-        } catch(e: NoSuchElementException) {
-            throw NoSuchElementException("User not found")
+    override suspend fun getAllUsers(): List<User> =
+        mapExceptionsToDomainException(UserNotFoundException()) {
+            remoteAuthenticationDataSource.getAllUsers()
         }
-    }
 }

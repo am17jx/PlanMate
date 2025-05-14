@@ -1,5 +1,6 @@
 package org.example.presentation.screens
 
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -11,7 +12,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import presentation.utils.io.Reader
 import presentation.utils.io.Viewer
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class LoginUITest {
     private lateinit var loginUserUseCase: LoginUserUseCase
     private lateinit var readerMock: Reader
@@ -22,7 +26,7 @@ class LoginUITest {
     @BeforeEach
     fun setUp() {
         loginUserUseCase = mockk(relaxed = true)
-        readerMock = mockk(relaxed = true)
+        readerMock = mockk()
         viewerMock = mockk(relaxed = true)
         onNavigateToAdminHomeMock = mockk(relaxed = true)
         onNavigateToShowAllProjectsMock = mockk(relaxed = true)
@@ -30,13 +34,19 @@ class LoginUITest {
 
     @Test
     fun `should navigate to Admin Home when login is successful and role is ADMIN`() {
-        val username = "adminUser"
-        val password = "adminPassword"
+        val username = "admin"
+        val password = "admin"
 
-        val user = User(id = "1", username = username, password = password, role = UserRole.ADMIN)
+        val user =
+            User(
+                id = Uuid.random(),
+                username = username,
+                role = UserRole.ADMIN,
+                authMethod = User.AuthenticationMethod.Password(password),
+            )
 
         every { readerMock.readString() } returns username andThen password
-        every { loginUserUseCase(username, password) } returns user
+        coEvery { loginUserUseCase(username, password) } returns user
 
         LoginUI(
             onNavigateToAdminHomeMock,
@@ -47,7 +57,7 @@ class LoginUITest {
         )
 
         verify { onNavigateToAdminHomeMock() }
-        verify { viewerMock.display(any()) }
+        verify(exactly = 5) { viewerMock.display(any()) }
     }
 
     @Test
@@ -56,10 +66,11 @@ class LoginUITest {
         val password = "userPassword"
 
         // Create a mock User object directly with the role set to USER
-        val user = User(id = "2", username = username, password = password, role = UserRole.USER)
+        val user =
+            User(id = Uuid.random(), username = username, role = UserRole.USER, authMethod = User.AuthenticationMethod.Password(password))
 
         every { readerMock.readString() } returns username andThen password
-        every { loginUserUseCase(username, password) } returns user
+        coEvery { loginUserUseCase(username, password) } returns user
 
         LoginUI(
             onNavigateToAdminHomeMock,
@@ -70,14 +81,14 @@ class LoginUITest {
         )
 
         verify { onNavigateToShowAllProjectsMock(UserRole.USER) }
-        verify { viewerMock.display(any()) }
+        verify(exactly = 5) { viewerMock.display(any()) }
     }
 
     @Test
     fun `should display error message when username or password is blank`() {
-        val exceptionMessage = "Username or password cannot be blank"
-        every { readerMock.readString() } returns "" andThen "password123" andThen "sdadsa" andThen "adasdsddas"
-        every { loginUserUseCase("", "password123") } throws BlankInputException(exceptionMessage)
+        val exceptionMessage = "Input cannot be blank"
+        every { readerMock.readString() } returns "" andThen "password123"
+        coEvery { loginUserUseCase("", "password123") } throws BlankInputException()
 
         LoginUI(
             onNavigateToAdminHomeMock,
@@ -87,6 +98,6 @@ class LoginUITest {
             viewerMock,
         )
 
-        verify { viewerMock.display("Error: $exceptionMessage") }
+        verify(exactly = 1) { viewerMock.display("Error: $exceptionMessage") }
     }
 }

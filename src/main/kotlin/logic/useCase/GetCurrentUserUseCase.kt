@@ -9,8 +9,8 @@ import org.example.logic.utils.UserNotFoundException
 class GetCurrentUserUseCase(
     private val authenticationRepository: AuthenticationRepository
 ) {
-    operator fun invoke(): User {
+    suspend operator fun invoke(): User {
         return authenticationRepository.getCurrentUser()
-            ?: throw NoLoggedInUserException("No user is currently logged in.")
+            ?: throw NoLoggedInUserException()
     }
 }
